@@ -1,13 +1,26 @@
-import { useState } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import './App.css'
-import Navbar from './Components/Navbar'
+import Home from './Pages/Home'
+import Register from './Pages/Authentication/Register'
+import Login from './Pages/Authentication/Login'
+import Contact from './Pages/Contact'
+import Footer from './Components/Footer'
 
 function App() {
+  const location = useLocation();
+  const authPages = ['/register', '/login'];
+  const shouldShowFooter = !authPages.includes(location.pathname);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <Navbar />
-      
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/contact" element={<Contact />} />
+      </Routes>
+      {shouldShowFooter && <Footer />}
+    </>
   )
 }
 
