@@ -5,21 +5,33 @@ const JWT_SECRET = process.env.JWT_SECRET || 'heallk_secret_key_2025';
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    console.log('Auth middleware - Full header:', authHeader);
+    
+    const token = authHeader?.split(' ')[1];
+    console.log('Auth middleware - Extracted token:', token ? 'Token present' : 'No token');
 
     if (!token) {
+      console.log('Auth middleware - No token provided');
       return res.status(401).json({ success: false, message: 'Access token required' });
     }
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
+        console.log('Auth middleware - Token verification failed:', err.message);
         const message = err.name === 'TokenExpiredError' 
           ? 'Token has expired. Please login again.'
           : 'Invalid token';
         return res.status(403).json({ success: false, message });
       }
       
-      req.user = user;
+      console.log('Auth middleware - Token verified for user:', user.userId, 'Role:', user.role);
+      
+      // Set both userId and id for backward compatibility
+      req.user = {
+        ...user,
+        id: user.userId
+      };
       next();
     });
   } catch (error) {

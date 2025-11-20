@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Tooltip } from 'react-tooltip';
 
 const Navigation = ({ user, isCollapsed }) => {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Show notification only on first login
-  useEffect(() => {
+   useEffect(() => {
     if (user) {
       const hasShownWelcome = sessionStorage.getItem('heallk_welcome_shown');
       
@@ -17,8 +17,7 @@ const Navigation = ({ user, isCollapsed }) => {
           autoClose: 4000,
         });
         
-        // Mark welcome as shown for this session
-        sessionStorage.setItem('heallk_welcome_shown', 'true');
+         sessionStorage.setItem('heallk_welcome_shown', 'true');
       }
     }
   }, [user]);
@@ -60,19 +59,29 @@ const Navigation = ({ user, isCollapsed }) => {
           className="user-info"
           onClick={() => setShowDropdown(!showDropdown)}
           style={{ cursor: 'pointer' }}
-          title={`Click to view profile options - Dr. ${user?.name || 'Randula'} (${user?.email || 'admin@gmail.com'})`}
+          {...(!isCollapsed && {
+            title: `Click to view profile options - Dr. ${user?.name || 'Randula'} (${user?.email || 'admin@gmail.com'})`
+          })}
         >
-          <div className="user-avatar" title={`User: ${getUserInitials()} - Dr. ${user?.name || 'Randula'} | Email: ${user?.email || 'admin@gmail.com'}`}>
-            <span className="user-avatar-placeholder" title="User Avatar showing initials - Click for more options">
+          <div className="user-avatar" {...(!isCollapsed && {
+            title: `User: ${getUserInitials()} - Dr. ${user?.name || 'Randula'} | Email: ${user?.email || 'admin@gmail.com'}`
+          })}>
+            <span className="user-avatar-placeholder" {...(!isCollapsed && {
+              title: "User Avatar showing initials - Click for more options"
+            })}>
               {getUserInitials()}
             </span>
           </div>
           {!isCollapsed && (
             <div className="user-details">
-              <div className="user-name" title={`Full Name: Dr. ${user?.name || 'Ms. Randula'} - Click to edit profile`}>
+              <div className="user-name" {...(!isCollapsed && {
+                title: `Full Name: Dr. ${user?.name || 'Ms. Randula'} - Click to edit profile`
+              })}>
                 {user?.name || 'Ms. Randula'}
               </div>
-              <div className="user-role" title={`Role: Doctor | Email: ${user?.email || 'admin@gmail.com'} - Professional medical practitioner`}>
+              <div className="user-role" {...(!isCollapsed && {
+                title: `Role: Doctor | Email: ${user?.email || 'admin@gmail.com'} - Professional medical practitioner`
+              })}>
                 Doctor
               </div>
             </div>
@@ -84,64 +93,87 @@ const Navigation = ({ user, isCollapsed }) => {
           <div className="user-dropdown">
             <div 
               className="dropdown-item" 
-              title="Profile Settings - Edit personal information, change password, and manage account settings"
+              {...(!isCollapsed && {
+                'data-tooltip-id': 'profile-settings-tooltip',
+                'data-tooltip-content': 'Profile Settings - Edit personal information, change password, and manage account settings'
+              })}
               onClick={() => {
                 navigate('/doctor-admin/profile');
-                toast.info('Opening Profile Settings', { autoClose: 2000 });
                 setShowDropdown(false);
               }}
             >
-              <span className="dropdown-icon" title="Profile Settings Icon - 👤 | Navigate to profile management page">👤</span>
               {!isCollapsed && <span>Profile Settings</span>}
+              {isCollapsed && <span>Profile</span>}
             </div>
             <div 
               className="dropdown-item" 
-              title="Logout - Sign out safely and securely end your current session. You will be redirected to login page"
+              {...(!isCollapsed && {
+                'data-tooltip-id': 'logout-dropdown-tooltip',
+                'data-tooltip-content': 'Logout - Sign out safely and securely end your current session. You will be redirected to login page'
+              })}
               onClick={() => {
-                toast.success('Logging out...', { autoClose: 1000 });
-                setTimeout(handleLogout, 1000);
+                handleLogout();
                 setShowDropdown(false);
               }}
             >
-              <span className="dropdown-icon" title="Logout Icon - 🚪 | End your session and return to login">🚪</span>
               {!isCollapsed && <span>Logout</span>}
+              {isCollapsed && <span>Exit</span>}
             </div>
           </div>
         )}
       </div>
 
-      {/* Quick Actions - Always Visible */}
+      {/* Quick Actions - Logout Only */}
       <div className="quick-actions">
         <button 
-          className="action-btn" 
-          title="Profile Settings - Manage your account settings and personal information"
-          onClick={() => {
-            navigate('/doctor-admin/profile');
-            toast.info('Opening Profile Settings', { autoClose: 2000 });
-          }}
-        >
-          <span title="Settings Icon - ⚙️">⚙️</span>
-        </button>
-        <button 
-          className="action-btn" 
-          title="Help & Support - Get assistance, documentation and customer support"
-          onClick={() => {
-            toast.info('Help & Support - Coming Soon!', { autoClose: 2000 });
-          }}
-        >
-          <span title="Help Icon - ❓">❓</span>
-        </button>
-        <button 
           className="action-btn logout-btn" 
-          title="Logout - Sign out from your account and end your session securely"
+          {...(!isCollapsed && {
+            'data-tooltip-id': 'logout-btn-tooltip',
+            'data-tooltip-content': 'Logout - Sign out from your account'
+          })}
           onClick={() => {
-            toast.success('Logging out...', { autoClose: 1000 });
-            setTimeout(handleLogout, 1000);
+            handleLogout();
           }}
         >
-          <span title="Logout Icon - 🚪">🚪</span>
+          <span>🚪 {!isCollapsed ? 'Logout' : ''}</span>
         </button>
       </div>
+      
+      {/* Tooltips for Navigation - Only logout tooltip */}
+      {!isCollapsed && (
+        <>
+          <Tooltip 
+            id="profile-settings-tooltip" 
+            place="top" 
+            style={{ 
+              backgroundColor: '#0f172a', 
+              color: '#ffffff',
+              fontSize: '12px',
+              maxWidth: '250px'
+            }}
+          />
+          <Tooltip 
+            id="logout-dropdown-tooltip" 
+            place="top" 
+            style={{ 
+              backgroundColor: '#0f172a', 
+              color: '#ffffff',
+              fontSize: '12px',
+              maxWidth: '250px'
+            }}
+          />
+          <Tooltip 
+            id="logout-btn-tooltip" 
+            place="top" 
+            style={{ 
+              backgroundColor: '#0f172a', 
+              color: '#ffffff',
+              fontSize: '12px',
+              maxWidth: '200px'
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

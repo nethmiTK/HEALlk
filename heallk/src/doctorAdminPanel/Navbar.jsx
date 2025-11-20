@@ -1,49 +1,49 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Navigation from './Navigation';
+import { Tooltip } from 'react-tooltip';
 import './AdminPanel.css';
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave }) => {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
     {
       path: '/doctor-admin',
-      icon: '📊',
       label: 'Overview',
+      icon: '📊',
       exact: true,
-      tooltip: 'Dashboard Overview - View your clinic statistics and recent activities'
+      tooltip: 'Dashboard Overview'
     },
     {
       path: '/doctor-admin/profile',
-      icon: '👤',
       label: 'Profile',
-      tooltip: 'Profile Management - Edit your personal information and account settings'
+      icon: '👤',
+      tooltip: 'Profile Management'
     },
     {
       path: '/doctor-admin/services',
-      icon: '⚕️',
       label: 'Services',
-      tooltip: 'Medical Services - Manage the services you offer to patients'
+      icon: '🏥',
+      tooltip: 'Medical Services'
     },
     {
       path: '/doctor-admin/qualifications',
-      icon: '🎓',
       label: 'Qualifications',
-      tooltip: 'Professional Qualifications - Display your medical degrees and certifications'
+      icon: '🎓',
+      tooltip: 'Professional Qualifications'
     },
     {
       path: '/doctor-admin/clinic-info',
-      icon: '🏥',
       label: 'Clinic Info',
-      tooltip: 'Clinic Information - Update clinic details, hours, and contact information'
+      icon: '🏢',
+      tooltip: 'Clinic Information'
     },
     {
       path: '/doctor-admin/reviews',
-      icon: '⭐',
       label: 'Reviews',
-      tooltip: 'Patient Reviews - View and respond to patient feedback and ratings'
+      icon: '⭐',
+      tooltip: 'Patient Reviews'
     }
   ];
 
@@ -55,7 +55,11 @@ const Navbar = ({ user }) => {
   };
 
   return (
-    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <div 
+      className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* Sidebar Header */}
       <div className="sidebar-header">
         <div className="logo-section">
@@ -65,14 +69,22 @@ const Navbar = ({ user }) => {
               <span className="logo-subtitle">Doctor Panel</span>
             </>
           )}
-          {isCollapsed && <span className="logo-icon">H</span>}
+          {isCollapsed && (
+            <div className="logo-collapsed">
+              <span className="logo-icon">🏥</span>
+              <span className="logo-text-small">HEALlk</span>
+            </div>
+          )}
         </div>
         <button 
           className="collapse-btn"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          title={isCollapsed ? 'Expand sidebar to show full navigation' : 'Collapse sidebar to save space'}
+          data-tooltip-id="sidebar-toggle-tooltip"
+          data-tooltip-content={isCollapsed ? 'Expand sidebar to show full navigation' : 'Collapse sidebar to save space'}
         >
-          {isCollapsed ? '▶️' : '◀️'}
+          <span className="toggle-icon">
+            {isCollapsed ? '⮞' : '⮜'}
+          </span>
         </button>
       </div>
 
@@ -84,14 +96,47 @@ const Navbar = ({ user }) => {
               <Link
                 to={item.path}
                 className={`nav-link ${isActiveItem(item) ? 'active' : ''}`}
+                {...(isCollapsed && {
+                  'data-tooltip-id': `nav-tooltip-${item.label.toLowerCase().replace(' ', '-')}`,
+                  'data-tooltip-content': item.tooltip
+                })}
               >
-                <span className="nav-icon">{item.icon}</span>
                 {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                {isCollapsed && <span className="nav-label-collapsed">{item.icon}</span>}
                 {isActiveItem(item) && <div className="active-indicator"></div>}
               </Link>
             </li>
           ))}
         </ul>
+        
+        {/* Navigation Tooltips - Only show when collapsed */}
+        {isCollapsed && menuItems.map((item) => (
+          <Tooltip 
+            key={`tooltip-${item.label}`}
+            id={`nav-tooltip-${item.label.toLowerCase().replace(' ', '-')}`}
+            place="right" 
+            style={{ 
+              backgroundColor: '#0f172a', 
+              color: '#ffffff',
+              fontSize: '12px',
+              maxWidth: '200px',
+              zIndex: 9999
+            }}
+          />
+        ))}
+        
+        {/* Sidebar Toggle Tooltip */}
+        <Tooltip 
+          id="sidebar-toggle-tooltip" 
+          place="right" 
+          style={{ 
+            backgroundColor: '#0f172a', 
+            color: '#ffffff',
+            fontSize: '12px',
+            maxWidth: '200px',
+            zIndex: 9999
+          }}
+        />
       </nav>
 
       {/* User Navigation Section */}

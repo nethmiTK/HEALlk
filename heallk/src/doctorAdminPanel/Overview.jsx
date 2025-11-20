@@ -45,54 +45,30 @@ const Overview = () => {
   return (
     <div className="overview-container">
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">Dashboard Overview</h1>
-          <p className="page-subtitle">Welcome back! Here's what's happening today.</p>
-        </div>
-        <div className="header-actions">
-          <button className="btn btn-primary" title="View your complete appointment schedule for today and upcoming days">
-            📅 View Schedule
-          </button>
-        </div>
+      <div className="overview-header">
+        <h1>Dashboard Overview</h1>
       </div>
 
       {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card appointments" title="Total number of appointments scheduled across all time periods">
-          <div className="stat-icon">📅</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.totalAppointments}</h3>
-            <p className="stat-label">Total Appointments</p>
-            <span className="stat-change positive">+12% this month</span>
-          </div>
+      <div className="stats-overview">
+        <div className="stat-card">
+          <div className="stat-number">{stats.totalAppointments}</div>
+          <div className="stat-label">Total Appointments</div>
         </div>
 
-        <div className="stat-card today" title="Number of appointments scheduled for today - click to view detailed schedule">
-          <div className="stat-icon">⏰</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.todayAppointments}</h3>
-            <p className="stat-label">Today's Appointments</p>
-            <span className="stat-change">3 remaining</span>
-          </div>
+        <div className="stat-card">
+          <div className="stat-number">{stats.todayAppointments}</div>
+          <div className="stat-label">Today's Appointments</div>
         </div>
 
-        <div className="stat-card patients" title="Total number of unique patients who have visited your clinic">
-          <div className="stat-icon">👥</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.totalPatients}</h3>
-            <p className="stat-label">Total Patients</p>
-            <span className="stat-change positive">+5 this week</span>
-          </div>
+        <div className="stat-card">
+          <div className="stat-number">{stats.totalPatients}</div>
+          <div className="stat-label">Total Patients</div>
         </div>
 
-        <div className="stat-card reviews" title="Your average rating based on patient reviews and feedback">
-          <div className="stat-icon">⭐</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{stats.rating}</h3>
-            <p className="stat-label">Average Rating</p>
-            <span className="stat-change">{stats.reviews} reviews</span>
-          </div>
+        <div className="stat-card">
+          <div className="stat-number">{stats.rating}</div>
+          <div className="stat-label">Average Rating</div>
         </div>
       </div>
 

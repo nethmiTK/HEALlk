@@ -7,6 +7,7 @@ const authRoutes = require('./Routes/AuthRoutes');
 const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
 const qualificationRoutes = require('./Routes/QualificationRoutes');
+const servicesRoutes = require('./Routes/ServicesRoutes');
 const { testConnection, initializeDatabase } = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
  app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  
+  // Log authentication headers for debugging
+  if (req.headers.authorization) {
+    console.log('Auth header present:', req.headers.authorization.substring(0, 20) + '...');
+  } else {
+    console.log('No auth header found');
+  }
+  
   next();
 });
 
@@ -28,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/qualifications', qualificationRoutes);
+app.use('/api/services', servicesRoutes);
 
 
 // Global error handler

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import NavBarTitle from './NavBarTitle';
 import Overview from './Overview';
 import Profile from './Profile';
 import Services from './Services';
@@ -12,7 +13,25 @@ import './AdminPanel.css';
 const DoctorAdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [autoToggleEnabled, setAutoToggleEnabled] = useState(true);
   const navigate = useNavigate();
+
+  // Auto-toggle functionality
+  const handleMouseEnterSidebar = () => {
+    if (isCollapsed) {
+      setIsCollapsed(false);
+    }
+  };
+
+  const handleMouseLeaveSidebar = () => {
+    if (!isCollapsed) {
+      // Add a small delay before auto-collapsing
+      setTimeout(() => {
+        setIsCollapsed(true);
+      }, 800);
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -75,9 +94,29 @@ const DoctorAdminDashboard = () => {
   }
 
   return (
-    <div className="admin-dashboard">
-      <Navbar user={user} />
-      <main className="admin-content">
+    <div 
+      className="admin-dashboard"
+      onMouseMove={(e) => {
+        // Check if mouse is near left edge
+        if (e.clientX < 100 && isCollapsed) {
+          setIsCollapsed(false);
+        } else if (e.clientX > 300 && !isCollapsed) {
+          setTimeout(() => setIsCollapsed(true), 500);
+        }
+      }}
+    >
+      <NavBarTitle 
+        user={user} 
+        isCollapsed={isCollapsed}
+      />
+      <Navbar 
+        user={user} 
+        isCollapsed={isCollapsed} 
+        setIsCollapsed={setIsCollapsed}
+        onMouseEnter={handleMouseEnterSidebar}
+        onMouseLeave={handleMouseLeaveSidebar}
+      />
+      <main className={`admin-main-content ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
         <div className="content-wrapper">
           <Routes>
             <Route path="/" element={<Overview />} />

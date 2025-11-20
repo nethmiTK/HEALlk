@@ -4,6 +4,13 @@ class QualificationController {
   // Get all qualifications for the current user
   static async getQualifications(req, res) {
     try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+      }
+      
       const userId = req.user.id;
       
       const qualifications = await query(
