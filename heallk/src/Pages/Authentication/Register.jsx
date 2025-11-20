@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ApiService from '../../services/api';
 import Navbar from '../../Components/Navbar';
 import './Auth.css';
 import authVideo from '../../assets/auth.mp4';
@@ -93,16 +92,24 @@ const Register = () => {
       setErrors({});
       
       try {
-        const response = await ApiService.register({
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            full_name: formData.full_name,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password
+          })
         });
 
-        if (response.success) {
+        const data = await response.json();
+
+        if (response.ok && data.success) {
           // Save token
-          ApiService.saveToken(response.token);
+          localStorage.setItem('heallk_token', data.token);
           
           // Show success message
           setSuccessMessage('Account created successfully! Redirecting...');
@@ -111,6 +118,8 @@ const Register = () => {
           setTimeout(() => {
             navigate('/');
           }, 2000);
+        } else {
+          throw new Error(data.message || 'Registration failed');
         }
       } catch (error) {
         setErrors({ 

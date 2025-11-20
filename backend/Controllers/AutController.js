@@ -138,7 +138,7 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const [user] = await query(
-      'SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, profile_pic, role, created_at FROM users WHERE user_id = ?',
       [req.user.userId]
     );
     
@@ -156,8 +156,10 @@ const getProfile = async (req, res) => {
 // Update Profile Controller
 const updateProfile = async (req, res) => {
   try {
-    const { full_name, phone } = req.body;
+    const { full_name, phone, profile_pic } = req.body;
     const { userId } = req.user;
+    
+    console.log('Profile update data:', { full_name, phone, profile_pic: profile_pic ? 'Image provided' : 'No image', userId });
 
     if (phone && phone.length < 10) {
       return res.status(400).json({
@@ -166,15 +168,19 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    await query(
-      'UPDATE users SET full_name = COALESCE(?, full_name), phone = COALESCE(?, phone), updated_at = NOW() WHERE user_id = ?',
-      [full_name?.trim() || null, phone || null, userId]
+    const updateResult = await query(
+      'UPDATE users SET full_name = COALESCE(?, full_name), phone = COALESCE(?, phone), profile_pic = COALESCE(?, profile_pic) WHERE user_id = ?',
+      [full_name?.trim() || null, phone || null, profile_pic || null, userId]
     );
+    
+    console.log('Update result:', updateResult);
 
     const [updatedUser] = await query(
-      'SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, profile_pic, role, created_at FROM users WHERE user_id = ?',
       [userId]
     );
+    
+    console.log('Updated user data:', updatedUser);
     
     res.json({
       success: true,

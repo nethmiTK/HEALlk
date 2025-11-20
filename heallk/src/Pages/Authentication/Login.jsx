@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ApiService from '../../services/api';
 import Navbar from '../../Components/Navbar';
 import './Auth.css';
 import authVideo from '../../assets/auth.mp4';
@@ -70,22 +69,32 @@ const Login = () => {
       setErrors({});
       
       try {
-        const response = await ApiService.login({
-          email: formData.email,
-          password: formData.password
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
         });
 
-        if (response.success) {
+        const data = await response.json();
+
+        if (response.ok && data.success) {
           // Save token
-          ApiService.saveToken(response.token);
+          localStorage.setItem('heallk_token', data.token);
           
           // Show success message
           setSuccessMessage('Login successful! Redirecting...');
           
-          // Redirect to home page after 1.5 seconds
+          // Redirect to doctor admin dashboard after successful login
           setTimeout(() => {
-            navigate('/');
+            navigate('/doctor-admin');
           }, 1500);
+        } else {
+          throw new Error(data.message || 'Login failed');
         }
       } catch (error) {
         setErrors({ 
