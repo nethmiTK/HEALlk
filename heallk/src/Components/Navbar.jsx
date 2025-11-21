@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import logoImage from '../assets/logo.png';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const navLinks = [
-    { href: '#home', label: 'Home' },
-    { href: '#about', label: 'About' },
-    { href: '#finddoctor', label: 'Find Doctor' },
-    { href: '#contact', label: 'Contact' },
-   ];
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
+    { href: '/doctors', label: 'Find Doctor' },
+    { href: '/contact', label: 'Contact' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,14 +31,20 @@ const Navbar = () => {
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+           
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className={`h-10 w-32 rounded-lg flex items-center justify-center transition-colors ${
-                scrolled ? 'bg-purple-600 text-white' : 'bg-white text-purple-600'
-              }`}>
-                <span className="font-bold text-lg">RYUGA</span>
-              </div>
+            <div className="shrink-0">
+              <Link to="/" className="flex items-center group">
+                <div className="p-2">
+                  <img 
+                    src={logoImage} 
+                    alt="HEALlk Logo" 
+                    className={`h-10 w-auto transition-all duration-300 group-hover:scale-105 ${
+                      scrolled ? 'brightness-100' : 'brightness-100 drop-shadow-lg'
+                    }`}
+                  />
+                </div>
+              </Link>
             </div>
           </div>
 
@@ -44,33 +52,33 @@ const Navbar = () => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     scrolled
-                      ? 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
-                      : 'text-white hover:text-purple-200 hover:bg-white/10'
+                      ? 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                      : 'text-white hover:text-green-200 hover:bg-white/10'
                   }`}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
 
           {/* REGISTER Button */}
           <div className="hidden md:block">
-            <a
-              href="#register"
+            <Link
+              to="/register"
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 scrolled
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-md'
-                  : 'bg-white text-purple-600 hover:bg-purple-50 border border-white'
+                  ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
+                  : 'bg-white text-green-600 hover:bg-green-50 border border-green-200'
               }`}
             >
               Register
-            </a>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -103,22 +111,22 @@ const Navbar = () => {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200 shadow-lg">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                to={link.href}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#contact"
-              className="block px-3 py-2 mt-4 bg-purple-600 text-white text-center rounded-md font-medium hover:bg-purple-700 transition-colors"
+            <Link
+              to="/contact"
+              className="block px-3 py-2 mt-4 bg-green-600 text-white text-center rounded-md font-medium hover:bg-green-700 transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       )}
