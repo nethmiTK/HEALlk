@@ -1,24 +1,19 @@
-const express = require('express');
+const express = require("express");
+const {
+  getQualifications,
+  addQualification,
+  updateQualification,
+  deleteQualification,
+  toggleVerification
+} = require("../Controllers/QualificationController.js");
+const { protect } = require("../middleware/authMiddleware.js");
+
 const router = express.Router();
-const QualificationController = require('../Controllers/QualificationController');
-const { authenticateToken } = require('../middleware/authMiddleware');
 
-// All routes require authentication
-router.use(authenticateToken);
-
-// GET /api/qualifications - Get all qualifications for current user
-router.get('/', QualificationController.getQualifications);
-
-// POST /api/qualifications - Add new qualification
-router.post('/', QualificationController.addQualification);
-
-// PUT /api/qualifications/:id - Update qualification
-router.put('/:id', QualificationController.updateQualification);
-
-// DELETE /api/qualifications/:id - Delete qualification
-router.delete('/:id', QualificationController.deleteQualification);
-
-// PATCH /api/qualifications/:id/toggle-verification - Toggle verification status
-router.patch('/:id/toggle-verification', QualificationController.toggleVerification);
+router.post("/", protect, addQualification);
+router.get("/", protect, getQualifications);
+router.put("/:id", protect, updateQualification);
+router.delete("/:id", protect, deleteQualification);
+router.patch("/:id/toggle-verification", protect, toggleVerification);
 
 module.exports = router;

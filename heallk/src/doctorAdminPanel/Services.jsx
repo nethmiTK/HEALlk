@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import Pagination from './pagination'; // Import the Pagination component
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -15,6 +16,9 @@ const Services = () => {
     uploadedFiles: [],
     isActive: true
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [servicesPerPage] = useState(10); // State for services per page
 
   const categories = [
     'General Consultation',
@@ -279,18 +283,35 @@ const Services = () => {
     }
   };
 
+  // Get current services for pagination
+  const indexOfLastService = currentPage * servicesPerPage;
+  const indexOfFirstService = indexOfLastService - servicesPerPage;
+  const currentServices = services.slice(indexOfFirstService, indexOfLastService);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="services-container">
       {/* Page Header */}
       <div className="services-header">
         <h1>Services Management</h1>
-        <button 
-          className="add-service-btn"
-          onClick={() => setIsModalOpen(true)}
-          title="Create a new medical service - Add title, description, pricing, and media"
-        >
-          ➕ Add New Service
-        </button>
+        <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Search services..."
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button 
+            className="add-service-btn"
+            onClick={() => setIsModalOpen(true)}
+            title="Create a new medical service - Add title, description, pricing, and media"
+          >
+            ➕ Add New Service
+          </button>
+        </div>
       </div>
 
       {/* Services Overview */}
@@ -310,59 +331,72 @@ const Services = () => {
       </div>
 
       {/* Services List */}
-      <div className="services-grid">
-        {services.map((service) => (
-          <div key={service.id} className="service-card">
-            <div className={`service-status ${service.isActive ? 'status-active' : 'status-inactive'}`}>
-              {service.isActive ? 'Active' : 'Inactive'}
-            </div>
-            
-            <div className="service-header">
-              <div>
-                <h3 className="service-title">{service.title}</h3>
-                <span className="service-category">{service.category}</span>
-              </div>
-            </div>
-
-            <p className="service-description">{service.description}</p>
-            
-            <div className="service-details">
-              <div className="detail-item">
-                <span className="detail-label">Duration</span>
-                <span className="detail-value">{service.duration}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Price</span>
-                <span className="detail-value">LKR {service.price}</span>
-              </div>
-            </div>
-
-            <div className="service-actions">
-              <button 
-                className="action-btn-small edit-btn"
-                onClick={() => handleEdit(service)}
-                title={`Edit ${service.title} - Modify service details, pricing, and availability`}
-              >
-                ✏️ Edit
-              </button>
-              <button 
-                className="action-btn-small toggle-btn"
-                onClick={() => toggleServiceStatus(service.id)}
-                title={service.isActive ? `Deactivate ${service.title} - Hide from patient booking` : `Activate ${service.title} - Make available for patient booking`}
-              >
-                {service.isActive ? '⏸️' : '▶️'}
-              </button>
-              <button 
-                className="action-btn-small delete-btn"
-                onClick={() => handleDelete(service.id)}
-                title={`Delete ${service.title} - Permanently remove this service (cannot be undone)`}
-              >
-                🗑️
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="services-table-container">
+        <table className="services-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Duration</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentServices.filter(service => 
+              service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              service.category.toLowerCase().includes(searchTerm.toLowerCase())
+            ).map((service) => (
+              <tr key={service.id} className="service-table-row">
+                <td>
+                  <h3 className="service-title-small">{service.title}</h3>
+                </td>
+                <td>{service.category}</td>
+                <td>{service.duration}</td>
+                <td>LKR {service.price}</td>
+                <td>
+                  <button
+                    className={`status-toggle-btn ${service.isActive ? 'status-active' : 'status-inactive'}`}
+                    onClick={() => toggleServiceStatus(service.id)}
+                    title={service.isActive ? 'Deactivate Service' : 'Activate Service'}
+                  >
+                    {service.isActive ? 'Active' : 'Inactive'}
+                  </button>
+                </td>
+                <td>
+                  <div className="service-actions-table">
+                    <button
+                      className="action-btn-small edit-btn"
+                      onClick={() => handleEdit(service)}
+                      title={`Edit ${service.title}`}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      className="action-btn-small delete-btn"
+                      onClick={() => handleDelete(service.id)}
+                      title={`Delete ${service.title}`}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {services.length > servicesPerPage && (
+        <Pagination
+          itemsPerPage={servicesPerPage}
+          totalItems={services.length}
+          paginate={paginate}
+          currentPage={currentPage}
+        />
+      )}
 
       {services.length === 0 && (
         <div className="empty-state">
@@ -404,6 +438,20 @@ const Services = () => {
                 </div>
 
                 <div className="form-group">
+                  <label htmlFor="description">Description</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="form-textarea"
+                    required
+                    rows="3"
+                    placeholder="Describe the service and what it includes..."
+                  ></textarea>
+                </div>
+
+                <div className="form-group">
                   <label htmlFor="category">Category</label>
                   <select
                     id="category"
@@ -419,20 +467,6 @@ const Services = () => {
                     ))}
                   </select>
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  required
-                  rows="3"
-                  placeholder="Describe the service and what it includes..."
-                ></textarea>
               </div>
 
               <div className="form-row">
@@ -486,14 +520,25 @@ const Services = () => {
                       />
                     </div>
                     <div className="media-actions">
+                      {url && (
+                        <div className="media-preview">
+                          {url.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                            <img src={url} alt="Preview" className="preview-image" />
+                          ) : url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                            <video src={url} controls className="preview-video" />
+                          ) : (
+                            <i className="fas fa-link preview-icon"></i>
+                          )}
+                        </div>
+                      )}
                       {formData.mediaUrls.length > 1 && (
                         <button
                           type="button"
-                          className="btn-secondary"
+                          className="btn-secondary remove-media-btn"
                           onClick={() => removeMediaUrl(index)}
                           title="Remove this media URL field"
                         >
-                          🗑️ Remove
+                          ✕
                         </button>
                       )}
                     </div>
@@ -503,11 +548,11 @@ const Services = () => {
                 {formData.mediaUrls.length < 3 && (
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className="btn-secondary add-media-btn"
                     onClick={addMediaUrl}
                     title="Add another media URL (maximum 3 allowed)"
                   >
-                    ➕ Add Media URL
+                    ➕
                   </button>
                 )}
               </div>

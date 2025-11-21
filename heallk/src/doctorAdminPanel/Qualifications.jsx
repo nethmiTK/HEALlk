@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
 
 const Qualifications = () => {
   const [qualifications, setQualifications] = useState([]);
@@ -14,6 +15,7 @@ const Qualifications = () => {
     certificate_url: '',
     is_verified: false
   });
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +46,7 @@ const Qualifications = () => {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
       
-      const response = await fetch('http://localhost:5000/api/qualifications', {
+      const response = await fetch(`${API_BASE_URL}/qualifications`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -82,7 +84,7 @@ const Qualifications = () => {
       const token = localStorage.getItem('heallk_token');
       
       if (editingQual) {
-        const response = await fetch(`http://localhost:5000/api/qualifications/${editingQual.qualification_id}`, {
+        const response = await fetch(`${API_BASE_URL}/qualifications/${editingQual.qualification_id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -98,7 +100,7 @@ const Qualifications = () => {
         
         toast.success('Qualification updated successfully!');
       } else {
-        const response = await fetch('http://localhost:5000/api/qualifications', {
+        const response = await fetch(`${API_BASE_URL}/qualifications`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -159,7 +161,7 @@ const Qualifications = () => {
         setLoading(true);
         const token = localStorage.getItem('heallk_token');
         
-        const response = await fetch(`http://localhost:5000/api/qualifications/${qualificationId}`, {
+        const response = await fetch(`${API_BASE_URL}/qualifications/${qualificationId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -188,7 +190,7 @@ const Qualifications = () => {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
       
-      const response = await fetch(`http://localhost:5000/api/qualifications/${qualificationId}/toggle-verification`, {
+      const response = await fetch(`${API_BASE_URL}/qualifications/${qualificationId}/toggle-verification`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -215,6 +217,12 @@ const Qualifications = () => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
+  const filteredQualifications = qualifications.filter(qual =>
+    qual.degree_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    qual.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    qual.specialization.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="qualifications-container">
       {/* Page Header */}
@@ -224,6 +232,13 @@ const Qualifications = () => {
           <p className="page-subtitle">Manage your medical qualifications and certifications</p>
         </div>
         <div className="header-actions">
+          <input
+            type="text"
+            placeholder="Search qualifications..."
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <button 
             className="btn btn-primary"
             onClick={() => setIsModalOpen(true)}
@@ -249,87 +264,91 @@ const Qualifications = () => {
         </div>
       </div>
 
-      {/* Qualifications Timeline */}
-      <div className="qualifications-timeline">
-        {loading ? (
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Loading qualifications...</p>
-          </div>
-        ) : (
-          qualifications
-            .sort((a, b) => parseInt(b.year_completed) - parseInt(a.year_completed))
-            .map((qual) => (
-              <div key={qual.qualification_id} className="qualification-item">
-                <div className="timeline-marker">
-                  <div className={`marker-dot ${qual.is_verified ? 'verified' : 'pending'}`}>
-                    {qual.is_verified ? '✓' : '⏳'}
-                  </div>
-                  <div className="timeline-line"></div>
-                </div>
-
-                <div className="qualification-card">
-                  <div className="qualification-header">
-                    <div className="qualification-main">
-                      <h3 className="qualification-degree">{qual.degree_name}</h3>
-                      <p className="qualification-institution">{qual.institution}</p>
-                      <div className="qualification-meta">
-                        <span className="qualification-year">{qual.year_completed}</span>
-                        <span className="qualification-field">{qual.specialization}</span>
+      {/* Qualifications Table */}
+      <div className="qualifications-table-container">
+        <table className="qualifications-table">
+          <thead>
+            <tr>
+              <th>Degree/Certificate</th>
+              <th>Institution</th>
+              <th>Specialization</th>
+              <th>Year</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="loading-state-table">
+                  <div className="loading-spinner-small"></div>
+                  <p>Loading qualifications...</p>
+                </td>
+              </tr>
+            ) : (
+              filteredQualifications
+                .sort((a, b) => parseInt(b.year_completed) - parseInt(a.year_completed))
+                .map((qual) => (
+                  <tr key={qual.qualification_id} className="qualification-table-row">
+                    <td>
+                      <h3 className="qualification-degree-small">{qual.degree_name}</h3>
+                    </td>
+                    <td>{qual.institution}</td>
+                    <td>{qual.specialization}</td>
+                    <td>{qual.year_completed}</td>
+                    <td>
+                      <button
+                        className={`status-toggle-btn ${qual.is_verified ? 'status-verified' : 'status-pending'}`}
+                        onClick={() => toggleVerification(qual.qualification_id)}
+                        title={qual.is_verified ? 'Mark as Pending' : 'Mark as Verified'}
+                      >
+                        {qual.is_verified ? 'Verified' : 'Pending'}
+                      </button>
+                    </td>
+                    <td>
+                      <div className="qualification-actions-table">
+                        <button
+                          className="action-btn-small edit-btn"
+                          onClick={() => handleEdit(qual)}
+                          title={`Edit ${qual.degree_name}`}
+                        >
+                          ✏️ Edit
+                        </button>
+                        {qual.certificate_url && (
+                          <button 
+                            className="action-btn-small view-btn"
+                            onClick={() => window.open(qual.certificate_url, '_blank')}
+                            title="View Certificate"
+                          >
+                            📄 View
+                          </button>
+                        )}
+                        <button
+                          className="action-btn-small delete-btn"
+                          onClick={() => handleDelete(qual.qualification_id)}
+                          title={`Delete ${qual.degree_name}`}
+                        >
+                          🗑️ Delete
+                        </button>
                       </div>
-                    </div>
-                    
-                    <div className="qualification-status">
-                      <span className={`status-badge ${qual.is_verified ? 'verified' : 'pending'}`}>
-                        {qual.is_verified ? '✓ Verified' : '⏳ Pending'}
-                      </span>
-                    </div>
-                  </div>
-
-                {qual.description && (
-                  <div className="qualification-description">
-                    <p>{qual.description}</p>
-                  </div>
-                )}
-
-                <div className="qualification-actions">
-                  <button 
-                    className="btn btn-text"
-                    onClick={() => handleEdit(qual)}
-                    disabled={loading}
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button 
-                    className="btn btn-text"
-                    onClick={() => toggleVerification(qual.qualification_id)}
-                    disabled={loading}
-                  >
-                    {qual.is_verified ? '❌ Mark as Pending' : '✅ Mark as Verified'}
-                  </button>
-                  {qual.certificate_url && (
-                    <button 
-                      className="btn btn-text"
-                      onClick={() => window.open(qual.certificate_url, '_blank')}
-                    >
-                      📄 View Certificate
-                    </button>
-                  )}
-                  <button 
-                    className="btn btn-text danger"
-                    onClick={() => handleDelete(qual.qualification_id)}
-                    disabled={loading}
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+                    </td>
+                  </tr>
+                ))
+            )}
+            {filteredQualifications.length === 0 && !loading && (
+              <tr>
+                <td colSpan="6" className="empty-state-table">
+                  <div className="empty-icon">🎓</div>
+                  <h3>No qualifications found</h3>
+                  <p>Try adjusting your search or add a new qualification.</p>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {qualifications.length === 0 && (
+      {qualifications.length === 0 && !loading && (
         <div className="empty-state">
           <div className="empty-icon">🎓</div>
           <h3>No qualifications added yet</h3>

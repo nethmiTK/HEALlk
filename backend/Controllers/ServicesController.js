@@ -1,17 +1,156 @@
 const { query, execute } = require('../config/database');
 
 class ServicesController {
+  // Get all active services from all doctors (PUBLIC)
+  static async getAllPublicServices(req, res) {
+    try {
+      const services = await query(
+        `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
+                s.media_urls, s.created_at, s.updated_at,
+                u.full_name as doctor_name, u.user_id as doctor_id
+         FROM services s
+         INNER JOIN users u ON s.doctor_id = u.user_id
+         WHERE s.is_active = TRUE AND u.role IN ('doctor', 'admin')
+         ORDER BY s.created_at DESC`
+      );
+
+      // Convert media_urls JSON string back to array and format response
+      const servicesWithMedia = services.map(service => ({
+        id: service.id,
+        title: service.title,
+        description: service.description,
+        duration: service.duration,
+        price: service.price,
+        category: service.category,
+        mediaUrls: service.media_urls ? JSON.parse(service.media_urls) : [],
+        doctorName: service.doctor_name,
+        doctorId: service.doctor_id,
+        createdAt: service.created_at,
+        updatedAt: service.updated_at
+      }));
+
+      res.json({
+        success: true,
+        services: servicesWithMedia,
+        total: servicesWithMedia.length
+      });
+    } catch (error) {
+      console.error('Error fetching public services:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch services'
+      });
+    }
+  }
+
+  // Get services by specific doctor ID (PUBLIC)
+  static async getServicesByDoctorId(req, res) {
+    try {
+      const doctorId = req.params.doctorId;
+      
+      const services = await query(
+        `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
+                s.media_urls, s.created_at, s.updated_at,
+                u.full_name as doctor_name, u.user_id as doctor_id
+         FROM services s
+         INNER JOIN users u ON s.doctor_id = u.user_id
+         WHERE s.is_active = TRUE AND s.doctor_id = ? AND u.role IN ('doctor', 'admin')
+         ORDER BY s.created_at DESC`,
+        [doctorId]
+      );
+
+      // Convert media_urls JSON string back to array and format response
+      const servicesWithMedia = services.map(service => ({
+        id: service.id,
+        title: service.title,
+        description: service.description,
+        duration: service.duration,
+        price: service.price,
+        category: service.category,
+        mediaUrls: service.media_urls ? JSON.parse(service.media_urls) : [],
+        doctorName: service.doctor_name,
+        doctorId: service.doctor_id,
+        createdAt: service.created_at,
+        updatedAt: service.updated_at
+      }));
+
+      res.json({
+        success: true,
+        services: servicesWithMedia,
+        total: servicesWithMedia.length
+      });
+    } catch (error) {
+      console.error('Error fetching doctor services:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch doctor services'
+      });
+    }
+  }
+
+  // Get a specific service by ID (PUBLIC)
+  static async getPublicServiceById(req, res) {
+    try {
+      const serviceId = req.params.id;
+
+      const service = await query(
+        `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
+                s.media_urls, s.created_at, s.updated_at,
+                u.full_name as doctor_name, u.user_id as doctor_id, u.email as doctor_email, u.phone as doctor_phone
+         FROM services s
+         INNER JOIN users u ON s.doctor_id = u.user_id
+         WHERE s.id = ? AND s.is_active = TRUE AND u.role IN ('doctor', 'admin')`,
+        [serviceId]
+      );
+
+      if (service.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Service not found or not available'
+        });
+      }
+
+      // Format response with mediaUrls
+      const serviceWithMedia = {
+        id: service[0].id,
+        title: service[0].title,
+        description: service[0].description,
+        duration: service[0].duration,
+        price: service[0].price,
+        category: service[0].category,
+        mediaUrls: service[0].media_urls ? JSON.parse(service[0].media_urls) : [],
+        doctorName: service[0].doctor_name,
+        doctorId: service[0].doctor_id,
+        doctorEmail: service[0].doctor_email,
+        doctorPhone: service[0].doctor_phone,
+        createdAt: service[0].created_at,
+        updatedAt: service[0].updated_at
+      };
+
+      res.json({
+        success: true,
+        service: serviceWithMedia
+      });
+    } catch (error) {
+      console.error('Error fetching public service:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch service'
+      });
+    }
+  }
+
   // Get all services for the current doctor
   static async getServices(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
       
       const services = await query(
         `SELECT id, title, description, duration, price, category, 
@@ -22,11 +161,24 @@ class ServicesController {
         [doctorId]
       );
 
-      // Convert media_urls JSON string back to array
-      const servicesWithMedia = services.map(service => ({
-        ...service,
-        mediaUrls: service.media_urls ? JSON.parse(service.media_urls) : []
-      }));
+      // Convert media_urls JSON string back to array and format response
+      const servicesWithMedia = services.map(service => {
+        let mediaUrls = [];
+        try {
+          if (service.media_urls && service.media_urls.trim() !== '') {
+            mediaUrls = JSON.parse(service.media_urls);
+          }
+        } catch (e) {
+          console.log('Invalid JSON in media_urls for service:', service.id, service.media_urls);
+          mediaUrls = [];
+        }
+        
+        return {
+          ...service,
+          mediaUrls: mediaUrls,
+          isActive: Boolean(service.is_active) // Convert tinyint to boolean for frontend
+        };
+      });
 
       res.json({
         success: true,
@@ -44,14 +196,14 @@ class ServicesController {
   // Add a new service
   static async addService(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
       const { title, description, duration, price, category, mediaUrls, isActive } = req.body;
 
       // Validation
@@ -88,14 +240,14 @@ class ServicesController {
   // Update an existing service
   static async updateService(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
       const serviceId = req.params.id;
       const { title, description, duration, price, category, mediaUrls, isActive } = req.body;
 
@@ -148,14 +300,14 @@ class ServicesController {
   // Delete a service
   static async deleteService(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
       const serviceId = req.params.id;
 
       // Check if service exists and belongs to the doctor
@@ -192,14 +344,14 @@ class ServicesController {
   // Toggle service active status
   static async toggleServiceStatus(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
       const serviceId = req.params.id;
 
       // Check if service exists and belongs to the doctor
@@ -264,17 +416,65 @@ class ServicesController {
     }
   }
 
-  // Get service statistics for dashboard
-  static async getServiceStats(req, res) {
+  // Get a specific service by ID
+  static async getServiceById(req, res) {
     try {
-      if (!req.user || !req.user.id) {
+      if (!req.user || !req.user.userId) {
         return res.status(401).json({
           success: false,
           message: 'User authentication required'
         });
       }
       
-      const doctorId = req.user.id;
+      const doctorId = req.user.userId;
+      const serviceId = req.params.id;
+
+      const service = await query(
+        `SELECT id, title, description, duration, price, category, 
+                media_urls, is_active, created_at, updated_at
+         FROM services 
+         WHERE id = ? AND doctor_id = ?`,
+        [serviceId, doctorId]
+      );
+
+      if (service.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Service not found or access denied'
+        });
+      }
+
+      // Format response with mediaUrls
+      const serviceWithMedia = {
+        ...service[0],
+        mediaUrls: service[0].media_urls ? JSON.parse(service[0].media_urls) : [],
+        isActive: Boolean(service[0].is_active)
+      };
+
+      res.json({
+        success: true,
+        service: serviceWithMedia
+      });
+    } catch (error) {
+      console.error('Error fetching service:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch service'
+      });
+    }
+  }
+
+  // Get service statistics for dashboard
+  static async getServiceStats(req, res) {
+    try {
+      if (!req.user || !req.user.userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+      }
+      
+      const doctorId = req.user.userId;
 
       const stats = await query(
         `SELECT 

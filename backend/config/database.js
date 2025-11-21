@@ -136,6 +136,72 @@ const initializeDatabase = async () => {
       console.warn('Profile pic column check/creation warning:', error.message);
     }
 
+    // Create services table if it doesn't exist
+    const createServicesTable = `
+      CREATE TABLE IF NOT EXISTS services (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        doctor_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        duration VARCHAR(100) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        category VARCHAR(100) NOT NULL,
+        media_urls JSON NULL,
+        is_active TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        INDEX idx_doctor_id (doctor_id),
+        INDEX idx_category (category),
+        INDEX idx_is_active (is_active),
+        INDEX idx_created_at (created_at),
+        
+        CONSTRAINT fk_services_doctor
+          FOREIGN KEY (doctor_id) REFERENCES users(user_id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createServicesTable);
+    console.log('✅ Services table ensured');
+
+    // Create service categories table if it doesn't exist
+    const createServiceCategoriesTable = `
+      CREATE TABLE IF NOT EXISTS service_categories (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        description TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createServiceCategoriesTable);
+    console.log('✅ Service categories table ensured');
+
+    // Insert default service categories if table is empty
+    const categoryCount = await query('SELECT COUNT(*) as count FROM service_categories');
+    if (categoryCount[0].count === 0) {
+      const defaultCategories = [
+        ['General Consultation', 'Basic medical consultations and health assessments'],
+        ['Specialist Consultation', 'Specialized medical consultations in various fields'],
+        ['Diagnostic Services', 'Medical tests, imaging, and diagnostic procedures'],
+        ['Treatment Services', 'Medical treatments and therapeutic procedures'],
+        ['Emergency Care', 'Urgent medical care and emergency services'],
+        ['Preventive Care', 'Preventive medicine and health screenings']
+      ];
+
+      for (const [name, description] of defaultCategories) {
+        await query(
+          'INSERT INTO service_categories (name, description) VALUES (?, ?)',
+          [name, description]
+        );
+      }
+      console.log('✅ Default service categories inserted');
+    }
+
     // Create indexes for better performance
     const userIndexes = [
       { table: 'users', name: 'idx_email', column: 'email' },
@@ -148,7 +214,14 @@ const initializeDatabase = async () => {
       { table: 'reviews', name: 'idx_created_at', column: 'created_at' }
     ];
 
-    const allIndexes = [...userIndexes, ...reviewIndexes];
+    const serviceIndexes = [
+      { table: 'services', name: 'idx_services_doctor_id', column: 'doctor_id' },
+      { table: 'services', name: 'idx_services_category', column: 'category' },
+      { table: 'services', name: 'idx_services_is_active', column: 'is_active' },
+      { table: 'services', name: 'idx_services_created_at', column: 'created_at' }
+    ];
+
+    const allIndexes = [...userIndexes, ...reviewIndexes, ...serviceIndexes];
 
     for (const index of allIndexes) {
       try {

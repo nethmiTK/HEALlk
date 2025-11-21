@@ -16,12 +16,6 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       tooltip: 'Dashboard Overview'
     },
     {
-      path: '/doctor-admin/profile',
-      label: 'Profile',
-      icon: '👤',
-      tooltip: 'Profile Management'
-    },
-    {
       path: '/doctor-admin/services',
       label: 'Services',
       icon: '🏥',
@@ -116,11 +110,14 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
             id={`nav-tooltip-${item.label.toLowerCase().replace(' ', '-')}`}
             place="right" 
             style={{ 
-              backgroundColor: '#0f172a', 
+              backgroundColor: '#0A3D62', 
               color: '#ffffff',
-              fontSize: '12px',
-              maxWidth: '200px',
-              zIndex: 9999
+              fontSize: '13px',
+              fontWeight: '500',
+              maxWidth: '220px',
+              zIndex: 9999,
+              borderRadius: '8px',
+              padding: '8px 12px'
             }}
           />
         ))}
@@ -130,11 +127,14 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
           id="sidebar-toggle-tooltip" 
           place="right" 
           style={{ 
-            backgroundColor: '#0f172a', 
+            backgroundColor: '#0A3D62', 
             color: '#ffffff',
-            fontSize: '12px',
-            maxWidth: '200px',
-            zIndex: 9999
+            fontSize: '13px',
+            fontWeight: '500',
+            maxWidth: '220px',
+            zIndex: 9999,
+            borderRadius: '8px',
+            padding: '8px 12px'
           }}
         />
       </nav>

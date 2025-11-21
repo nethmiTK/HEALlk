@@ -1,258 +1,71 @@
-const { query, execute } = require('../config/database');
+const { db } = require("../config/database.js");
 
-class QualificationController {
-  // Get all qualifications for the current user
-  static async getQualifications(req, res) {
-    try {
-      if (!req.user || !req.user.id) {
-        return res.status(401).json({
-          success: false,
-          message: 'User authentication required'
-        });
-      }
-      
-      const userId = req.user.id;
-      
-      const qualifications = await query(
-        `SELECT qualification_id, degree_name, specialization, institution, 
-                year_completed, description, certificate_url, is_verified,
-                created_at, updated_at
-         FROM doctor_qualifications 
-         WHERE user_id = ?
-         ORDER BY year_completed DESC`,
-        [userId]
-      );
+// GET ALL QUALIFICATIONS FOR USER
+exports.getQualifications = (req, res) => {
+  const userId = req.user.id;
 
-      res.json({
-        success: true,
-        qualifications: qualifications
-      });
-    } catch (error) {
-      console.error('Error fetching qualifications:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch qualifications'
-      });
-    }
-  }
+  const sql = `SELECT * FROM qualifications WHERE user_id = ? ORDER BY year_completed DESC`;
 
-  // Add a new qualification
-  static async addQualification(req, res) {
-    try {
-      const userId = req.user.id;
-      const {
-        degree_name,
-        specialization,
-        institution,
-        year_completed,
-        description,
-        certificate_url,
-        is_verified
-      } = req.body;
+  db.query(sql, [userId], (err, results) => {
+    if (err) return res.status(500).json({ message: "DB Error", err });
 
-      // Validate required fields
-      if (!degree_name || !specialization || !institution || !year_completed) {
-        return res.status(400).json({
-          success: false,
-          message: 'Please provide all required fields: degree_name, specialization, institution, year_completed'
-        });
-      }
+    res.json({ qualifications: results });
+  });
+};
 
-      // Validate year
-      const currentYear = new Date().getFullYear();
-      if (year_completed > currentYear || year_completed < 1950) {
-        return res.status(400).json({
-          success: false,
-          message: 'Please provide a valid year'
-        });
-      }
+// ADD NEW QUALIFICATION
+exports.addQualification = (req, res) => {
+  const userId = req.user.id;
+  const data = { ...req.body, user_id: userId };
 
-      const [result] = await execute(
-        `INSERT INTO doctor_qualifications 
-         (user_id, degree_name, specialization, institution, year_completed, description, certificate_url, is_verified)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, degree_name, specialization, institution, year_completed, description || null, certificate_url || null, is_verified || false]
-      );
+  const sql = `INSERT INTO qualifications SET ?`;
 
-      // Get the newly created qualification
-      const newQualification = await query(
-        `SELECT qualification_id, degree_name, specialization, institution, 
-                year_completed, description, certificate_url, is_verified,
-                created_at, updated_at
-         FROM doctor_qualifications 
-         WHERE qualification_id = ?`,
-        [result.insertId]
-      );
+  db.query(sql, data, (err) => {
+    if (err) return res.status(500).json({ message: "Insert Failed", err });
 
-      res.status(201).json({
-        success: true,
-        message: 'Qualification added successfully',
-        qualification: newQualification[0]
-      });
-    } catch (error) {
-      console.error('Error adding qualification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to add qualification'
-      });
-    }
-  }
+    res.json({ message: "Qualification added successfully" });
+  });
+};
 
-  // Update an existing qualification
-  static async updateQualification(req, res) {
-    try {
-      const userId = req.user.id;
-      const qualificationId = req.params.id;
-      const {
-        degree_name,
-        specialization,
-        institution,
-        year_completed,
-        description,
-        certificate_url,
-        is_verified
-      } = req.body;
+// UPDATE QUALIFICATION
+exports.updateQualification = (req, res) => {
+  const { id } = req.params;
 
-      // Check if qualification exists and belongs to user
-      const existingQual = await query(
-        'SELECT qualification_id FROM doctor_qualifications WHERE qualification_id = ? AND user_id = ?',
-        [qualificationId, userId]
-      );
+  const sql = `UPDATE qualifications SET ? WHERE qualification_id = ?`;
 
-      if (existingQual.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Qualification not found or access denied'
-        });
-      }
+  db.query(sql, [req.body, id], (err) => {
+    if (err) return res.status(500).json({ message: "Update Failed", err });
 
-      // Validate required fields
-      if (!degree_name || !specialization || !institution || !year_completed) {
-        return res.status(400).json({
-          success: false,
-          message: 'Please provide all required fields'
-        });
-      }
+    res.json({ message: "Qualification updated successfully" });
+  });
+};
 
-      // Validate year
-      const currentYear = new Date().getFullYear();
-      if (year_completed > currentYear || year_completed < 1950) {
-        return res.status(400).json({
-          success: false,
-          message: 'Please provide a valid year'
-        });
-      }
+// DELETE QUALIFICATION
+exports.deleteQualification = (req, res) => {
+  const { id } = req.params;
 
-      await query(
-        `UPDATE doctor_qualifications 
-         SET degree_name = ?, specialization = ?, institution = ?, year_completed = ?, 
-             description = ?, certificate_url = ?, is_verified = ?
-         WHERE qualification_id = ? AND user_id = ?`,
-        [degree_name, specialization, institution, year_completed, 
-         description || null, certificate_url || null, is_verified || false, 
-         qualificationId, userId]
-      );
+  const sql = `DELETE FROM qualifications WHERE qualification_id = ?`;
 
-      // Get the updated qualification
-      const updatedQualification = await query(
-        `SELECT qualification_id, degree_name, specialization, institution, 
-                year_completed, description, certificate_url, is_verified,
-                created_at, updated_at
-         FROM doctor_qualifications 
-         WHERE qualification_id = ?`,
-        [qualificationId]
-      );
+  db.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ message: "Delete Failed", err });
 
-      res.json({
-        success: true,
-        message: 'Qualification updated successfully',
-        qualification: updatedQualification[0]
-      });
-    } catch (error) {
-      console.error('Error updating qualification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update qualification'
-      });
-    }
-  }
+    res.json({ message: "Qualification deleted successfully" });
+  });
+};
 
-  // Delete a qualification
-  static async deleteQualification(req, res) {
-    try {
-      const userId = req.user.id;
-      const qualificationId = req.params.id;
+// TOGGLE VERIFICATION STATUS
+exports.toggleVerification = (req, res) => {
+  const { id } = req.params;
 
-      // Check if qualification exists and belongs to user
-      const existingQual = await query(
-        'SELECT qualification_id FROM doctor_qualifications WHERE qualification_id = ? AND user_id = ?',
-        [qualificationId, userId]
-      );
+  const sql = `
+    UPDATE qualifications
+    SET is_verified = NOT is_verified
+    WHERE qualification_id = ?
+  `;
 
-      if (existingQual.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Qualification not found or access denied'
-        });
-      }
+  db.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ message: "Toggle Failed", err });
 
-      await query(
-        'DELETE FROM doctor_qualifications WHERE qualification_id = ? AND user_id = ?',
-        [qualificationId, userId]
-      );
-
-      res.json({
-        success: true,
-        message: 'Qualification deleted successfully'
-      });
-    } catch (error) {
-      console.error('Error deleting qualification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete qualification'
-      });
-    }
-  }
-
-  // Toggle verification status
-  static async toggleVerification(req, res) {
-    try {
-      const userId = req.user.id;
-      const qualificationId = req.params.id;
-
-      // Check if qualification exists and belongs to user
-      const existingQual = await query(
-        'SELECT qualification_id, is_verified FROM doctor_qualifications WHERE qualification_id = ? AND user_id = ?',
-        [qualificationId, userId]
-      );
-
-      if (existingQual.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Qualification not found or access denied'
-        });
-      }
-
-      const newVerificationStatus = !existingQual[0].is_verified;
-
-      await query(
-        'UPDATE doctor_qualifications SET is_verified = ? WHERE qualification_id = ? AND user_id = ?',
-        [newVerificationStatus, qualificationId, userId]
-      );
-
-      res.json({
-        success: true,
-        message: `Qualification ${newVerificationStatus ? 'verified' : 'marked as pending'}`,
-        is_verified: newVerificationStatus
-      });
-    } catch (error) {
-      console.error('Error toggling verification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update verification status'
-      });
-    }
-  }
-}
-
-module.exports = QualificationController;
+    res.json({ message: "Verification status updated!" });
+  });
+};

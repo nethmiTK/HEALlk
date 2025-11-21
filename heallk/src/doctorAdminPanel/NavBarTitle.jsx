@@ -5,45 +5,45 @@ import { Tooltip } from 'react-tooltip';
 const NavBarTitle = ({ user, pageName, isCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const getPageInfo = () => {
     const path = location.pathname;
-    
+
     switch (path) {
       case '/doctor-admin':
-        return { 
-          title: 'Dashboard Overview', 
-          subtitle: 'View your clinic statistics and recent activities' 
+        return {
+          title: 'Dashboard Overview',
+          subtitle: 'View your clinic statistics and recent activities'
         };
       case '/doctor-admin/profile':
-        return { 
-          title: 'My Profile', 
-          subtitle: 'Manage your account information and settings' 
+        return {
+          title: 'My Profile',
+          subtitle: 'Manage your account information and settings'
         };
       case '/doctor-admin/services':
-        return { 
-          title: 'Medical Services', 
-          subtitle: 'Manage the services you offer to patients' 
+        return {
+          title: 'Medical Services',
+          subtitle: 'Manage the services you offer to patients'
         };
       case '/doctor-admin/qualifications':
-        return { 
-          title: 'Qualifications', 
-          subtitle: 'Display your medical degrees and certifications' 
+        return {
+          title: 'Qualifications',
+          subtitle: 'Display your medical degrees and certifications'
         };
       case '/doctor-admin/clinic-info':
-        return { 
-          title: 'Clinic Information', 
-          subtitle: 'Update clinic details and contact information' 
+        return {
+          title: 'Clinic Information',
+          subtitle: 'Update clinic details and contact information'
         };
       case '/doctor-admin/reviews':
-        return { 
-          title: 'Patient Reviews', 
-          subtitle: 'View and respond to patient feedback' 
+        return {
+          title: 'Patient Reviews',
+          subtitle: 'View and respond to patient feedback'
         };
       default:
-        return { 
-          title: pageName || 'Dashboard', 
-          subtitle: 'Manage your account information and settings' 
+        return {
+          title: pageName || 'Dashboard',
+          subtitle: 'Manage your account information and settings'
         };
     }
   };
@@ -79,7 +79,7 @@ const NavBarTitle = ({ user, pageName, isCollapsed }) => {
         {/* User Profile Section - Now on the right */}
         <div className="navbar-user-section">
           <div className="navbar-user-info">
-            <h3 
+            <h3
               className="navbar-user-name"
               onClick={() => navigate('/doctor-admin/profile')}
             >
@@ -89,15 +89,15 @@ const NavBarTitle = ({ user, pageName, isCollapsed }) => {
               {user?.email || 'admin@gmail.com'}
             </span>
           </div>
-          
-          <div 
+
+          <div
             className="navbar-user-avatar"
             onClick={() => navigate('/doctor-admin/profile')}
           >
             {user?.profile_pic ? (
-              <img 
-                src={user.profile_pic} 
-                alt="Profile" 
+              <img
+                src={user.profile_pic}
+                alt="Profile"
                 className="navbar-profile-image"
               />
             ) : (
