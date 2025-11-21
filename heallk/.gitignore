@@ -2,6 +2,9 @@
 node_modules/
 /.pnp
 .pnp.js
+*.mp4
+*.mov
+*.avi
 
 # Production build
 /build
