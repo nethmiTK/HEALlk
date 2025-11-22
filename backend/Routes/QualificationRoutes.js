@@ -1,19 +1,20 @@
-const express = require("express");
+const express = require('express');
+const router = express.Router();
+
 const {
   getQualifications,
   addQualification,
   updateQualification,
   deleteQualification,
   toggleVerification
-} = require("../Controllers/QualificationController.js");
-const { protect } = require("../middleware/authMiddleware.js");
+} = require('../controllers/QualificationController');
 
-const router = express.Router();
+const { authenticateToken } = require('../middlewares/authMiddleware');  // destructure here
 
-router.post("/", protect, addQualification);
-router.get("/", protect, getQualifications);
-router.put("/:id", protect, updateQualification);
-router.delete("/:id", protect, deleteQualification);
-router.patch("/:id/toggle-verification", protect, toggleVerification);
+router.get('/', authenticateToken, getQualifications);
+router.post('/', authenticateToken, addQualification);
+router.put('/:id', authenticateToken, updateQualification);
+router.delete('/:id', authenticateToken, deleteQualification);
+router.patch('/:id/toggle-verification', authenticateToken, toggleVerification);
 
 module.exports = router;

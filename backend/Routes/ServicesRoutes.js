@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ServicesController = require('../Controllers/ServicesController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
 // Apply authentication middleware to all routes (only login required, no role check)
 router.use(authenticateToken);

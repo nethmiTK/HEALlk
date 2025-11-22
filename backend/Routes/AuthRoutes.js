@@ -9,7 +9,7 @@ const {
   logout,
   getAllUsers
 } = require('../Controllers/AutController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
 // Public routes
 router.post('/register', register);

@@ -11,7 +11,7 @@ const {
 } = require('../Controllers/ReviwsController');
 
 // Import auth middleware
-const { authenticateToken, optionalAuth } = require('../middleware/authMiddleware');
+const { authenticateToken, optionalAuth } = require('../middlewares/authMiddleware');
 
 // Public routes (no authentication required)
 router.get('/public', getAllReviews); // Get approved reviews for public display

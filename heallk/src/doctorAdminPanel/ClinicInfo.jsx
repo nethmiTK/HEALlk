@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
 
 const ClinicInfo = () => {
   const [clinicData, setClinicData] = useState({
@@ -26,7 +28,6 @@ const ClinicInfo = () => {
     images: []
   });
 
-  const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
 
   const availableSpecializations = [
@@ -77,33 +78,45 @@ const ClinicInfo = () => {
   ];
 
   useEffect(() => {
-    // Load existing clinic data
-    const loadClinicData = () => {
-      const mockData = {
-        clinicName: 'HEALlk Medical Center',
-        address: '123 Main Street',
-        city: 'Colombo',
-        postalCode: '00100',
-        phone: '+94 11 234 5678',
-        email: 'info@heallk.com',
-        website: 'www.heallk.com',
-        description: 'Modern medical center providing comprehensive healthcare services with experienced doctors and state-of-the-art facilities.',
-        specializations: ['General Medicine', 'Cardiology', 'Neurology'],
-        facilities: ['Parking', 'Laboratory', 'X-Ray', 'ECG', 'Pharmacy'],
-        workingHours: {
-          monday: { open: '09:00', close: '17:00', isOpen: true },
-          tuesday: { open: '09:00', close: '17:00', isOpen: true },
-          wednesday: { open: '09:00', close: '17:00', isOpen: true },
-          thursday: { open: '09:00', close: '17:00', isOpen: true },
-          friday: { open: '09:00', close: '17:00', isOpen: true },
-          saturday: { open: '09:00', close: '13:00', isOpen: true },
-          sunday: { open: '09:00', close: '17:00', isOpen: false }
-        },
-        emergencyContact: '+94 77 123 4567',
-        insuranceAccepted: ['Ceylinco Insurance', 'AIA Insurance', 'Union Assurance'],
-        images: []
-      };
-      setClinicData(mockData);
+    const loadClinicData = async () => {
+      try {
+        const token = localStorage.getItem('heallk_token');
+        if (!token) {
+          console.warn('No authentication token found. User might not be logged in.');
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/clinics`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.clinicInfo.working_hours) data.clinicInfo.workingHours = data.clinicInfo.working_hours;
+          if (data.clinicInfo.insurance_accepted) data.clinicInfo.insuranceAccepted = data.clinicInfo.insurance_accepted;
+
+          setClinicData(prev => ({
+            ...prev,
+            ...data.clinicInfo,
+            // Ensure the correct primary key is used from the backend response
+            id: data.clinicInfo.id || null,
+            workingHours: data.clinicInfo.working_hours || prev.workingHours,
+            insuranceAccepted: data.clinicInfo.insurance_accepted || prev.insuranceAccepted,
+          }));
+          toast.success('Clinic information loaded successfully!');
+        } else if (response.status === 404) {
+          console.info('No existing clinic information found for this user. Starting fresh.');
+          toast.info('No clinic information found. Please add your clinic details.');
+        } else {
+          throw new Error('Failed to load clinic information');
+        }
+      } catch (error) {
+        console.error('Error loading clinic data:', error);
+        toast.error(error.message || 'Failed to load clinic information.');
+      }
     };
 
     loadClinicData();
@@ -139,12 +152,44 @@ const ClinicInfo = () => {
     }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    // Here you would typically save to API
-    console.log('Saving clinic data:', clinicData);
-    setIsEditing(false);
-    alert('Clinic information updated successfully!');
+    
+    try {
+      const token = localStorage.getItem('heallk_token');
+      if (!token) {
+        toast.error('Authentication token not found. Please log in.');
+        return;
+      }
+
+      // Use clinicData.id to determine if it's an update or new entry
+      const method = clinicData.id ? 'PUT' : 'POST'; 
+      const url = `${API_BASE_URL}/clinics`;
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(clinicData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(data.message);
+        // If adding new data, update the clinicData state with the new id from the backend
+        if (method === 'POST' && data.clinicId) {
+            setClinicData(prev => ({ ...prev, id: data.clinicId }));
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save clinic information');
+      }
+    } catch (error) {
+      console.error('Error saving clinic data:', error);
+      toast.error(error.message || 'Failed to save clinic information.');
+    }
   };
 
   return (
@@ -156,29 +201,12 @@ const ClinicInfo = () => {
           <p className="page-subtitle">Manage your clinic details and settings</p>
         </div>
         <div className="header-actions">
-          {!isEditing ? (
             <button 
               className="btn btn-primary"
-              onClick={() => setIsEditing(true)}
+              onClick={handleSave}
             >
-              ✏️ Edit Information
+              💾 Save Changes
             </button>
-          ) : (
-            <div className="edit-actions">
-              <button 
-                className="btn btn-secondary"
-                onClick={() => setIsEditing(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="btn btn-primary"
-                onClick={handleSave}
-              >
-                💾 Save Changes
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -228,7 +256,6 @@ const ClinicInfo = () => {
                       name="clinicName"
                       value={clinicData.clinicName}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                   
@@ -240,7 +267,6 @@ const ClinicInfo = () => {
                       name="phone"
                       value={clinicData.phone}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -253,7 +279,6 @@ const ClinicInfo = () => {
                     name="address"
                     value={clinicData.address}
                     onChange={handleInputChange}
-                    disabled={!isEditing}
                   />
                 </div>
 
@@ -266,7 +291,6 @@ const ClinicInfo = () => {
                       name="city"
                       value={clinicData.city}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                   
@@ -278,7 +302,6 @@ const ClinicInfo = () => {
                       name="postalCode"
                       value={clinicData.postalCode}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -292,7 +315,6 @@ const ClinicInfo = () => {
                       name="email"
                       value={clinicData.email}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                   
@@ -304,7 +326,6 @@ const ClinicInfo = () => {
                       name="website"
                       value={clinicData.website}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
                     />
                   </div>
                 </div>
@@ -317,7 +338,6 @@ const ClinicInfo = () => {
                     name="emergencyContact"
                     value={clinicData.emergencyContact}
                     onChange={handleInputChange}
-                    disabled={!isEditing}
                   />
                 </div>
 
@@ -328,7 +348,6 @@ const ClinicInfo = () => {
                     name="description"
                     value={clinicData.description}
                     onChange={handleInputChange}
-                    disabled={!isEditing}
                     rows="4"
                     placeholder="Describe your clinic and services..."
                   ></textarea>
@@ -353,7 +372,6 @@ const ClinicInfo = () => {
                           type="checkbox"
                           checked={clinicData.workingHours[key].isOpen}
                           onChange={() => handleWorkingHoursChange(key, 'isOpen')}
-                          disabled={!isEditing}
                         />
                         <span className="day-name">{label}</span>
                       </label>
@@ -365,14 +383,12 @@ const ClinicInfo = () => {
                           type="time"
                           value={clinicData.workingHours[key].open}
                           onChange={(e) => handleWorkingHoursChange(key, 'open', e.target.value)}
-                          disabled={!isEditing}
                         />
                         <span className="time-separator">to</span>
                         <input
                           type="time"
                           value={clinicData.workingHours[key].close}
                           onChange={(e) => handleWorkingHoursChange(key, 'close', e.target.value)}
-                          disabled={!isEditing}
                         />
                       </div>
                     )}
@@ -399,7 +415,6 @@ const ClinicInfo = () => {
                       type="checkbox"
                       checked={clinicData.specializations.includes(specialization)}
                       onChange={() => handleArrayFieldChange('specializations', specialization)}
-                      disabled={!isEditing}
                     />
                     <span className="checkbox-text">{specialization}</span>
                   </label>
@@ -416,7 +431,6 @@ const ClinicInfo = () => {
                       type="checkbox"
                       checked={clinicData.facilities.includes(facility)}
                       onChange={() => handleArrayFieldChange('facilities', facility)}
-                      disabled={!isEditing}
                     />
                     <span className="checkbox-text">{facility}</span>
                   </label>
@@ -438,7 +452,6 @@ const ClinicInfo = () => {
                       type="checkbox"
                       checked={clinicData.insuranceAccepted.includes(insurance)}
                       onChange={() => handleArrayFieldChange('insuranceAccepted', insurance)}
-                      disabled={!isEditing}
                     />
                     <span className="checkbox-text">{insurance}</span>
                   </label>

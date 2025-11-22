@@ -2,27 +2,47 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const clinicRoutes = require('./Routes/ClinicRoutes');
+
 const authRoutes = require('./Routes/AuthRoutes');
 const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
-const qualificationRoutes = require('./Routes/QualificationRoutes');
 const servicesRoutes = require('./Routes/ServicesRoutes');
+const qualificationRoutes = require('./Routes/QualificationRoutes');  // <-- Added
+
 const { testConnection, initializeDatabase } = require('./config/database');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:3000'], // Vite dev server and other common ports
-  credentials: true
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:3000'
+  ],
+  credentials: true,
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
- app.use((req, res, next) => {
+// Your existing routes
+app.use('/api/auth', authRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/services', servicesRoutes);
+
+// **Add qualification routes here**
+app.use('/api/qualifications', qualificationRoutes);
+
+// Register clinic routes
+app.use('/api/clinics', clinicRoutes);
+
+app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   
-  // Log authentication headers for debugging
   if (req.headers.authorization) {
     console.log('Auth header present:', req.headers.authorization.substring(0, 20) + '...');
   } else {
@@ -32,17 +52,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
   next();
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/qualifications', qualificationRoutes);
-app.use('/api/services', servicesRoutes);
-
-
-// Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error handler:', err);
-  
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
@@ -50,20 +62,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize database and start server
 const startServer = async () => {
   try {
-    // Test database connection
     const isConnected = await testConnection();
     if (!isConnected) {
-      console.error('❌ Failed to connect to database. Please check your MySQL server and credentials.');
+      console.error('❌ Failed to connect to database');
       process.exit(1);
     }
 
-    // Initialize database tables
     await initializeDatabase();
 
-    // Start server
     app.listen(PORT, () => {
       console.log(`🚀 HEALlk Backend Server running on port ${PORT}`);
       console.log(`📊 Frontend URL: http://localhost:5173`);

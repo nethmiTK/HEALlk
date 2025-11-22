@@ -13,10 +13,9 @@ const Qualifications = () => {
     specialization: '',
     description: '',
     certificate_url: '',
-    is_verified: false
+    is_verified: false,
   });
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
-
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
 
   const specializations = [
@@ -34,27 +33,30 @@ const Qualifications = () => {
     'Radiology',
     'Pathology',
     'Oncology',
-    'Other'
+    'Other',
   ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
   useEffect(() => {
     loadQualifications();
   }, []);
 
+  // Load all qualifications from backend
   const loadQualifications = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
-      
       const response = await fetch(`${API_BASE_URL}/qualifications`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         setQualifications(data.qualifications || []);
       } else {
@@ -68,56 +70,61 @@ const Qualifications = () => {
     }
   };
 
+  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
+  // Submit form to add/update qualification
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
-      
+      if (!token) throw new Error('User is not authenticated');
+
+      let response;
+
       if (editingQual) {
-        const response = await fetch(`${API_BASE_URL}/qualifications/${editingQual.qualification_id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to update qualification');
-        }
-        
-        toast.success('Qualification updated successfully!');
+        // Update existing qualification
+        response = await fetch(
+          `${API_BASE_URL}/qualifications/${editingQual.qualification_id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formData),
+          }
+        );
       } else {
-        const response = await fetch(`${API_BASE_URL}/qualifications`, {
+        // Add new qualification
+        response = await fetch(`${API_BASE_URL}/qualifications`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(formData),
         });
-        
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.message || 'Failed to add qualification');
-        }
-        
-        toast.success('Qualification added successfully!');
       }
-      
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save qualification');
+      }
+
+      toast.success(editingQual ? 'Qualification updated successfully!' : 'Qualification added successfully!');
       await loadQualifications();
+
+      // Close modal and reset form ONLY after successful save
       resetForm();
     } catch (error) {
       console.error('Error saving qualification:', error);
@@ -127,7 +134,9 @@ const Qualifications = () => {
     }
   };
 
+  // Reset form and close modal
   const resetForm = () => {
+    if (loading) return; // Prevent closing modal while loading
     setFormData({
       degree_name: '',
       institution: '',
@@ -135,12 +144,13 @@ const Qualifications = () => {
       specialization: '',
       description: '',
       certificate_url: '',
-      is_verified: false
+      is_verified: false,
     });
     setEditingQual(null);
     setIsModalOpen(false);
   };
 
+  // Open modal and populate form for editing
   const handleEdit = (qualification) => {
     setEditingQual(qualification);
     setFormData({
@@ -150,30 +160,31 @@ const Qualifications = () => {
       specialization: qualification.specialization,
       description: qualification.description || '',
       certificate_url: qualification.certificate_url || '',
-      is_verified: qualification.is_verified
+      is_verified: qualification.is_verified,
     });
     setIsModalOpen(true);
   };
 
+  // Delete qualification with confirmation
   const handleDelete = async (qualificationId) => {
     if (window.confirm('Are you sure you want to delete this qualification?')) {
       try {
         setLoading(true);
         const token = localStorage.getItem('heallk_token');
-        
+
         const response = await fetch(`${API_BASE_URL}/qualifications/${qualificationId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        
+
         if (!response.ok) {
           const data = await response.json();
           throw new Error(data.message || 'Failed to delete qualification');
         }
-        
+
         toast.success('Qualification deleted successfully!');
         await loadQualifications();
       } catch (error) {
@@ -185,21 +196,22 @@ const Qualifications = () => {
     }
   };
 
+  // Toggle qualification verification status
   const toggleVerification = async (qualificationId) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
-      
+
       const response = await fetch(`${API_BASE_URL}/qualifications/${qualificationId}/toggle-verification`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         toast.success(data.message);
         await loadQualifications();
@@ -214,13 +226,12 @@ const Qualifications = () => {
     }
   };
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
-
-  const filteredQualifications = qualifications.filter(qual =>
-    qual.degree_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    qual.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    qual.specialization.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter qualifications based on search term
+  const filteredQualifications = qualifications.filter(
+    (qual) =>
+      qual.degree_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      qual.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      qual.specialization.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -239,10 +250,7 @@ const Qualifications = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button 
-            className="btn btn-primary"
-            onClick={() => setIsModalOpen(true)}
-          >
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
             ➕ Add Qualification
           </button>
         </div>
@@ -255,11 +263,11 @@ const Qualifications = () => {
           <span className="stat-label">Total Qualifications</span>
         </div>
         <div className="stat-item">
-          <span className="stat-number">{qualifications.filter(q => q.is_verified).length}</span>
+          <span className="stat-number">{qualifications.filter((q) => q.is_verified).length}</span>
           <span className="stat-label">Verified</span>
         </div>
         <div className="stat-item">
-          <span className="stat-number">{new Set(qualifications.map(q => q.specialization)).size}</span>
+          <span className="stat-number">{new Set(qualifications.map((q) => q.specialization)).size}</span>
           <span className="stat-label">Specializations</span>
         </div>
       </div>
@@ -285,7 +293,7 @@ const Qualifications = () => {
                   <p>Loading qualifications...</p>
                 </td>
               </tr>
-            ) : (
+            ) : filteredQualifications.length > 0 ? (
               filteredQualifications
                 .sort((a, b) => parseInt(b.year_completed) - parseInt(a.year_completed))
                 .map((qual) => (
@@ -298,7 +306,9 @@ const Qualifications = () => {
                     <td>{qual.year_completed}</td>
                     <td>
                       <button
-                        className={`status-toggle-btn ${qual.is_verified ? 'status-verified' : 'status-pending'}`}
+                        className={`status-toggle-btn ${
+                          qual.is_verified ? 'status-verified' : 'status-pending'
+                        }`}
                         onClick={() => toggleVerification(qual.qualification_id)}
                         title={qual.is_verified ? 'Mark as Pending' : 'Mark as Verified'}
                       >
@@ -315,7 +325,7 @@ const Qualifications = () => {
                           ✏️ Edit
                         </button>
                         {qual.certificate_url && (
-                          <button 
+                          <button
                             className="action-btn-small view-btn"
                             onClick={() => window.open(qual.certificate_url, '_blank')}
                             title="View Certificate"
@@ -334,8 +344,7 @@ const Qualifications = () => {
                     </td>
                   </tr>
                 ))
-            )}
-            {filteredQualifications.length === 0 && !loading && (
+            ) : (
               <tr>
                 <td colSpan="6" className="empty-state-table">
                   <div className="empty-icon">🎓</div>
@@ -353,10 +362,7 @@ const Qualifications = () => {
           <div className="empty-icon">🎓</div>
           <h3>No qualifications added yet</h3>
           <p>Add your medical qualifications and certifications to build credibility</p>
-          <button 
-            className="btn btn-primary"
-            onClick={() => setIsModalOpen(true)}
-          >
+          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
             Add First Qualification
           </button>
         </div>
@@ -364,11 +370,18 @@ const Qualifications = () => {
 
       {/* Add/Edit Qualification Modal */}
       {isModalOpen && (
-        <div className="modal-overlay" onClick={resetForm}>
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            if (!loading) resetForm();
+          }}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editingQual ? 'Edit Qualification' : 'Add New Qualification'}</h2>
-              <button className="modal-close" onClick={resetForm}>✕</button>
+              <button className="modal-close" onClick={() => { if (!loading) resetForm(); }}>
+                ✕
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="qualification-form">
@@ -396,8 +409,10 @@ const Qualifications = () => {
                     required
                   >
                     <option value="">Select Specialization</option>
-                    {specializations.map(field => (
-                      <option key={field} value={field}>{field}</option>
+                    {specializations.map((field) => (
+                      <option key={field} value={field}>
+                        {field}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -426,8 +441,10 @@ const Qualifications = () => {
                   required
                 >
                   <option value="">Select Year</option>
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -469,7 +486,14 @@ const Qualifications = () => {
               </div>
 
               <div className="form-actions">
-                <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    if (!loading) resetForm();
+                  }}
+                  disabled={loading}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={loading}>
