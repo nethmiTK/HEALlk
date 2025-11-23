@@ -9,7 +9,8 @@ import Contact from './Pages/Contact'
 import Footer from './Components/Footer'
 import DoctorAdminDashboard from './doctorAdminPanel/DoctorAdminDashboard'
 import ProtectedRoute from './Components/ProtectedRoute'
-
+import About from './Pages/About'
+import Doctors from './Pages/Doctors'
 function App() {
   const location = useLocation();
   const authPages = ['/register', '/login'];
@@ -23,6 +24,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/doctors" element={<Doctors />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>
             <DoctorAdminDashboard />

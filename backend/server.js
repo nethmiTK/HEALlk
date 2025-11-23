@@ -8,8 +8,7 @@ const authRoutes = require('./Routes/AuthRoutes');
 const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
 const servicesRoutes = require('./Routes/ServicesRoutes');
-const qualificationRoutes = require('./Routes/QualificationRoutes');  // <-- Added
-
+ 
 const { testConnection, initializeDatabase } = require('./config/database');
 
 const app = express();
@@ -33,9 +32,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/services', servicesRoutes);
-
-// **Add qualification routes here**
-app.use('/api/qualifications', qualificationRoutes);
+const qualificationRoutes = require("./Routes/QualificationRoutes");
+app.use("/api/qualifications", qualificationRoutes);
 
 // Register clinic routes
 app.use('/api/clinics', clinicRoutes);

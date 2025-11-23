@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'heallk_secret_key_2025';
 
-// Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -27,8 +26,7 @@ const authenticateToken = (req, res, next) => {
       
       console.log('Auth middleware - Token verified for user:', user.userId, 'Role:', user.role);
       
-      // Set both userId and id for backward compatibility
-      req.user = {
+       req.user = {
         ...user,
         id: user.userId
       };

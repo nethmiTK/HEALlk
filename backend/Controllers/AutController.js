@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/database');
 require('dotenv').config();
-
 const JWT_SECRET = process.env.JWT_SECRET || 'heallk_secret_key_2025';
 
 const validateRegistrationData = (data) => {

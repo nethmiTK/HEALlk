@@ -1,7 +1,6 @@
 const { query, execute } = require('../config/database');
 
 class ServicesController {
-  // Get all active services from all doctors (PUBLIC)
   static async getAllPublicServices(req, res) {
     try {
       const services = await query(
@@ -14,8 +13,7 @@ class ServicesController {
          ORDER BY s.created_at DESC`
       );
 
-      // Convert media_urls JSON string back to array and format response
-      const servicesWithMedia = services.map(service => ({
+       const servicesWithMedia = services.map(service => ({
         id: service.id,
         title: service.title,
         description: service.description,
@@ -43,8 +41,7 @@ class ServicesController {
     }
   }
 
-  // Get services by specific doctor ID (PUBLIC)
-  static async getServicesByDoctorId(req, res) {
+   static async getServicesByDoctorId(req, res) {
     try {
       const doctorId = req.params.doctorId;
       
@@ -59,8 +56,7 @@ class ServicesController {
         [doctorId]
       );
 
-      // Convert media_urls JSON string back to array and format response
-      const servicesWithMedia = services.map(service => ({
+       const servicesWithMedia = services.map(service => ({
         id: service.id,
         title: service.title,
         description: service.description,
@@ -88,8 +84,7 @@ class ServicesController {
     }
   }
 
-  // Get a specific service by ID (PUBLIC)
-  static async getPublicServiceById(req, res) {
+   static async getPublicServiceById(req, res) {
     try {
       const serviceId = req.params.id;
 
@@ -110,8 +105,7 @@ class ServicesController {
         });
       }
 
-      // Format response with mediaUrls
-      const serviceWithMedia = {
+       const serviceWithMedia = {
         id: service[0].id,
         title: service[0].title,
         description: service[0].description,
@@ -140,8 +134,7 @@ class ServicesController {
     }
   }
 
-  // Get all services for the current doctor
-  static async getServices(req, res) {
+   static async getServices(req, res) {
     try {
       if (!req.user || !req.user.userId) {
         return res.status(401).json({
@@ -161,8 +154,7 @@ class ServicesController {
         [doctorId]
       );
 
-      // Convert media_urls JSON string back to array and format response
-      const servicesWithMedia = services.map(service => {
+       const servicesWithMedia = services.map(service => {
         let mediaUrls = [];
         try {
           if (service.media_urls && service.media_urls.trim() !== '') {
@@ -193,8 +185,7 @@ class ServicesController {
     }
   }
 
-  // Add a new service
-  static async addService(req, res) {
+   static async addService(req, res) {
     try {
       if (!req.user || !req.user.userId) {
         return res.status(401).json({
@@ -206,16 +197,14 @@ class ServicesController {
       const doctorId = req.user.userId;
       const { title, description, duration, price, category, mediaUrls, isActive } = req.body;
 
-      // Validation
-      if (!title || !description || !duration || !price || !category) {
+       if (!title || !description || !duration || !price || !category) {
         return res.status(400).json({
           success: false,
           message: 'All required fields must be provided'
         });
       }
 
-      // Convert mediaUrls array to JSON string
-      const mediaUrlsJson = JSON.stringify(mediaUrls || []);
+       const mediaUrlsJson = JSON.stringify(mediaUrls || []);
 
       const result = await execute(
         `INSERT INTO services (doctor_id, title, description, duration, price, category, media_urls, is_active)
@@ -237,8 +226,7 @@ class ServicesController {
     }
   }
 
-  // Update an existing service
-  static async updateService(req, res) {
+   static async updateService(req, res) {
     try {
       if (!req.user || !req.user.userId) {
         return res.status(401).json({
@@ -259,8 +247,7 @@ class ServicesController {
         });
       }
 
-      // Check if service exists and belongs to the doctor
-      const existingService = await query(
+       const existingService = await query(
         'SELECT id FROM services WHERE id = ? AND doctor_id = ?',
         [serviceId, doctorId]
       );
@@ -272,8 +259,7 @@ class ServicesController {
         });
       }
 
-      // Convert mediaUrls array to JSON string
-      const mediaUrlsJson = JSON.stringify(mediaUrls || []);
+       const mediaUrlsJson = JSON.stringify(mediaUrls || []);
 
       await execute(
         `UPDATE services 
@@ -297,8 +283,7 @@ class ServicesController {
     }
   }
 
-  // Delete a service
-  static async deleteService(req, res) {
+   static async deleteService(req, res) {
     try {
       if (!req.user || !req.user.userId) {
         return res.status(401).json({
@@ -310,8 +295,7 @@ class ServicesController {
       const doctorId = req.user.userId;
       const serviceId = req.params.id;
 
-      // Check if service exists and belongs to the doctor
-      const existingService = await query(
+       const existingService = await query(
         'SELECT id FROM services WHERE id = ? AND doctor_id = ?',
         [serviceId, doctorId]
       );
@@ -341,8 +325,7 @@ class ServicesController {
     }
   }
 
-  // Toggle service active status
-  static async toggleServiceStatus(req, res) {
+   static async toggleServiceStatus(req, res) {
     try {
       if (!req.user || !req.user.userId) {
         return res.status(401).json({
@@ -354,8 +337,7 @@ class ServicesController {
       const doctorId = req.user.userId;
       const serviceId = req.params.id;
 
-      // Check if service exists and belongs to the doctor
-      const existingService = await query(
+       const existingService = await query(
         'SELECT id, is_active FROM services WHERE id = ? AND doctor_id = ?',
         [serviceId, doctorId]
       );
@@ -388,8 +370,7 @@ class ServicesController {
     }
   }
 
-  // Get service categories
-  static async getServiceCategories(req, res) {
+   static async getServiceCategories(req, res) {
     try {
       const categories = await query(
         'SELECT name, description FROM service_categories WHERE is_active = TRUE ORDER BY name'
