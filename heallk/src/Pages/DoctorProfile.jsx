@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../Components/Navbar';
 import { API_BASE_URL } from '../config';
+import aboutImg from '../assets/about.png';
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -44,7 +44,6 @@ const DoctorProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-green-50">
-        <Navbar />
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-500"></div>
         </div>
@@ -55,7 +54,6 @@ const DoctorProfile = () => {
   if (!doctor) {
     return (
       <div className="min-h-screen bg-green-50">
-        <Navbar />
         <div className="text-center py-20">
           <h1 className="text-2xl font-bold text-gray-800">Doctor not found</h1>
         </div>
@@ -64,32 +62,61 @@ const DoctorProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-green-50">
-      <Navbar />
-      
-      {/* Professional Hero Section */}
-      <section className="relative h-80 bg-gradient-to-br from-green-600 via-blue-600 to-indigo-700 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: '60px 60px'
-          }}></div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Portfolio Hero Section */}
+      <section className="relative h-96 bg-gradient-to-br from-green-400 via-blue-500 to-indigo-600 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 opacity-20">
+          <img src={aboutImg} alt="Medical Background" className="w-full h-full object-cover" />
         </div>
         
-        {/* Medical Icons Background */}
+        {/* Doctor Profile Navbar */}
+        <nav className="relative z-20 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex justify-between items-center h-16">
+              <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+                <div className="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white border-opacity-30">
+                  <span className="text-white font-bold text-lg">H</span>
+                </div>
+                <span className="text-xl font-bold text-white">HEALlk</span>
+              </div>
+              
+              {/* Profile Tabs */}
+              <div className="flex items-center space-x-6">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                      activeTab === tab.id
+                        ? 'bg-white bg-opacity-20 backdrop-blur-sm text-white border border-white border-opacity-50'
+                        : 'text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10'
+                    }`}
+                  >
+                    <span className="text-lg">{tab.icon}</span>
+                    <span className="hidden sm:block">{tab.label.split(' ')[1]}</span>
+                  </button>
+                ))}
+              </div>
+              
+              <button onClick={() => navigate('/register')} className="bg-white bg-opacity-20 backdrop-blur-sm border-2 border-white border-opacity-50 text-white px-6 py-2 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-all duration-300">Register</button>
+            </div>
+          </div>
+        </nav>
+        
+        {/* Medical Icons Floating */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 text-white opacity-20 text-4xl">🏥</div>
-          <div className="absolute top-20 right-20 text-white opacity-20 text-3xl">⚕️</div>
-          <div className="absolute bottom-20 left-20 text-white opacity-20 text-3xl">🌿</div>
-          <div className="absolute bottom-10 right-10 text-white opacity-20 text-4xl">💊</div>
-          <div className="absolute top-1/2 left-1/4 text-white opacity-10 text-5xl">🩺</div>
-          <div className="absolute top-1/3 right-1/3 text-white opacity-10 text-4xl">🧘</div>
+          <div className="absolute top-20 left-16 text-white opacity-20 text-5xl animate-pulse">🏥</div>
+          <div className="absolute top-32 right-24 text-white opacity-20 text-4xl animate-bounce">⚕️</div>
+          <div className="absolute bottom-32 left-24 text-white opacity-20 text-4xl animate-pulse">🌿</div>
+          <div className="absolute bottom-20 right-16 text-white opacity-20 text-5xl animate-bounce">💊</div>
+          <div className="absolute top-1/2 left-1/3 text-white opacity-10 text-6xl">🩺</div>
+          <div className="absolute top-1/3 right-1/4 text-white opacity-10 text-5xl">🧘</div>
         </div>
         
-        {/* Content */}
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-6xl mx-auto px-4 w-full">
+        {/* Main Content */}
+        <div className="relative z-10 flex items-center h-full py-8">
+          <div className="max-w-7xl mx-auto px-4 w-full">
             <div className="flex items-center gap-8">
               {/* Profile Picture */}
               <div className="relative">
@@ -103,44 +130,56 @@ const DoctorProfile = () => {
                   )}
                 </div>
                 {/* Verified Badge */}
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-xl border-2 border-white">
                   <span className="text-white text-lg">✓</span>
                 </div>
               </div>
               
               {/* Doctor Info */}
-              <div className="text-white">
-                <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-lg" style={{fontFamily: 'Playfair Display, serif'}}>
-                  {doctor.name}
+              <div className="text-white flex-1">
+                <h1 className="text-4xl lg:text-5xl font-bold mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
+                  {doctor.name.toUpperCase()}
                 </h1>
-                <p className="text-xl md:text-2xl text-green-100 mb-4 font-medium">
+                <p className="text-xl lg:text-2xl text-blue-100 mb-4 font-light">
                   {doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
                 </p>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <span className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-white border-opacity-30">
-                    ✓ Verified Professional
-                  </span>
-                  <span className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-white border-opacity-30">
-                    📅 Since {new Date(doctor.joinedDate).getFullYear()}
-                  </span>
+                
+                {/* Status Badges */}
+                <div className="flex flex-wrap gap-3 mb-6">
+                  <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
+                    <span className="text-white font-medium text-sm">✓ Verified Professional</span>
+                  </div>
+                  <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
+                    <span className="text-white font-medium text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
+                  </div>
                   {doctor.clinics.length > 0 && (
-                    <span className="bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-white border-opacity-30">
-                      🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}
-                    </span>
+                    <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
+                      <span className="text-white font-medium text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
+                    </div>
                   )}
                 </div>
-                <div className="flex gap-4">
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3">
                   <a 
                     href={`tel:${doctor.phone}`}
-                    className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                    className="bg-white text-green-600 px-5 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
                   >
                     📞 Call Now
                   </a>
                   <a 
                     href={`mailto:${doctor.email}`}
-                    className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-30 flex items-center gap-2"
+                    className="bg-white bg-opacity-20 backdrop-blur-lg text-white px-5 py-2 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-50 flex items-center gap-2 text-sm"
                   >
                     📧 Email
+                  </a>
+                  <a 
+                    href={`https://wa.me/${doctor.phone.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-green-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
+                  >
+                    📱 WhatsApp
                   </a>
                 </div>
               </div>
@@ -148,35 +187,17 @@ const DoctorProfile = () => {
           </div>
         </div>
         
-        {/* Bottom Wave */}
+        {/* Wave Shape */}
         <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-16">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#f0fdf4"></path>
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-20">
+            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="#ffffff"></path>
+            <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="#ffffff"></path>
+            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#ffffff"></path>
           </svg>
         </div>
       </section>
 
-      {/* Tabs Navigation */}
-      <section className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 font-medium transition-all duration-200 border-b-2 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-green-500 text-green-600 bg-green-50'
-                    : 'border-transparent text-gray-600 hover:text-green-600 hover:bg-gray-50'
-                }`}
-              >
-                <span className="text-lg">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Tab Content */}
       <section className="py-12 bg-gray-50 min-h-screen">
