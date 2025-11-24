@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import aboutImg from '../assets/about.png';
+import About from '../doctor_profile/About';
+import Services from '../doctor_profile/Services';
+import ClinicInfo from '../doctor_profile/ClinicInfo';
+import Contact from '../doctor_profile/Contact';
+import ReviewSystem from '../Components/ReviewSystem';
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -86,10 +91,7 @@ const DoctorProfile = () => {
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
+                    onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
                       activeTab === tab.id
                         ? 'bg-white text-green-600 shadow-lg'
@@ -201,327 +203,18 @@ const DoctorProfile = () => {
 
 
 
-      {/* About Section */}
-      {activeTab === 'about' && (
-        <section id="about" className="py-12 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="space-y-8">
-              {/* About Me Section */}
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">About Dr. {doctor.name}</h2>
-                {doctor.description && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">About Me</h3>
-                    <p className="text-gray-600 leading-relaxed">{doctor.description}</p>
-                  </div>
-                )}
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="bg-green-50 p-6 rounded-xl text-center">
-                    <div className="text-3xl mb-3">📧</div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Email</h3>
-                    <p className="text-gray-600">{doctor.email}</p>
-                  </div>
-                  <div className="bg-blue-50 p-6 rounded-xl text-center">
-                    <div className="text-3xl mb-3">📞</div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Phone</h3>
-                    <p className="text-gray-600">{doctor.phone}</p>
-                  </div>
-                  <div className="bg-purple-50 p-6 rounded-xl text-center">
-                    <div className="text-3xl mb-3">🏥</div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Clinics</h3>
-                    <p className="text-gray-600">{doctor.clinics.length} Location{doctor.clinics.length !== 1 ? 's' : ''}</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Experience Section */}
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-xl font-bold text-gray-800 mb-6">Professional Experience</h3>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl">
-                    <h4 className="font-semibold text-gray-800 mb-2">Years of Practice</h4>
-                    <p className="text-2xl font-bold text-green-600">{new Date().getFullYear() - new Date(doctor.joinedDate).getFullYear()}+ Years</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
-                    <h4 className="font-semibold text-gray-800 mb-2">Specialization</h4>
-                    <p className="text-lg text-blue-600">{doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Ayurveda Specialist'}</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Qualifications */}
-              {doctor.qualifications.length > 0 && (
-                <div className="bg-white rounded-xl shadow-lg p-8">
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">🎓 Qualifications & Education</h3>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {doctor.qualifications.map((qual, index) => (
-                      <div key={qual.id} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-lg font-bold text-gray-800">{qual.degreeName}</h4>
-                          {qual.isVerified && (
-                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">✓ Verified</span>
-                          )}
-                        </div>
-                        <p className="text-blue-600 font-medium mb-2">{qual.institution}</p>
-                        <p className="text-gray-600 mb-2">{qual.specialization}</p>
-                        <p className="text-sm text-gray-500 mb-3">Completed: {qual.yearCompleted}</p>
-                        {qual.description && (
-                          <p className="text-sm text-gray-600 leading-relaxed">{qual.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Tab Content */}
+      <section className="py-12 bg-gray-50 min-h-screen">
+        <div className="max-w-6xl mx-auto px-4">
+          {activeTab === 'about' && <About doctor={doctor} />}
+          {activeTab === 'services' && <Services doctor={doctor} />}
+          {activeTab === 'clinics' && <ClinicInfo doctor={doctor} />}
+          {activeTab === 'contact' && <Contact doctor={doctor} />}
+          {activeTab === 'reviews' && <ReviewSystem doctorId={doctor?.id || 1} />}
+        </div>
+      </section>
 
-      {/* Services Section */}
-      {activeTab === 'services' && (
-        <section id="services" className="py-12 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="space-y-8">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Ayurvedic Specializations</h2>
-                <p className="text-gray-600 max-w-2xl mx-auto">Discover our comprehensive range of traditional Ayurvedic treatments and modern wellness services</p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[
-                  { title: 'Panchakarma Treatment', desc: 'Traditional detoxification and rejuvenation therapy for complete body cleansing', icon: '🌿', color: 'green' },
-                  { title: 'Herbal Medicine', desc: 'Natural herbal formulations using authentic Ayurvedic ingredients', icon: '💊', color: 'blue' },
-                  { title: 'Wellness Consultation', desc: 'Personalized health assessment and lifestyle guidance', icon: '🧘', color: 'purple' },
-                  { title: 'Stress Management', desc: 'Natural treatments for anxiety, stress relief and mental wellness', icon: '🧘', color: 'indigo' },
-                  { title: 'Beauty & Skin Care', desc: 'Ayurvedic beauty treatments for healthy, glowing skin', icon: '✨', color: 'pink' },
-                  { title: 'Pain Management', desc: 'Natural pain relief through Ayurvedic therapies and treatments', icon: '💆', color: 'orange' }
-                ].map((service, index) => (
-                  <div key={index} className={`bg-${service.color}-50 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-${service.color}-100`}>
-                    <div className="text-3xl mb-4">{service.icon}</div>
-                    <h3 className="font-bold text-gray-800 mb-3 text-lg">{service.title}</h3>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">{service.desc}</p>
-                    <div className="flex justify-between items-center">
-                      <button className={`text-${service.color}-600 font-medium text-sm hover:text-${service.color}-700`}>Learn More</button>
-                      <a 
-                        href={`https://wa.me/${doctor.phone.replace(/[^0-9]/g, '')}?text=Hi, I'm interested in ${service.title}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`bg-${service.color}-500 text-white px-3 py-1 rounded-full text-xs hover:bg-${service.color}-600 transition-colors`}
-                      >
-                        WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
-      {/* Clinics Section */}
-      {activeTab === 'clinics' && (
-        <section id="clinics" className="py-12 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-800">Clinic Locations</h2>
-              {doctor.clinics.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8">
-                  {doctor.clinics.map((clinic, index) => (
-                    <div key={clinic.id} className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">{clinic.name}</h3>
-                      <div className="space-y-3 text-gray-600">
-                        <div className="flex items-start gap-3">
-                          <span className="text-blue-500">📍</span>
-                          <div>
-                            <p>{clinic.address}</p>
-                            <p>{clinic.city}</p>
-                          </div>
-                        </div>
-                        {clinic.phone && (
-                          <div className="flex items-center gap-3">
-                            <span className="text-green-500">📞</span>
-                            <p>{clinic.phone}</p>
-                          </div>
-                        )}
-                        {clinic.email && (
-                          <div className="flex items-center gap-3">
-                            <span className="text-purple-500">📧</span>
-                            <p>{clinic.email}</p>
-                          </div>
-                        )}
-                        
-                        {clinic.specializations && clinic.specializations.length > 0 && (
-                          <div className="mt-4">
-                            <p className="font-semibold text-gray-700 mb-2">Specializations:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {clinic.specializations.map(spec => (
-                                <span key={spec} className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-                                  {spec}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {clinic.facilities && clinic.facilities.length > 0 && (
-                          <div className="mt-4">
-                            <p className="font-semibold text-gray-700 mb-2">Facilities:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {clinic.facilities.map(facility => (
-                                <span key={facility} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                                  {facility}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {clinic.workingHours && (
-                          <div className="mt-4">
-                            <p className="font-semibold text-gray-700 mb-2">Working Hours:</p>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              {Object.entries(clinic.workingHours).map(([day, hours]) => (
-                                <div key={day} className="flex justify-between">
-                                  <span className="capitalize font-medium">{day}:</span>
-                                  <span className={hours.isOpen ? 'text-green-600' : 'text-red-500'}>
-                                    {hours.isOpen ? `${hours.open} - ${hours.close}` : 'Closed'}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-                  <div className="text-4xl mb-4">🏥</div>
-                  <p className="text-gray-600">No clinic information available</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Contact Section */}
-      {activeTab === 'contact' && (
-        <section id="contact" className="py-12 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact Information</h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl">
-                    <div className="text-2xl">📞</div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Phone</h3>
-                      <p className="text-gray-600">{doctor.phone}</p>
-                      <a href={`tel:${doctor.phone}`} className="text-green-600 hover:text-green-700 text-sm font-medium">
-                        Call Now →
-                      </a>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
-                    <div className="text-2xl">📧</div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">Email</h3>
-                      <p className="text-gray-600">{doctor.email}</p>
-                      <a href={`mailto:${doctor.email}`} className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        Send Email →
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">📅 Book Appointment</h3>
-                  <p className="text-gray-600 mb-4">Ready to schedule a consultation? Contact Dr. {doctor.name} directly.</p>
-                  <div className="space-y-3">
-                    <a 
-                      href={`tel:${doctor.phone}`}
-                      className="block w-full bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-lg font-medium transition-colors"
-                    >
-                      📞 Call to Book
-                    </a>
-                    <a 
-                      href={`mailto:${doctor.email}?subject=Appointment Request`}
-                      className="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-3 rounded-lg font-medium transition-colors"
-                    >
-                      📧 Email to Book
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Reviews Section */}
-      {activeTab === 'reviews' && (
-        <section id="reviews" className="py-12 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="space-y-8">
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Patient Reviews</h2>
-                
-                {doctor.reviews && doctor.reviews.length > 0 ? (
-                  <div className="space-y-6">
-                    {doctor.reviews.map((review, index) => (
-                      <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-semibold text-gray-800">{review.reviewerName}</h4>
-                            <div className="flex items-center gap-1 mt-1">
-                              {[...Array(5)].map((_, i) => (
-                                <span key={i} className={`text-lg ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}>⭐</span>
-                              ))}
-                              <span className="text-sm text-gray-500 ml-2">({review.rating}/5)</span>
-                            </div>
-                          </div>
-                          <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <p className="text-gray-600 leading-relaxed">{review.reviewText}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="text-4xl mb-4">⭐</div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">No Reviews Yet</h3>
-                    <p className="text-gray-600 mb-6">Be the first to leave a review for Dr. {doctor.name}</p>
-                  </div>
-                )}
-                
-                {/* Add Review Form */}
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Leave a Review</h3>
-                  <form className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <input type="text" placeholder="Your Name" className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                      <input type="email" placeholder="Your Email (optional)" className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                      <div className="flex gap-1">
-                        {[1,2,3,4,5].map(star => (
-                          <button key={star} type="button" className="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">⭐</button>
-                        ))}
-                      </div>
-                    </div>
-                    <textarea placeholder="Write your review..." rows="4" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-                    <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">Submit Review</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
 
 

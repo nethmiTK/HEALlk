@@ -35,7 +35,7 @@ const ReviewSystem = ({ doctorId = 1 }) => {
 
   const loadReviews = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/public`);
+      const response = await fetch(`${API_BASE_URL}/reviews/public`);
       const data = await response.json();
       if (data.success) {
         setReviews(data.reviews);
@@ -55,7 +55,7 @@ const ReviewSystem = ({ doctorId = 1 }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/public`, {
+      const response = await fetch(`${API_BASE_URL}/reviews/public`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -181,11 +181,7 @@ const ReviewSystem = ({ doctorId = 1 }) => {
               </span>
             </div>
             <p className="text-gray-700">{review.comment}</p>
-            {review.status === 'pending' && (
-              <span className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded mt-2 inline-block">
-                Pending Approval
-              </span>
-            )}
+
           </div>
         ))}
       </div>

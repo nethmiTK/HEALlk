@@ -12,6 +12,11 @@ import ProtectedRoute from './Components/ProtectedRoute'
 import About from './Pages/About'
 import Doctors from './Pages/Doctors'
 import DoctorProfile from './Pages/DoctorProfile'
+import DoctorAboutPage from './doctor_profile/DoctorAboutPage'
+import DoctorServicesPage from './doctor_profile/DoctorServicesPage'
+import DoctorClinicPage from './doctor_profile/DoctorClinicPage'
+import DoctorContactPage from './doctor_profile/DoctorContactPage'
+import DoctorReviewsPage from './doctor_profile/DoctorReviewsPage'
 function App() {
   const location = useLocation();
   const authPages = ['/register', '/login'];
@@ -28,6 +33,11 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
+        <Route path="/doctor/:id/about" element={<DoctorAboutPage />} />
+        <Route path="/doctor/:id/services" element={<DoctorServicesPage />} />
+        <Route path="/doctor/:id/clinic" element={<DoctorClinicPage />} />
+        <Route path="/doctor/:id/contact" element={<DoctorContactPage />} />
+        <Route path="/doctor/:id/reviews" element={<DoctorReviewsPage />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>
             <DoctorAdminDashboard />
