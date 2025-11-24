@@ -49,7 +49,7 @@ exports.getDoctorProfile = async (req, res) => {
     const doctorId = req.params.id;
     
     // Get doctor basic info
-    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, created_at FROM users WHERE user_id = ? AND role IN ('admin', 'doctor')`;
+    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, created_at FROM users WHERE user_id = ? AND role IN ('admin', 'doctor')`;
     const doctorResult = await query(doctorSql, [doctorId]);
     
     if (doctorResult.length === 0) {
@@ -66,6 +66,10 @@ exports.getDoctorProfile = async (req, res) => {
     const qualificationsSql = `SELECT * FROM qualifications WHERE user_id = ? ORDER BY year_completed DESC`;
     const qualifications = await query(qualificationsSql, [doctorId]);
     
+    // Get doctor's reviews
+    const reviewsSql = `SELECT * FROM doctor_reviews WHERE doctor_id = ? ORDER BY created_at DESC`;
+    const reviews = await query(reviewsSql, [doctorId]);
+    
     const profile = {
       id: doctor.user_id,
       name: doctor.full_name,
@@ -73,6 +77,7 @@ exports.getDoctorProfile = async (req, res) => {
       phone: doctor.phone,
       profilePic: doctor.profile_pic,
       role: doctor.role,
+      description: doctor.description,
       joinedDate: doctor.created_at,
       clinics: clinics.map(clinic => ({
         id: clinic.id,
@@ -93,6 +98,14 @@ exports.getDoctorProfile = async (req, res) => {
         yearCompleted: qual.year_completed,
         description: qual.description,
         isVerified: qual.is_verified
+      })),
+      reviews: reviews.map(review => ({
+        id: review.id,
+        reviewerName: review.reviewer_name,
+        reviewerEmail: review.reviewer_email,
+        rating: review.rating,
+        reviewText: review.review_text,
+        createdAt: review.created_at
       }))
     };
     

@@ -120,6 +120,42 @@ const initializeDatabase = async () => {
     await query(createClinicInfoTable);
     console.log('✅ Clinic info table ensured');
 
+    // Add description column to users table if it doesn't exist
+    try {
+      const descriptionColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'users' AND column_name = 'description'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (descriptionColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE users 
+          ADD COLUMN description TEXT NULL
+        `);
+        console.log('✅ Added description column to users table');
+      }
+    } catch (error) {
+      console.warn('Description column check/creation warning:', error.message);
+    }
+
+    // Create reviews table if it doesn't exist
+    const createReviewsTableNew = `
+      CREATE TABLE IF NOT EXISTS doctor_reviews (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        doctor_id INT NOT NULL,
+        reviewer_name VARCHAR(255) NOT NULL,
+        reviewer_email VARCHAR(255),
+        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        review_text TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createReviewsTableNew);
+    console.log('✅ Doctor reviews table ensured');
+
     // Check if status column exists and add it if it doesn't
     try {
       const statusColumnExists = await query(`

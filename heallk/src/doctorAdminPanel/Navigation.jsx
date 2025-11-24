@@ -42,6 +42,16 @@ const Navigation = ({ user, isCollapsed }) => {
     }
   };
 
+  const handleViewProfile = () => {
+    const userId = user?.user_id;
+    
+    if (userId) {
+      navigate(`/doctor-profile/${userId}`);
+    } else {
+      toast.error('User ID not available');
+    }
+  };
+
   const getUserInitials = () => {
     if (!user?.name) return 'R';
     const names = user.name.split(' ');
@@ -53,11 +63,29 @@ const Navigation = ({ user, isCollapsed }) => {
 
   return (
     <div className="sidebar-footer">
-      {/* Quick Actions - Professional Logout Button */}
+      {/* Quick Actions - Profile View and Logout Buttons */}
       <div className="quick-actions">
         <button 
+          className="action-btn profile-btn" 
+          {...(isCollapsed && {
+            'data-tooltip-id': 'profile-btn-tooltip',
+            'data-tooltip-content': 'View My Public Profile'
+          })}
+          onClick={handleViewProfile}
+        >
+          {!isCollapsed ? (
+            <>
+              <span className="profile-icon">👤</span>
+              <span className="profile-text">My Profile</span>
+            </>
+          ) : (
+            <span className="profile-icon">👤</span>
+          )}
+        </button>
+        
+        <button 
           className="action-btn logout-btn professional-logout" 
-          {...(!isCollapsed && {
+          {...(isCollapsed && {
             'data-tooltip-id': 'logout-btn-tooltip',
             'data-tooltip-content': 'Sign Out - End your session securely'
           })}
@@ -98,6 +126,19 @@ const Navigation = ({ user, isCollapsed }) => {
             fontSize: '13px',
             fontWeight: '500',
             maxWidth: '260px',
+            borderRadius: '8px',
+            padding: '8px 12px'
+          }}
+        />
+        <Tooltip 
+          id="profile-btn-tooltip" 
+          place="top" 
+          style={{ 
+            backgroundColor: '#0A3D62', 
+            color: '#ffffff',
+            fontSize: '13px',
+            fontWeight: '500',
+            maxWidth: '220px',
             borderRadius: '8px',
             padding: '8px 12px'
           }}
