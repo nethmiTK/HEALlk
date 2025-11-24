@@ -10,14 +10,18 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [previewCover, setPreviewCover] = useState(null);
   const fileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   // Form states
   const [profileForm, setProfileForm] = useState({
     full_name: '',
     email: '',
     phone: '',
-    profile_pic: ''
+    profile_pic: '',
+    cover_photo: '',
+    description: ''
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -52,11 +56,16 @@ const Profile = () => {
           full_name: data.user.full_name || '',
           email: data.user.email || '',
           phone: data.user.phone || '',
-          profile_pic: data.user.profile_pic || ''
+          profile_pic: data.user.profile_pic || '',
+          cover_photo: data.user.cover_photo || '',
+          description: data.user.description || ''
         });
-        // Set preview image if profile picture exists
+        // Set preview images if they exist
         if (data.user.profile_pic) {
           setPreviewImage(data.user.profile_pic);
+        }
+        if (data.user.cover_photo) {
+          setPreviewCover(data.user.cover_photo);
         }
       } else {
         throw new Error(data.message || 'Failed to load profile data');
@@ -133,6 +142,41 @@ const Profile = () => {
     }
   };
 
+  const handleCoverChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB 📁');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file 🖼️');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setPreviewCover(base64String);
+        setProfileForm(prev => ({
+          ...prev,
+          cover_photo: base64String
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverRemove = () => {
+    setPreviewCover(null);
+    setProfileForm(prev => ({
+      ...prev,
+      cover_photo: ''
+    }));
+    if (coverInputRef.current) {
+      coverInputRef.current.value = '';
+    }
+  };
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     
@@ -149,7 +193,9 @@ const Profile = () => {
         body: JSON.stringify({
           full_name: profileForm.full_name,
           phone: profileForm.phone,
-          profile_pic: profileForm.profile_pic
+          profile_pic: profileForm.profile_pic,
+          cover_photo: profileForm.cover_photo,
+          description: profileForm.description
         })
       });
 
@@ -252,9 +298,13 @@ const Profile = () => {
     setProfileForm({
       full_name: user?.full_name || '',
       email: user?.email || '',
-      phone: user?.phone || ''
+      phone: user?.phone || '',
+      profile_pic: user?.profile_pic || '',
+      cover_photo: user?.cover_photo || '',
+      description: user?.description || ''
     });
     setPreviewImage(user?.profile_pic || null);
+    setPreviewCover(user?.cover_photo || null);
   };
 
   const formatDate = (dateString) => {
@@ -436,6 +486,79 @@ const Profile = () => {
                   <div className="form-display">
                     {user?.created_at ? formatDate(user.created_at) : 'Unknown'}
                   </div>
+                </div>
+              </div>
+
+              {/* Cover Photo Section */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Cover Photo</label>
+                  <div className="cover-photo-section">
+                    {previewCover || user?.cover_photo ? (
+                      <div className="cover-preview">
+                        <img 
+                          src={previewCover || user.cover_photo} 
+                          alt="Cover" 
+                          className="cover-image"
+                          style={{width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px'}}
+                        />
+                        {isEditing && (
+                          <button 
+                            type="button" 
+                            onClick={handleCoverRemove}
+                            className="btn btn-secondary"
+                            style={{marginTop: '8px'}}
+                          >
+                            Remove Cover
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="cover-placeholder" style={{height: '200px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <span>No cover photo</span>
+                      </div>
+                    )}
+                    {isEditing && (
+                      <input
+                        type="file"
+                        ref={coverInputRef}
+                        onChange={handleCoverChange}
+                        accept="image/*"
+                        className="file-input"
+                        style={{ display: 'none' }}
+                      />
+                    )}
+                    {isEditing && (
+                      <button 
+                        type="button" 
+                        onClick={() => coverInputRef.current?.click()}
+                        className="btn btn-outline"
+                        style={{marginTop: '8px'}}
+                      >
+                        {previewCover || user?.cover_photo ? 'Change Cover' : 'Add Cover Photo'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="description" className="form-label">
+                    Professional Description
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    className="form-input"
+                    value={profileForm.description}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    rows="4"
+                    placeholder="Describe your professional background, specializations, and experience..."
+                    title="Your professional description that will appear on your public profile"
+                  />
                 </div>
               </div>
             </form>

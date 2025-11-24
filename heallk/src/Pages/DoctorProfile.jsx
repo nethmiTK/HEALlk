@@ -67,23 +67,23 @@ const DoctorProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-green-50">
       {/* Portfolio Hero Section */}
-      <section className="relative h-96 bg-gradient-to-br from-green-400 via-blue-500 to-indigo-600 overflow-hidden pt-16">
+      <section className="relative h-96 overflow-hidden pt-16">
         {/* Background Image */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0">
           <img src={aboutImg} alt="Medical Background" className="w-full h-full object-cover" />
         </div>
         
         {/* Doctor Profile Navbar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-400 via-blue-500 to-indigo-600 shadow-lg">
-          <div className="max-w-7xl mx-auto px-4">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg">
+          <div className="w-full px-4">
             <div className="flex justify-between items-center h-16">
               <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-                <div className="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white border-opacity-30">
+                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">H</span>
                 </div>
-                <span className="text-xl font-bold text-white">HEALlk</span>
+                <span className="text-xl font-bold text-gray-800">HEALlk</span>
               </div>
               
               {/* Profile Tabs */}
@@ -94,8 +94,8 @@ const DoctorProfile = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
                       activeTab === tab.id
-                        ? 'bg-white text-green-600 shadow-lg'
-                        : 'text-white hover:text-green-200 hover:bg-white hover:bg-opacity-20'
+                        ? 'bg-green-500 text-white shadow-lg'
+                        : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
                     }`}
                   >
                     {tab.label}
@@ -103,7 +103,7 @@ const DoctorProfile = () => {
                 ))}
               </div>
               
-              <button onClick={() => navigate('/register')} className="bg-white bg-opacity-20 backdrop-blur-sm border-2 border-white border-opacity-50 text-white px-6 py-2 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-all duration-300">Register</button>
+              <button onClick={() => navigate('/register')} className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300">Register</button>
             </div>
           </div>
         </nav>
@@ -120,7 +120,7 @@ const DoctorProfile = () => {
         
         {/* Main Content */}
         <div className="relative z-10 flex items-center h-full py-8">
-          <div className="max-w-7xl mx-auto px-4 w-full">
+          <div className="w-full px-4">
             <div className="flex items-center gap-8">
               {/* Profile Picture */}
               <div className="relative">
@@ -140,25 +140,25 @@ const DoctorProfile = () => {
               </div>
               
               {/* Doctor Info */}
-              <div className="text-white flex-1">
+              <div className="text-black flex-1">
                 <h1 className="text-4xl lg:text-5xl font-bold mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
-                  {doctor.name.toUpperCase()}
+                  {doctor?.name?.toUpperCase() || 'DOCTOR'}
                 </h1>
-                <p className="text-xl lg:text-2xl text-blue-100 mb-4 font-light">
+                <p className="text-xl lg:text-2xl text-gray-700 mb-4 font-light" style={{fontFamily: 'Playfair Display, serif'}}>
                   {doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
                 </p>
                 
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-3 mb-6">
-                  <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
-                    <span className="text-white font-medium text-sm">✓ Verified Professional</span>
+                  <div className="bg-green-200 px-4 py-2 rounded-full">
+                    <span className="text-black font-medium text-sm">✓ Verified Professional</span>
                   </div>
-                  <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
-                    <span className="text-white font-medium text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
+                  <div className="bg-green-200 px-4 py-2 rounded-full">
+                    <span className="text-black font-medium text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
                   </div>
                   {doctor.clinics.length > 0 && (
-                    <div className="bg-white bg-opacity-20 backdrop-blur-lg px-4 py-2 rounded-full border border-white border-opacity-30">
-                      <span className="text-white font-medium text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
+                    <div className="bg-green-200 px-4 py-2 rounded-full">
+                      <span className="text-black font-medium text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
                     </div>
                   )}
                 </div>
@@ -173,12 +173,12 @@ const DoctorProfile = () => {
                   </a>
                   <a 
                     href={`mailto:${doctor.email}`}
-                    className="bg-white bg-opacity-20 backdrop-blur-lg text-white px-5 py-2 rounded-full font-semibold hover:bg-opacity-30 transition-all duration-300 border border-white border-opacity-50 flex items-center gap-2 text-sm"
+                    className="bg-green-200 text-black px-5 py-2 rounded-full font-semibold hover:bg-green-300 transition-all duration-300 flex items-center gap-2 text-sm"
                   >
                     📧 Email
                   </a>
                   <a 
-                    href={`https://wa.me/${doctor.phone.replace(/[^0-9]/g, '')}`}
+                    href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-green-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
@@ -204,13 +204,76 @@ const DoctorProfile = () => {
 
 
       {/* Tab Content */}
-      <section className="py-12 bg-gray-50 min-h-screen">
-        <div className="max-w-6xl mx-auto px-4">
-          {activeTab === 'about' && <About doctor={doctor} />}
-          {activeTab === 'services' && <Services doctor={doctor} />}
-          {activeTab === 'clinics' && <ClinicInfo doctor={doctor} />}
-          {activeTab === 'contact' && <Contact doctor={doctor} />}
-          {activeTab === 'reviews' && <ReviewSystem doctorId={doctor?.id || 1} />}
+      <section className="py-12 bg-green-50 min-h-screen">
+        <div className="w-full">
+          {activeTab === 'about' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>About Me</h2>
+              </div>
+              <div className="flex items-start gap-8 mb-8 px-4">
+                <div className="w-64 h-64 rounded-lg overflow-hidden shadow-xl border-4 border-green-300 flex-shrink-0">
+                  {doctor.profilePic ? (
+                    <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <span className="text-8xl text-white font-bold">Dr</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg text-gray-700 leading-relaxed" style={{fontFamily: 'Playfair Display, serif'}}>
+                    {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
+                  </p>
+                </div>
+              </div>
+              <About doctor={doctor} />
+            </div>
+          )}
+          {activeTab === 'services' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Our Services</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                  Professional healthcare services offered by Dr. {doctor.name}
+                </p>
+              </div>
+              <Services doctor={doctor} />
+            </div>
+          )}
+          {activeTab === 'clinics' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Clinic Information</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                  Visit our clinic for professional healthcare services
+                </p>
+              </div>
+              <ClinicInfo doctor={doctor} />
+            </div>
+          )}
+          {activeTab === 'contact' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Contact Doctor</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                  Get in touch with Dr. {doctor.name} for appointments and consultations
+                </p>
+              </div>
+              <Contact doctor={doctor} />
+            </div>
+          )}
+          {activeTab === 'reviews' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Patient Reviews</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                  Read what our patients say about Dr. {doctor.name}
+                </p>
+              </div>
+              {doctor?.id && <ReviewSystem doctorId={doctor.id} />}
+            </div>
+          )}
         </div>
       </section>
 
@@ -220,7 +283,7 @@ const DoctorProfile = () => {
 
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="w-full px-4 text-center">
           <h2 className="text-3xl font-bold mb-4" style={{fontFamily: 'Playfair Display, serif'}}>
             Ready to Book a Consultation?
           </h2>

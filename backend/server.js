@@ -27,6 +27,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+
 // Your existing routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reviews', reviewRoutes);
@@ -40,6 +41,10 @@ app.use('/api/public', publicRoutes);
 
 // Register clinic routes
 app.use('/api/clinics', clinicRoutes);
+
+// Register product routes
+const productRoutes = require('./Routes/ProductRoutes');
+app.use('/api/products', productRoutes);
 
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);

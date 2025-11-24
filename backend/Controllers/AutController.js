@@ -137,7 +137,7 @@ const login = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const [user] = await query(
-      'SELECT user_id, full_name, email, phone, profile_pic, role, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, profile_pic, cover_photo, description, role, created_at FROM users WHERE user_id = ?',
       [req.user.userId]
     );
     
@@ -155,10 +155,17 @@ const getProfile = async (req, res) => {
 // Update Profile Controller
 const updateProfile = async (req, res) => {
   try {
-    const { full_name, phone, profile_pic } = req.body;
+    const { full_name, phone, profile_pic, cover_photo, description } = req.body;
     const { userId } = req.user;
     
-    console.log('Profile update data:', { full_name, phone, profile_pic: profile_pic ? 'Image provided' : 'No image', userId });
+    console.log('Profile update data:', { 
+      full_name, 
+      phone, 
+      profile_pic: profile_pic ? 'Image provided' : 'No image',
+      cover_photo: cover_photo ? 'Cover provided' : 'No cover',
+      description: description ? 'Description provided' : 'No description',
+      userId 
+    });
 
     if (phone && phone.length < 10) {
       return res.status(400).json({
@@ -168,14 +175,14 @@ const updateProfile = async (req, res) => {
     }
 
     const updateResult = await query(
-      'UPDATE users SET full_name = COALESCE(?, full_name), phone = COALESCE(?, phone), profile_pic = COALESCE(?, profile_pic) WHERE user_id = ?',
-      [full_name?.trim() || null, phone || null, profile_pic || null, userId]
+      'UPDATE users SET full_name = COALESCE(?, full_name), phone = COALESCE(?, phone), profile_pic = COALESCE(?, profile_pic), cover_photo = COALESCE(?, cover_photo), description = COALESCE(?, description) WHERE user_id = ?',
+      [full_name?.trim() || null, phone || null, profile_pic || null, cover_photo || null, description?.trim() || null, userId]
     );
     
     console.log('Update result:', updateResult);
 
     const [updatedUser] = await query(
-      'SELECT user_id, full_name, email, phone, profile_pic, role, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, profile_pic, cover_photo, description, role, created_at FROM users WHERE user_id = ?',
       [userId]
     );
     

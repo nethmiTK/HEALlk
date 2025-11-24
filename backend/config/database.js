@@ -239,6 +239,26 @@ const initializeDatabase = async () => {
     await query(createServiceCategoriesTable);
     console.log('✅ Service categories table ensured');
 
+    // Create products table if it doesn't exist
+    const createProductsTable = `
+      CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        product_name VARCHAR(255) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        ingredient TEXT,
+        wage DECIMAL(10,2),
+        description TEXT,
+        category VARCHAR(50) DEFAULT 'Medicine',
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createProductsTable);
+    console.log('✅ Products table ensured');
+
     // Insert default service categories if table is empty
     const categoryCount = await query('SELECT COUNT(*) as count FROM service_categories');
     if (categoryCount[0].count === 0) {
