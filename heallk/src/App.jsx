@@ -11,6 +11,7 @@ import DoctorAdminDashboard from './doctorAdminPanel/DoctorAdminDashboard'
 import ProtectedRoute from './Components/ProtectedRoute'
 import About from './Pages/About'
 import Doctors from './Pages/Doctors'
+import DoctorProfile from './Pages/DoctorProfile'
 function App() {
   const location = useLocation();
   const authPages = ['/register', '/login'];
@@ -26,6 +27,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/doctors" element={<Doctors />} />
+        <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>
             <DoctorAdminDashboard />

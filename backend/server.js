@@ -35,6 +35,9 @@ app.use('/api/services', servicesRoutes);
 const qualificationRoutes = require("./Routes/QualificationRoutes");
 app.use("/api/qualifications", qualificationRoutes);
 
+const publicRoutes = require('./Routes/PublicRoutes');
+app.use('/api/public', publicRoutes);
+
 // Register clinic routes
 app.use('/api/clinics', clinicRoutes);
 
