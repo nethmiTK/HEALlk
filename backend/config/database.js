@@ -98,6 +98,38 @@ const initializeDatabase = async () => {
     await query(createQualificationsTable);
     console.log('✅ Doctor qualifications table ensured');
 
+    // Create clinic_info table if it doesn't exist
+    const createClinicInfoTable = `
+      CREATE TABLE IF NOT EXISTS clinic_info (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        clinic_name VARCHAR(255) NOT NULL,
+        address TEXT NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        postal_code VARCHAR(20),
+        phone VARCHAR(20) NOT NULL,
+        email VARCHAR(255),
+        website VARCHAR(255),
+        description TEXT,
+        specializations JSON,
+        facilities JSON,
+        working_hours JSON,
+        emergency_contact VARCHAR(20),
+        insurance_accepted JSON,
+        images JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        CONSTRAINT fk_clinic_user
+          FOREIGN KEY (user_id) REFERENCES users(user_id)
+          ON DELETE CASCADE
+          ON UPDATE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createClinicInfoTable);
+    console.log('✅ Clinic info table ensured');
+
     // Check if status column exists and add it if it doesn't
     try {
       const statusColumnExists = await query(`

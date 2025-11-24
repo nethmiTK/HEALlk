@@ -6,7 +6,7 @@ import Overview from './Overview';
 import Profile from './Profile';
 import Services from './Services';
 import Qualifications from './Qualifications';
-import ClinicInfo from './ClinicInfo';
+import ClinicForm from './ClinicForm';
 import Reviews from './Reviews';
 import './AdminPanel.css';
 
@@ -123,7 +123,7 @@ const DoctorAdminDashboard = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/services" element={<Services />} />
             <Route path="/qualifications" element={<Qualifications />} />
-            <Route path="/clinic-info" element={<ClinicInfo />} />
+            <Route path="/clinic-info" element={<ClinicForm />} />
             <Route path="/reviews" element={<Reviews />} />
             {/* Redirect any unknown routes to overview */}
             <Route path="*" element={<Navigate to="/doctor-admin" replace />} />
