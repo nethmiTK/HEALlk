@@ -86,12 +86,7 @@ const initializeDatabase = async () => {
         certificate_url TEXT NULL,
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        CONSTRAINT fk_user_qualifications
-          FOREIGN KEY (user_id) REFERENCES users(user_id)
-          ON DELETE CASCADE
-          ON UPDATE CASCADE
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `;
 
@@ -118,12 +113,7 @@ const initializeDatabase = async () => {
         insurance_accepted JSON,
         images JSON,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        CONSTRAINT fk_clinic_user
-          FOREIGN KEY (user_id) REFERENCES users(user_id)
-          ON DELETE CASCADE
-          ON UPDATE CASCADE
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `;
 

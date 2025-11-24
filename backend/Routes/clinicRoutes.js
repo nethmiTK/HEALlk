@@ -5,10 +5,12 @@ const {
   getClinicInfo,
   addClinicInfo,
   updateClinicInfo,
+  deleteClinic,
 } = require('../controllers/clinicController');
 
 router.get('/', authenticateToken, getClinicInfo);
 router.post('/', authenticateToken, addClinicInfo);
-router.put('/', authenticateToken, updateClinicInfo); // PUT request to update clinic info for the logged-in user
+router.put('/:id', authenticateToken, updateClinicInfo);
+router.delete('/:id', authenticateToken, deleteClinic); // PUT request to update clinic info for the logged-in user
 
 module.exports = router;
