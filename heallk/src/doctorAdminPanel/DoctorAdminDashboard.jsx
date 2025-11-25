@@ -95,7 +95,9 @@ const DoctorAdminDashboard = () => {
         onMouseEnter={handleMouseEnterSidebar}
         onMouseLeave={handleMouseLeaveSidebar}
       />
-      <main className="min-h-screen pt-[70px] ml-[280px]">
+      <main className={`min-h-screen pt-[70px] transition-all duration-300 ${
+        isCollapsed ? 'ml-20' : 'ml-[280px]'
+      }`}>
         <div className="w-full ${isModalOpen ? 'pointer-events-none' : ''}">
           <Routes>
             <Route path="/" element={<Overview />} />

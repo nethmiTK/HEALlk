@@ -64,7 +64,9 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
   };
 
   return (
-    <div className="fixed top-0 z-30 p-2.5 bg-gray-50 border-b-2 border-black border-opacity-10 shadow-lg h-[70px] flex items-center left-[280px] w-[calc(100vw-280px)]">
+    <div className={`fixed top-0 z-30 p-2.5 bg-gray-50 border-b-2 border-black border-opacity-10 shadow-lg h-[70px] flex items-center transition-all duration-300 ${
+      isCollapsed ? 'left-20 w-[calc(100vw-80px)]' : 'left-[280px] w-[calc(100vw-280px)]'
+    }`}>
       <div className="flex items-center justify-between w-full h-full">
 
         

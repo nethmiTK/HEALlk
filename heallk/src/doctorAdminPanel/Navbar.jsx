@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Navigation from './Navigation';
 import { Tooltip } from 'react-tooltip';
-
-
 const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave }) => {
   const location = useLocation();
 
@@ -13,7 +11,7 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       label: 'Overview',
       icon: '📊',
       exact: true,
-      tooltip: 'Dashboard Overview'
+      tooltip: 'Dashboard'
     },
     {
       path: '/doctor-admin/services',
@@ -25,7 +23,7 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       path: '/doctor-admin/qualifications',
       label: 'Qualifications',
       icon: '🎓',
-      tooltip: 'Professional Qualifications'
+      tooltip: '  Qualifications'
     },
     {
       path: '/doctor-admin/clinic-info',
@@ -37,13 +35,13 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       path: '/doctor-admin/reviews',
       label: 'Reviews',
       icon: '⭐',
-      tooltip: 'Patient Reviews'
+      tooltip: 'Reviews'
     },
     {
       path: '/doctor-admin/products',
       label: 'Products',
       icon: '💊',
-      tooltip: 'Manage Products'
+      tooltip: 'Products'
     }
   ];
 
@@ -56,14 +54,33 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
 
   return (
     <div 
-      className="fixed left-0 top-0 h-screen bg-gray-50 text-white flex flex-col shadow-lg z-50 w-[280px]"
+      className={`fixed left-0 top-0 h-screen bg-gray-50 text-white flex flex-col shadow-lg z-50 transition-all duration-300 ${
+        isCollapsed ? 'w-20' : 'w-[280px]'
+      }`}
+      onMouseEnter={() => isCollapsed && setIsCollapsed(false)}
+      onMouseLeave={() => !isCollapsed && setIsCollapsed(true)}
     >
       {/* Sidebar Header */}
-      <div className="p-5 border-b border-gray-200 flex items-center justify-center min-h-[80px]">
+      <div className="p-5 border-b border-gray-200 flex items-center justify-between min-h-[80px]">
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-bold text-gray-800 m-0">HEALlk</h2>
-          <span className="text-xs opacity-80 mt-0.5 text-gray-600">Doctor Panel</span>
+          {!isCollapsed && (
+            <>
+              <h2 className="text-2xl font-bold text-gray-800 m-0">HEALlk</h2>
+              <span className="text-xs opacity-80 mt-0.5 text-gray-600">Doctor Panel</span>
+            </>
+          )}
+          {isCollapsed && (
+            <span className="text-xl font-bold text-gray-800">🏥</span>
+          )}
         </div>
+        <button 
+          className="bg-gray-200 border-none text-gray-800 w-8 h-8 rounded-md cursor-pointer flex items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <span className="text-base font-bold">
+            ⮜
+          </span>
+        </button>
       </div>
 
       {/* Navigation Menu */}
@@ -85,7 +102,7 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
                 }}
               >
                 <span className="text-xl flex items-center justify-center w-6 h-6">{item.icon}</span>
-                <span className="text-sm font-medium">{item.label}</span>
+                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                 {isActiveItem(item) && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-900"></div>}
               </Link>
             </li>
@@ -93,9 +110,7 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
         </ul>
 
       </nav>
-
-      {/* User Navigation Section */}
-      <Navigation user={user} isCollapsed={false} />
+      <Navigation user={user} isCollapsed={isCollapsed} />
     </div>
   );
 };
