@@ -132,16 +132,16 @@ const Product = () => {
   }
 
   return (
-    <div className="products-container">
+    <div className="bg-green-50 min-h-screen p-6 sm:p-4">
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">💊 Products Management</h1>
-          <p className="page-subtitle">Manage your ayurvedic products and medicines</p>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">💊 Products Management</h1>
+          <p className="text-gray-600">Manage your ayurvedic products and medicines</p>
         </div>
-        <div className="header-actions">
+        <div>
           <button 
-            className="btn btn-primary"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             onClick={() => setIsModalOpen(true)}
           >
             ➕ Add Product
@@ -150,10 +150,10 @@ const Product = () => {
       </div>
 
       {/* Products Stats */}
-      <div className="profile-stats">
-        <div className="stat-card">
-          <div className="stat-number">{products.length}</div>
-          <div className="stat-label">Total Products</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-3xl font-bold text-blue-600 mb-2">{products.length}</div>
+          <div className="text-sm text-gray-600 font-medium">Total Products</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{products.filter(p => p.is_active !== false).length}</div>
@@ -166,9 +166,9 @@ const Product = () => {
       </div>
 
       {/* Products Grid */}
-      <div className="services-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {products.map((product) => (
-          <div key={product.id} className="service-card">
+          <div key={product.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
             <div className="service-header">
               <div>
                 <h3 className="service-title">{product.product_name}</h3>
@@ -222,12 +222,12 @@ const Product = () => {
       </div>
 
       {products.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">💊</div>
-          <h3>No products added yet</h3>
-          <p>Start by adding your first ayurvedic product</p>
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">💊</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No products added yet</h3>
+          <p className="text-gray-500 mb-6">Start by adding your first ayurvedic product</p>
           <button 
-            className="btn btn-primary"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             onClick={() => setIsModalOpen(true)}
           >
             Add First Product
@@ -235,14 +235,29 @@ const Product = () => {
         </div>
       )}
 
+      {/* Modal Background */}
+      {isModalOpen && <div className="fixed inset-0 bg-black bg-opacity-60 z-40"></div>}
+      
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={resetForm}>
-          <div style={{background:'white',borderRadius:'12px',padding:'24px',width:'90%',maxWidth:'600px',maxHeight:'90vh',overflowY:'auto',boxShadow:'0 20px 50px rgba(0,0,0,0.3)'}} onClick={(e) => e.stopPropagation()}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px',paddingBottom:'16px',borderBottom:'1px solid #e2e8f0'}}>
-              <h2 style={{fontSize:'20px',fontWeight:600,color:'#1a202c',margin:0}}>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
-              <button style={{background:'none',border:'none',fontSize:'20px',cursor:'pointer',color:'#64748b',padding:'4px'}} onClick={resetForm}>✕</button>
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border-2 border-gray-100">
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold">{editingProduct ? '✏️ Edit Product' : '💊 Add New Product'}</h2>
+                  <p className="text-purple-100 mt-1">Fill in the details below to {editingProduct ? 'update' : 'add'} your product</p>
+                </div>
+                <button 
+                  onClick={resetForm} 
+                  data-modal-close
+                  className="text-white hover:text-red-200 text-2xl font-bold bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-30 transition-all"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
+            <div className="p-8">
 
             <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:'16px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px'}}>
@@ -352,6 +367,7 @@ const Product = () => {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}

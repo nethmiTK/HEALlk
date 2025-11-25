@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 
-const NavBarTitle = ({ user, pageName, isCollapsed }) => {
+const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -64,44 +64,46 @@ const NavBarTitle = ({ user, pageName, isCollapsed }) => {
   };
 
   return (
-    <div className={`navbar-title-container ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <div className="navbar-title-content">
-        {/* Page Title Section - Now on the left */}
-        <div className="navbar-page-section">
-          <h2 className="navbar-page-title">
+    <div className="fixed top-0 z-30 p-2.5 bg-gray-50 border-b-2 border-black border-opacity-10 shadow-lg h-[70px] flex items-center left-[280px] w-[calc(100vw-280px)]">
+      <div className="flex items-center justify-between w-full h-full">
+
+        
+        {/* Page Title Section */}
+        <div className="text-left flex-1">
+          <h2 className="text-3xl font-extrabold text-gray-800 m-0 cursor-pointer transition-all duration-300 hover:text-blue-900 tracking-tight lg:text-2xl md:text-xl sm:text-lg">
             {pageInfo.title}
           </h2>
-          <p className="navbar-page-subtitle">
+          <p className="text-sm text-gray-600 mt-1 mb-0 cursor-pointer transition-colors duration-300 hover:text-blue-900 block font-medium lg:text-xs sm:hidden">
             {pageInfo.subtitle}
           </p>
         </div>
 
         {/* User Profile Section - Now on the right */}
-        <div className="navbar-user-section">
-          <div className="navbar-user-info">
+        <div className="flex items-center gap-2 bg-gray-100 py-1.5 px-3 rounded-xl border border-gray-200 ml-auto relative">
+          <div className="flex flex-col gap-0 text-right sm:hidden">
             <h3
-              className="navbar-user-name"
+              className="text-sm font-semibold text-gray-800 m-0 cursor-pointer"
               onClick={() => navigate('/doctor-admin/profile')}
             >
               Dr. {formatUserName()}
             </h3>
-            <span className="navbar-user-email">
+            <span className="text-xs text-gray-600 cursor-pointer">
               {user?.email || 'admin@gmail.com'}
             </span>
           </div>
 
           <div
-            className="navbar-user-avatar"
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-white to-gray-50 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-gray-300 shadow-sm"
             onClick={() => navigate('/doctor-admin/profile')}
           >
             {user?.profile_pic ? (
               <img
                 src={user.profile_pic}
                 alt="Profile"
-                className="navbar-profile-image"
+                className="w-full h-full object-cover rounded-full"
               />
             ) : (
-              <span className="navbar-avatar-initials">
+              <span className="text-base font-bold text-blue-900">
                 {getUserInitials()}
               </span>
             )}

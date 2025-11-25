@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './AdminPanel.css';
+
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -319,22 +319,22 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="profile-container">
-        <div className="loading-state">
-          <div className="loading-spinner">⏳</div>
-          <p>Loading profile...</p>
+      <div className="p-6 bg-green-50 min-h-screen">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-6xl animate-pulse">⏳</div>
+          <p className="ml-4 text-gray-600">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="profile-container">
+    <div className="bg-green-50 min-h-screen p-6 sm:p-4">
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">My Profile</h1>
-          <p className="page-subtitle">Manage your account information and settings</p>
+      <div className="mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">My Profile</h1>
+          <p className="text-gray-600">Manage your account information and settings</p>
         </div>
       </div>
 
@@ -352,12 +352,12 @@ const Profile = () => {
         theme="light"
       />
 
-      <div className="profile-content">
+      <div className="space-y-6">
         {/* Profile Information Card */}
-        <div className="profile-card">
-          <div className="profile-card-header">
-            <div className="profile-info">
-              <div className="profile-avatar" 
+        <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:scale-105 transition-transform" 
                    onClick={isEditing ? () => fileInputRef.current?.click() : (user?.profile_pic ? handleImageRemove : null)}
                    style={{ cursor: isEditing ? 'pointer' : (user?.profile_pic ? 'pointer' : 'default') }}
                    title={isEditing ? 'Click to change profile picture' : (user?.profile_pic ? 'Click to remove profile picture' : `${user?.full_name || 'User'}'s initial`)}>
@@ -365,10 +365,10 @@ const Profile = () => {
                   <img 
                     src={previewImage || user.profile_pic} 
                     alt="Profile" 
-                    className="avatar-image"
+                    className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="avatar-text">
+                  <span>
                     {user?.full_name?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 )}
@@ -381,29 +381,29 @@ const Profile = () => {
                 className="file-input"
                 style={{ display: 'none' }}
               />
-              <div className="profile-details">
-                <h2 className="profile-name">{user?.full_name || 'Unknown User'}</h2>
-                <p className="profile-email">{user?.email}</p>
-                <p className="profile-role">
-                  <span className="role-badge">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-1">{user?.full_name || 'Unknown User'}</h2>
+                <p className="text-gray-600 mb-2">{user?.email}</p>
+                <p>
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
                     {user?.role === 'admin' ? 'Administrator' : 'Doctor'}
                   </span>
                 </p>
               </div>
             </div>
-            <div className="profile-actions">
+            <div className="flex gap-2">
               {!isEditing ? (
                 <button 
-                  className="btn btn-primary"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   onClick={() => setIsEditing(true)}
                   title="Edit your profile information including name, email, phone, and profile picture"
                 >
                   Edit Profile
                 </button>
               ) : (
-                <div className="edit-actions">
+                <div className="flex gap-2">
                   <button 
-                    className="btn btn-success"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
                     onClick={handleProfileSubmit}
                     disabled={saving}
                     title="Save all changes made to your profile information"
@@ -411,7 +411,7 @@ const Profile = () => {
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                   <button 
-                    className="btn btn-secondary"
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium disabled:opacity-50"
                     onClick={cancelEdit}
                     disabled={saving}
                     title="Cancel editing and discard all unsaved changes"
@@ -424,19 +424,19 @@ const Profile = () => {
           </div>
 
           {/* Profile Form */}
-          <div className="profile-form-section">
+          <div className="p-6">
             <form onSubmit={handleProfileSubmit}>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="full_name" className="form-label">
-                    Full Name <span className="required">*</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="full_name"
                     name="full_name"
-                    className="form-input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                     value={profileForm.full_name}
                     onChange={handleInputChange}
                     disabled={!isEditing}
@@ -446,20 +446,20 @@ const Profile = () => {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
                   </label>
                   <input
                     type="email"
                     id="email"
                     name="email"
-                    className="form-input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                     value={profileForm.email}
                     disabled={true}
                     placeholder="Email cannot be changed"
                   />
-                  <small className="form-help">Email address cannot be modified</small>
+                  <small className="text-xs text-gray-500 mt-1 block">Email address cannot be modified</small>
                 </div>
               </div>
 

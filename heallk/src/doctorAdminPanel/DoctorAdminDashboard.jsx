@@ -10,30 +10,19 @@ import ClinicForm from './ClinicForm';
 import Reviews from './Reviews';
 import Product from './Product';
 
-import './AdminPanel.css';
+
 
 const DoctorAdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [autoToggleEnabled, setAutoToggleEnabled] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Auto-toggle functionality
-  const handleMouseEnterSidebar = () => {
-    if (isCollapsed) {
-      setIsCollapsed(false);
-    }
-  };
-
-  const handleMouseLeaveSidebar = () => {
-    if (!isCollapsed) {
-      // Add a small delay before auto-collapsing
-      setTimeout(() => {
-        setIsCollapsed(true);
-      }, 800);
-    }
-  };
+  // Toggle functionality
+  const handleMouseEnterSidebar = () => {};
+  const handleMouseLeaveSidebar = () => {};
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -80,11 +69,11 @@ const DoctorAdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="admin-dashboard">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading doctor panel...</p>
+      <div className="min-h-screen w-full bg-cyan-50 font-sans">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading doctor panel...</p>
           </div>
         </div>
       </div>
@@ -92,21 +81,12 @@ const DoctorAdminDashboard = () => {
   }
 
   return (
-    <div 
-      className="admin-dashboard"
-      onMouseMove={(e) => {
-        // Check if mouse is near left edge
-        if (e.clientX < 100 && isCollapsed) {
-          setIsCollapsed(false);
-        } else if (e.clientX > 300 && !isCollapsed) {
-          setTimeout(() => setIsCollapsed(true), 500);
-        }
-      }}
-    >
+    <div className="relative min-h-screen w-full bg-cyan-50 font-sans">
 
       <NavBarTitle 
         user={user} 
         isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
       />
       <Navbar 
         user={user} 
@@ -115,8 +95,8 @@ const DoctorAdminDashboard = () => {
         onMouseEnter={handleMouseEnterSidebar}
         onMouseLeave={handleMouseLeaveSidebar}
       />
-      <main className={`admin-main-content ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <div className="content-wrapper">
+      <main className="min-h-screen pt-[70px] ml-[280px]">
+        <div className="w-full ${isModalOpen ? 'pointer-events-none' : ''}">
           <Routes>
             <Route path="/" element={<Overview />} />
             <Route path="/profile" element={<Profile />} />

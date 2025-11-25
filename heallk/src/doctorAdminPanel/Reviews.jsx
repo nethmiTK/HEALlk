@@ -213,10 +213,10 @@ const Reviews = () => {
 
   if (loading) {
     return (
-      <div className="reviews-container">
-        <div className="loading-state">
-          <div className="loading-spinner">⏳</div>
-          <p>Loading reviews...</p>
+      <div className="p-6 bg-green-50 min-h-screen">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-6xl animate-pulse">⏳</div>
+          <p className="ml-4 text-gray-600">Loading reviews...</p>
         </div>
       </div>
     );
@@ -224,12 +224,12 @@ const Reviews = () => {
 
   if (error) {
     return (
-      <div className="reviews-container">
-        <div className="error-state">
-          <div className="error-icon">⚠️</div>
-          <h3>Error Loading Reviews</h3>
-          <p>{error}</p>
-          <button className="btn btn-primary" onClick={() => loadReviews()}>
+      <div className="p-6 bg-green-50 min-h-screen">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">Error Loading Reviews</h3>
+          <p className="text-gray-500 mb-6">{error}</p>
+          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" onClick={() => loadReviews()}>
             Try Again
           </button>
         </div>
@@ -238,54 +238,56 @@ const Reviews = () => {
   }
 
   return (
-    <div className="reviews-container">
+    <div className="bg-green-50 min-h-screen p-6 sm:p-4">
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">Reviews & Feedback</h1>
-          <p className="page-subtitle">Manage patient reviews and build your reputation</p>
+      <div className="mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Reviews & Feedback</h1>
+          <p className="text-gray-600">Manage patient reviews and build your reputation</p>
         </div>
       </div>
 
       {/* Reviews Statistics */}
-      <div className="reviews-stats">
-        <div className="rating-overview">
-          <div className="average-rating">
-            <div className="rating-number">{Number(stats.average_rating).toFixed(1)}</div>
-            <div className="rating-stars">{getRatingStars(Math.round(stats.average_rating))}</div>
-            <div className="rating-text">{stats.total_reviews} reviews</div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-center mb-6">
+            <div className="text-5xl font-bold text-yellow-500 mb-2">{Number(stats.average_rating).toFixed(1)}</div>
+            <div className="text-2xl text-yellow-400 mb-2">{getRatingStars(Math.round(stats.average_rating))}</div>
+            <div className="text-gray-600">{stats.total_reviews} reviews</div>
           </div>
           
-          <div className="rating-breakdown">
+          <div className="space-y-2">
             {[5, 4, 3, 2, 1].map(rating => (
-              <div key={rating} className="rating-bar">
-                <span className="rating-label">{rating} ★</span>
-                <div className="progress-bar">
+              <div key={rating} className="flex items-center gap-3">
+                <span className="text-sm font-medium w-8">{rating} ★</span>
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
                   <div 
-                    className="progress-fill"
+                    className="bg-yellow-400 h-2 rounded-full transition-all duration-300"
                     style={{ 
                       width: `${stats.total_reviews > 0 ? (stats.rating_distribution[rating] / stats.total_reviews) * 100 : 0}%` 
                     }}
                   ></div>
                 </div>
-                <span className="rating-count">{stats.rating_distribution[rating]}</span>
+                <span className="text-sm text-gray-600 w-8">{stats.rating_distribution[rating]}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="quick-stats">
-          <div className="stat-item">
-            <span className="stat-number">{stats.pending_reviews}</span>
-            <span className="stat-label">Pending Approval</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{stats.approved_reviews}</span>
-            <span className="stat-label">Approved</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{stats.rating_distribution[4] + stats.rating_distribution[5]}</span>
-            <span className="stat-label">Positive Reviews</span>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-orange-500 block mb-2">{stats.pending_reviews}</span>
+              <span className="text-sm text-gray-600 font-medium">Pending Approval</span>
+            </div>
+            <div className="text-center">
+              <span className="text-3xl font-bold text-green-500 block mb-2">{stats.approved_reviews}</span>
+              <span className="text-sm text-gray-600 font-medium">Approved</span>
+            </div>
+            <div className="text-center">
+              <span className="text-3xl font-bold text-blue-500 block mb-2">{stats.rating_distribution[4] + stats.rating_distribution[5]}</span>
+              <span className="text-sm text-gray-600 font-medium">Positive Reviews</span>
+            </div>
           </div>
         </div>
       </div>

@@ -43,54 +43,54 @@ const Overview = () => {
   }, []);
 
   return (
-    <div className="overview-container">
+    <div className="bg-green-50 min-h-screen p-6 sm:p-4">
       {/* Page Header */}
-      <div className="overview-header">
-        <h1>Dashboard Overview</h1>
+      <div className="mb-8 sm:mb-4">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2 sm:text-2xl">Dashboard Overview</h1>
       </div>
 
       {/* Stats Cards */}
-      <div className="stats-overview">
-        <div className="stat-card">
-          <div className="stat-number">{stats.totalAppointments}</div>
-          <div className="stat-label">Total Appointments</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-3xl font-bold text-blue-600 mb-2">{stats.totalAppointments}</div>
+          <div className="text-sm text-gray-600 font-medium">Total Appointments</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-number">{stats.todayAppointments}</div>
-          <div className="stat-label">Today's Appointments</div>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-3xl font-bold text-green-600 mb-2">{stats.todayAppointments}</div>
+          <div className="text-sm text-gray-600 font-medium">Today's Appointments</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-number">{stats.totalPatients}</div>
-          <div className="stat-label">Total Patients</div>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-3xl font-bold text-purple-600 mb-2">{stats.totalPatients}</div>
+          <div className="text-sm text-gray-600 font-medium">Total Patients</div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-number">{stats.rating}</div>
-          <div className="stat-label">Average Rating</div>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-3xl font-bold text-yellow-600 mb-2">{stats.rating}</div>
+          <div className="text-sm text-gray-600 font-medium">Average Rating</div>
         </div>
       </div>
 
       {/* Main Content Grid */}
-      <div className="content-grid">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}
-        <div className="content-card" title="Recent activities and updates in your clinic management system">
-          <div className="card-header">
-            <h3 className="card-title">Recent Activity</h3>
-            <button className="btn-text" title="View all recent activities and system updates">View All</button>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200" title="Recent activities and updates in your clinic management system">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Recent Activity</h3>
+            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium" title="View all recent activities and system updates">View All</button>
           </div>
-          <div className="activity-list">
+          <div className="space-y-4">
             {recentActivity.map((activity) => (
-              <div key={activity.id} className="activity-item">
-                <div className="activity-icon">
+              <div key={activity.id} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <div className="text-2xl">
                   {activity.type === 'appointment' && '📅'}
                   {activity.type === 'review' && '⭐'}
                   {activity.type === 'patient' && '👤'}
                 </div>
-                <div className="activity-content">
-                  <p className="activity-message">{activity.message}</p>
-                  <span className="activity-time">{activity.time}</span>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-800 font-medium">{activity.message}</p>
+                  <span className="text-xs text-gray-500">{activity.time}</span>
                 </div>
               </div>
             ))}
@@ -98,71 +98,71 @@ const Overview = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="content-card" title="Quick access to frequently used features and sections">
-          <div className="card-header">
-            <h3 className="card-title">Quick Actions</h3>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200" title="Quick access to frequently used features and sections">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
           </div>
-          <div className="quick-actions-grid">
+          <div className="grid grid-cols-2 gap-3">
             {quickActions.map((action) => (
-              <button key={action.id} className="quick-action-btn" title={`Navigate to ${action.title} section`}>
-                <span className="action-icon">{action.icon}</span>
-                <span className="action-title">{action.title}</span>
+              <button key={action.id} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200 hover:border-blue-300" title={`Navigate to ${action.title} section`}>
+                <span className="text-2xl mb-2">{action.icon}</span>
+                <span className="text-sm font-medium text-gray-700">{action.title}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Today's Schedule */}
-        <div className="content-card schedule-card" title="Your appointments scheduled for today with patient details and status">
-          <div className="card-header">
-            <h3 className="card-title">Today's Schedule</h3>
-            <span className="schedule-date" title="Current date">{new Date().toLocaleDateString()}</span>
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200" title="Your appointments scheduled for today with patient details and status">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Today's Schedule</h3>
+            <span className="text-sm text-gray-500 font-medium" title="Current date">{new Date().toLocaleDateString()}</span>
           </div>
-          <div className="schedule-list">
-            <div className="schedule-item" title="Confirmed appointment with Sarah Johnson at 09:00 AM for General Consultation">
-              <div className="schedule-time">09:00 AM</div>
-              <div className="schedule-content">
-                <p className="patient-name">Sarah Johnson</p>
-                <p className="appointment-type">General Consultation</p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" title="Confirmed appointment with Sarah Johnson at 09:00 AM for General Consultation">
+              <div className="text-sm font-semibold text-blue-600">09:00 AM</div>
+              <div className="flex-1 mx-4">
+                <p className="text-sm font-medium text-gray-800">Sarah Johnson</p>
+                <p className="text-xs text-gray-600">General Consultation</p>
               </div>
-              <div className="schedule-status confirmed" title="Appointment is confirmed and ready">Confirmed</div>
+              <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium" title="Appointment is confirmed and ready">Confirmed</div>
             </div>
             
-            <div className="schedule-item" title="Confirmed follow-up appointment with Michael Brown at 11:30 AM">
-              <div className="schedule-time">11:30 AM</div>
-              <div className="schedule-content">
-                <p className="patient-name">Michael Brown</p>
-                <p className="appointment-type">Follow-up</p>
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" title="Confirmed follow-up appointment with Michael Brown at 11:30 AM">
+              <div className="text-sm font-semibold text-blue-600">11:30 AM</div>
+              <div className="flex-1 mx-4">
+                <p className="text-sm font-medium text-gray-800">Michael Brown</p>
+                <p className="text-xs text-gray-600">Follow-up</p>
               </div>
-              <div className="schedule-status confirmed" title="Appointment is confirmed and ready">Confirmed</div>
+              <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium" title="Appointment is confirmed and ready">Confirmed</div>
             </div>
             
-            <div className="schedule-item" title="Pending appointment with Emma Davis at 02:00 PM for routine checkup">
-              <div className="schedule-time">02:00 PM</div>
-              <div className="schedule-content">
-                <p className="patient-name">Emma Davis</p>
-                <p className="appointment-type">Checkup</p>
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" title="Pending appointment with Emma Davis at 02:00 PM for routine checkup">
+              <div className="text-sm font-semibold text-blue-600">02:00 PM</div>
+              <div className="flex-1 mx-4">
+                <p className="text-sm font-medium text-gray-800">Emma Davis</p>
+                <p className="text-xs text-gray-600">Checkup</p>
               </div>
-              <div className="schedule-status pending" title="Appointment is pending confirmation">Pending</div>
+              <div className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium" title="Appointment is pending confirmation">Pending</div>
             </div>
           </div>
         </div>
 
         {/* Performance Chart */}
-        <div className="content-card chart-card" title="Monthly performance metrics and analytics for your clinic">
-          <div className="card-header">
-            <h3 className="card-title">Monthly Performance</h3>
-            <select className="chart-filter" title="Select the type of data to display in the performance chart">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2" title="Monthly performance metrics and analytics for your clinic">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Monthly Performance</h3>
+            <select className="border border-gray-300 rounded-md px-3 py-1 text-sm" title="Select the type of data to display in the performance chart">
               <option value="appointments">Appointments</option>
               <option value="patients">New Patients</option>
               <option value="revenue">Revenue</option>
             </select>
           </div>
-          <div className="chart-placeholder">
-            <div className="chart-visual">
-              📈 Performance chart would go here
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">
+              📈
             </div>
-            <p className="chart-description">
+            <p className="text-gray-600">
               Your appointment bookings have increased by 15% this month compared to last month.
             </p>
           </div>

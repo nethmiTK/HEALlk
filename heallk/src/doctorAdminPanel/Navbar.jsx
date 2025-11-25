@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Navigation from './Navigation';
 import { Tooltip } from 'react-tooltip';
-import './AdminPanel.css';
+
 
 const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave }) => {
   const location = useLocation();
@@ -56,97 +56,46 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
 
   return (
     <div 
-      className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className="fixed left-0 top-0 h-screen bg-gray-50 text-white flex flex-col shadow-lg z-50 w-[280px]"
     >
       {/* Sidebar Header */}
-      <div className="sidebar-header">
-        <div className="logo-section">
-          {!isCollapsed && (
-            <>
-              <h2 className="logo-text">HEALlk</h2>
-              <span className="logo-subtitle">Doctor Panel</span>
-            </>
-          )}
-          {isCollapsed && (
-            <div className="logo-collapsed">
-              <span className="logo-icon">🏥</span>
-              <span className="logo-text-small">HEALlk</span>
-            </div>
-          )}
+      <div className="p-5 border-b border-gray-200 flex items-center justify-center min-h-[80px]">
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl font-bold text-gray-800 m-0">HEALlk</h2>
+          <span className="text-xs opacity-80 mt-0.5 text-gray-600">Doctor Panel</span>
         </div>
-        <button 
-          className="collapse-btn"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          data-tooltip-id="sidebar-toggle-tooltip"
-          data-tooltip-content={isCollapsed ? 'Expand sidebar to show full navigation' : 'Collapse sidebar to save space'}
-        >
-          <span className="toggle-icon">
-            {isCollapsed ? '⮞' : '⮜'}
-          </span>
-        </button>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="sidebar-nav">
-        <ul className="nav-menu">
+      <nav className="flex-1 py-5">
+        <ul className="list-none p-0 m-0">
           {menuItems.map((item) => (
-            <li key={item.path} className="nav-item">
+            <li key={item.path} className="mb-1">
               <Link
                 to={item.path}
-                className={`nav-link ${isActiveItem(item) ? 'active' : ''}`}
-                {...(isCollapsed && {
-                  'data-tooltip-id': `nav-tooltip-${item.label.toLowerCase().replace(' ', '-')}`,
-                  'data-tooltip-content': item.tooltip
-                })}
+                className={`flex items-center gap-3 py-3 px-5 text-gray-600 no-underline transition-all duration-200 relative ${
+                  isActiveItem(item) 
+                    ? 'bg-blue-100 text-blue-900 font-medium' 
+                    : 'hover:bg-gray-200 hover:text-blue-900'
+                }`}
+                onClick={() => {
+                  // Close any open modals/forms when navigating
+                  const closeButtons = document.querySelectorAll('[data-modal-close]');
+                  closeButtons.forEach(btn => btn.click());
+                }}
               >
-                {!isCollapsed && <span className="nav-label">{item.label}</span>}
-                {isCollapsed && <span className="nav-label-collapsed">{item.icon}</span>}
-                {isActiveItem(item) && <div className="active-indicator"></div>}
+                <span className="text-xl flex items-center justify-center w-6 h-6">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+                {isActiveItem(item) && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-900"></div>}
               </Link>
             </li>
           ))}
         </ul>
-        
-        {/* Navigation Tooltips - Only show when collapsed */}
-        {isCollapsed && menuItems.map((item) => (
-          <Tooltip 
-            key={`tooltip-${item.label}`}
-            id={`nav-tooltip-${item.label.toLowerCase().replace(' ', '-')}`}
-            place="right" 
-            style={{ 
-              backgroundColor: '#0A3D62', 
-              color: '#ffffff',
-              fontSize: '13px',
-              fontWeight: '500',
-              maxWidth: '220px',
-              zIndex: 9999,
-              borderRadius: '8px',
-              padding: '8px 12px'
-            }}
-          />
-        ))}
-        
-        {/* Sidebar Toggle Tooltip */}
-        <Tooltip 
-          id="sidebar-toggle-tooltip" 
-          place="right" 
-          style={{ 
-            backgroundColor: '#0A3D62', 
-            color: '#ffffff',
-            fontSize: '13px',
-            fontWeight: '500',
-            maxWidth: '220px',
-            zIndex: 9999,
-            borderRadius: '8px',
-            padding: '8px 12px'
-          }}
-        />
+
       </nav>
 
       {/* User Navigation Section */}
-      <Navigation user={user} isCollapsed={isCollapsed} />
+      <Navigation user={user} isCollapsed={false} />
     </div>
   );
 };

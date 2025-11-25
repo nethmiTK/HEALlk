@@ -62,11 +62,13 @@ const Navigation = ({ user, isCollapsed }) => {
   };
 
   return (
-    <div className="sidebar-footer">
+    <div className="p-5 border-t border-gray-200">
       {/* Quick Actions - Profile View and Logout Buttons */}
-      <div className="quick-actions">
+      <div className="flex flex-col gap-2 p-4 border-t border-white border-opacity-10 justify-center">
         <button 
-          className="action-btn profile-btn" 
+          className={`flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 min-h-[40px] bg-gradient-to-r from-blue-500 to-blue-700 border border-white border-opacity-20 text-white cursor-pointer z-50 relative hover:from-blue-700 hover:to-blue-800 hover:-translate-y-0.5 hover:shadow-lg ${
+            isCollapsed ? 'w-14 px-2.5 justify-center' : 'w-full'
+          }`}
           {...(isCollapsed && {
             'data-tooltip-id': 'profile-btn-tooltip',
             'data-tooltip-content': 'View My Public Profile'
@@ -75,16 +77,18 @@ const Navigation = ({ user, isCollapsed }) => {
         >
           {!isCollapsed ? (
             <>
-              <span className="profile-icon">👤</span>
-              <span className="profile-text">My Profile</span>
+              <span className="text-base flex items-center justify-center">👤</span>
+              <span className="text-sm font-semibold tracking-wide">My Profile</span>
             </>
           ) : (
-            <span className="profile-icon">👤</span>
+            <span className="text-base flex items-center justify-center">👤</span>
           )}
         </button>
         
         <button 
-          className="action-btn logout-btn professional-logout" 
+          className={`flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 min-h-[40px] bg-gradient-to-r from-red-500 to-red-600 border border-transparent text-white shadow-md cursor-pointer z-50 relative hover:from-red-600 hover:to-red-700 hover:-translate-y-0.5 hover:shadow-lg ${
+            isCollapsed ? 'w-14 px-2.5 justify-center' : 'w-full'
+          }`}
           {...(isCollapsed && {
             'data-tooltip-id': 'logout-btn-tooltip',
             'data-tooltip-content': 'Sign Out - End your session securely'
@@ -93,11 +97,11 @@ const Navigation = ({ user, isCollapsed }) => {
         >
           {!isCollapsed ? (
             <>
-              <span className="logout-icon">🚪</span>
-              <span className="logout-text">Sign Out</span>
+              <span className="text-base flex items-center justify-center">🚪</span>
+              <span className="text-sm font-semibold tracking-wide">Sign Out</span>
             </>
           ) : (
-            <span className="logout-icon">🚪</span>
+            <span className="text-base flex items-center justify-center">🚪</span>
           )}
         </button>
       </div>
