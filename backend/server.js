@@ -8,7 +8,8 @@ const authRoutes = require('./Routes/AuthRoutes');
 const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
 const servicesRoutes = require('./Routes/ServicesRoutes');
- 
+const contactRoutes = require("./Routes/ContactRoutes");
+
 const { testConnection, initializeDatabase } = require('./config/database');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/services', servicesRoutes);
 const qualificationRoutes = require("./Routes/QualificationRoutes");
 app.use("/api/qualifications", qualificationRoutes);
+app.use("/api/contact", contactRoutes);
 
 const publicRoutes = require('./Routes/PublicRoutes');
 app.use('/api/public', publicRoutes);

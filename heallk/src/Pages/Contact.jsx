@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from '../Components/Navbar';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Contact.css';
 
 const Contact = () => {
@@ -70,19 +72,35 @@ const Contact = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('Contact form data:', formData);
-        setSubmitStatus('success');
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: '',
-          preferredContact: 'email'
+        // Send to backend
+        const res = await fetch('http://localhost:5000/api/contact/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message
+          })
         });
+        const data = await res.json();
+        if (data.success) {
+          toast.success('Message sent successfully!');
+          setSubmitStatus('success');
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            subject: '',
+            message: '',
+            preferredContact: 'email'
+          });
+        } else {
+          toast.error(data.message || 'Failed to send message.');
+          setSubmitStatus('error');
+        }
       } catch (error) {
+        toast.error('Error sending message.');
         setSubmitStatus('error');
       } finally {
         setIsSubmitting(false);
