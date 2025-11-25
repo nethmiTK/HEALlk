@@ -105,19 +105,19 @@ const About = () => {
           ))}
         </div>
 
-        <div className="relative z-10 px-4 w-full h-full flex items-center justify-end">
-          <div className="text-right pr-20">
-            <h1 className="text-6xl font-bold text-white drop-shadow-2xl" style={{ fontFamily: "Playfair Display" }}>
-              Panchkarma
+        <div className="relative z-10 px-4 w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-6xl font-bold text-white drop-shadow-2xl mb-4" style={{ fontFamily: "Playfair Display" }}>
+              About HEALlk
             </h1>
-            <h2 className="text-6xl font-bold text-white mb-6 drop-shadow-2xl" style={{ fontFamily: "Playfair Display" }}>
-              Treatment
+            <h2 className="text-3xl font-semibold text-white/90 mb-6 drop-shadow-lg">
+              Your Trusted Partner in Ayurvedic Wellness
             </h2>
-            <p className="text-white/90 text-xl mb-8 max-w-md drop-shadow-lg">
-              Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices.
+            <p className="text-white/90 text-xl mb-8 max-w-3xl mx-auto drop-shadow-lg">
+              Connecting you with Sri Lanka's most trusted Ayurvedic practitioners for authentic healing experiences rooted in ancient wisdom and modern care.
             </p>
             <button className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition shadow-xl">
-              Explore Doctors
+              Meet Our Team
             </button>
           </div>
         </div>
