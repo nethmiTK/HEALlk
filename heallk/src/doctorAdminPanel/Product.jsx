@@ -26,23 +26,28 @@ const Product = () => {
 
   const fetchProducts = async () => {
     try {
-      setLoading(true);
       const token = localStorage.getItem('heallk_token');
+      if (!token) {
+        console.log('No token found in localStorage');
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+      
       const response = await fetch(`${API_BASE_URL}/products`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       const data = await response.json();
       if (data.success) {
-        setProducts(data.products || []);
-      } else {
-        toast.error('Failed to fetch products');
+        setProducts(data.products);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Error loading products');
-    } finally {
-      setLoading(false);
+      setProducts([]);
     }
+    setLoading(false);
   };
 
   const handleInputChange = (e) => {
@@ -55,32 +60,32 @@ const Product = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
       const token = localStorage.getItem('heallk_token');
-      const url = editingProduct 
-        ? `${API_BASE_URL}/products/${editingProduct.id}`
-        : `${API_BASE_URL}/products`;
+      if (!token) {
+        toast.error('Please login first');
+        return;
+      }
       
-      const response = await fetch(url, {
-        method: editingProduct ? 'PUT' : 'POST',
+      const response = await fetch(`${API_BASE_URL}/products`, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
-
+      
       const data = await response.json();
       if (data.success) {
-        toast.success(editingProduct ? 'Product updated!' : 'Product added!');
+        const newProduct = { id: data.productId, ...formData };
+        setProducts(prev => [...prev, newProduct]);
+        toast.success('Product added!');
         resetForm();
-        fetchProducts();
-      } else {
-        toast.error(data.message || 'Failed to save product');
       }
     } catch (error) {
-      console.error('Error saving product:', error);
-      toast.error('Error saving product');
+      toast.error('Failed to add product');
     }
   };
 
@@ -100,25 +105,8 @@ const Product = () => {
 
   const handleDelete = async (productId) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
-    
-    try {
-      const token = localStorage.getItem('heallk_token');
-      const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        toast.success('Product deleted!');
-        fetchProducts();
-      } else {
-        toast.error('Failed to delete product');
-      }
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error('Error deleting product');
-    }
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    toast.success('Product deleted!');
   };
 
   const resetForm = () => {

@@ -9,6 +9,7 @@ import Qualifications from './Qualifications';
 import ClinicForm from './ClinicForm';
 import Reviews from './Reviews';
 import Product from './Product';
+
 import './AdminPanel.css';
 
 const DoctorAdminDashboard = () => {
@@ -58,11 +59,7 @@ const DoctorAdminDashboard = () => {
           if (response.ok && profileResponse.success && profileResponse.user) {
             setUser(profileResponse.user);
             
-            // Check if user is a doctor (optional role check)
-            if (profileResponse.user.role && profileResponse.user.role !== 'doctor') {
-              // For testing, allow non-doctors as well
-              console.log('Non-doctor user accessing admin panel');
-            }
+            // Allow all authenticated users for now
           } else {
             throw new Error(profileResponse.message || 'Profile fetch failed');
           }
@@ -106,6 +103,7 @@ const DoctorAdminDashboard = () => {
         }
       }}
     >
+
       <NavBarTitle 
         user={user} 
         isCollapsed={isCollapsed}

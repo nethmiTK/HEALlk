@@ -1,11 +1,28 @@
-// backend/Controllers/ProductController.js
-const db = require('../config/database');
-
-// Get all products for a doctor
+ const db = require('../config/database');
 exports.getProducts = (req, res) => {
-  const userId = req.user.id;
+  console.log('ProductController - req.user:', req.user);
+  console.log('ProductController - req.headers.authorization:', req.headers.authorization);
   
-  db.query('SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC', [userId], (err, results) => {
+  if (!req.user || !req.user.userId) {
+    console.log('ProductController - Authentication failed');
+    return res.status(401).json({
+      success: false,
+      message: 'User authentication required'
+    });
+  }
+  
+  const userId = req.user.userId;
+  console.log('ProductController - Using userId:', userId);
+  
+  const query = `
+    SELECT p.*, u.full_name as doctor_name, u.user_id as doctor_id
+    FROM products p
+    INNER JOIN users u ON p.user_id = u.user_id
+    WHERE p.user_id = ? AND u.role IN ('doctor', 'admin')
+    ORDER BY p.created_at DESC
+  `;
+  
+  db.query(query, [userId], (err, results) => {
     if (err) {
       console.error('Error fetching products:', err);
       return res.status(500).json({ 
@@ -19,7 +36,14 @@ exports.getProducts = (req, res) => {
 
 // Add a new product
 exports.addProduct = (req, res) => {
-  const userId = req.user.id;
+  if (!req.user || !req.user.userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'User authentication required'
+    });
+  }
+  
+  const userId = req.user.userId;
   const { product_name, price, ingredient, wage, description, category, is_active } = req.body;
   
   // Validation
@@ -57,7 +81,14 @@ exports.addProduct = (req, res) => {
 
 // Update a product
 exports.updateProduct = (req, res) => {
-  const userId = req.user.id;
+  if (!req.user || !req.user.userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'User authentication required'
+    });
+  }
+  
+  const userId = req.user.userId;
   const { id } = req.params;
   const { product_name, price, ingredient, wage, description, category, is_active } = req.body;
   
@@ -105,7 +136,14 @@ exports.updateProduct = (req, res) => {
 
 // Delete a product
 exports.deleteProduct = (req, res) => {
-  const userId = req.user.id;
+  if (!req.user || !req.user.userId) {
+    return res.status(401).json({
+      success: false,
+      message: 'User authentication required'
+    });
+  }
+  
+  const userId = req.user.userId;
   const { id } = req.params;
   
   db.query('DELETE FROM products WHERE id = ? AND user_id = ?', [id, userId], (err, result) => {
@@ -136,10 +174,12 @@ exports.getPublicProducts = (req, res) => {
   const { doctorId } = req.params;
   
   const query = `
-    SELECT id, product_name, price, ingredient, description, category 
-    FROM products 
-    WHERE user_id = ? AND is_active = 1 
-    ORDER BY created_at DESC
+    SELECT p.id, p.product_name, p.price, p.ingredient, p.description, p.category,
+           p.created_at, p.updated_at, u.full_name as doctor_name, u.user_id as doctor_id
+    FROM products p
+    INNER JOIN users u ON p.user_id = u.user_id
+    WHERE p.user_id = ? AND p.is_active = 1 AND u.role IN ('doctor', 'admin')
+    ORDER BY p.created_at DESC
   `;
   
   db.query(query, [doctorId], (err, results) => {

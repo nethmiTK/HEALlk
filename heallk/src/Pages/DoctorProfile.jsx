@@ -6,7 +6,7 @@ import About from '../doctor_profile/About';
 import Services from '../doctor_profile/Services';
 import ClinicInfo from '../doctor_profile/ClinicInfo';
 import Contact from '../doctor_profile/Contact';
-import ReviewSystem from '../Components/ReviewSystem';
+import ReviewSystem from '../doctor_profile/ReviewSystem';
 
 const DoctorProfile = () => {
   const { id } = useParams();

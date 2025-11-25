@@ -39,9 +39,7 @@ const Navbar = () => {
                   <img 
                     src={logoImage} 
                     alt="HEALlk Logo" 
-                    className={`h-10 w-auto transition-all duration-300 group-hover:scale-105 ${
-                      scrolled ? 'brightness-100' : 'brightness-100 drop-shadow-lg'
-                    }`}
+                    className="h-10 w-auto transition-all duration-300 group-hover:scale-105 brightness-100 drop-shadow-lg"
                   />
                 </div>
               </Link>
@@ -85,9 +83,11 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className={`p-2 rounded-md transition-colors ${
+              className={`p-3 rounded-md transition-colors touch-manipulation ${
                 scrolled ? 'text-gray-600 hover:bg-gray-100' : 'text-white hover:bg-white/10'
               }`}
+              aria-label="Toggle navigation menu"
+              aria-expanded={menuOpen}
             >
               <svg
                 className="h-6 w-6"
@@ -109,23 +109,23 @@ const Navbar = () => {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200 shadow-lg max-h-screen overflow-y-auto">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors"
+                className="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors touch-manipulation"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
             <Link
-              to="/contact"
-              className="block px-3 py-2 mt-4 bg-green-600 text-white text-center rounded-md font-medium hover:bg-green-700 transition-colors"
+              to="/register"
+              className="block px-4 py-3 mt-4 bg-green-600 text-white text-center rounded-md font-medium hover:bg-green-700 transition-colors touch-manipulation"
               onClick={() => setMenuOpen(false)}
             >
-              Contact Us
+              Register
             </Link>
           </div>
         </div>

@@ -199,7 +199,7 @@ const ReviewSystem = ({ doctorId = 1 }) => {
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover
+        pauseOnHovers
       />
     </div>
   );
