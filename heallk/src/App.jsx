@@ -7,6 +7,7 @@ import Register from './Pages/Authentication/Register'
 import Login from './Pages/Authentication/Login'
 import Contact from './Pages/Contact'
 import Footer from './Components/Footer'
+import ScrollToTop from './Components/ScrollToTop'
 import DoctorAdminDashboard from './doctorAdminPanel/DoctorAdminDashboard'
 import ProtectedRoute from './Components/ProtectedRoute'
 import About from './Pages/About'
@@ -25,6 +26,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />

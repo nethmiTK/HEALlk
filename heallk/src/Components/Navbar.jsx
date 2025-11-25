@@ -6,6 +6,10 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const handleNavClick = () => {
+    window.scrollTo(0, 0);
+  };
+
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
@@ -34,7 +38,7 @@ const Navbar = () => {
            
           <div className="flex items-center">
             <div className="shrink-0">
-              <Link to="/" className="flex items-center group">
+              <Link to="/" className="flex items-center group" onClick={handleNavClick}>
                 <div className="p-2">
                   <img 
                     src={logoImage} 
@@ -53,6 +57,7 @@ const Navbar = () => {
                 <Link
                   key={link.label}
                   to={link.href}
+                  onClick={handleNavClick}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                     scrolled
                       ? 'text-gray-700 hover:text-green-600 hover:bg-green-50'
@@ -69,6 +74,7 @@ const Navbar = () => {
           <div className="hidden md:block">
             <Link
               to="/register"
+              onClick={handleNavClick}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 scrolled
                   ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
@@ -115,7 +121,10 @@ const Navbar = () => {
                 key={link.label}
                 to={link.href}
                 className="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors touch-manipulation"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleNavClick();
+                }}
               >
                 {link.label}
               </Link>
@@ -123,7 +132,10 @@ const Navbar = () => {
             <Link
               to="/register"
               className="block px-4 py-3 mt-4 bg-green-600 text-white text-center rounded-md font-medium hover:bg-green-700 transition-colors touch-manipulation"
-              onClick={() => setMenuOpen(false)}
+              onClick={() => {
+                setMenuOpen(false);
+                handleNavClick();
+              }}
             >
               Register
             </Link>

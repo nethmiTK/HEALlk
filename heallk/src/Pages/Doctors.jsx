@@ -1,20 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Components/Navbar';
+import heroImage1 from '../assets/Hero/1.png';
+import heroImage2 from '../assets/Hero/2.png';
+import heroImage3 from '../assets/Hero/3.png';
+import heroImage4 from '../assets/Hero/4.png';
 
 const Doctors = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const heroImages = [
+    { src: heroImage1, alt: 'Hero Image 1' },
+    { src: heroImage2, alt: 'Hero Image 2' },
+    { src: heroImage3, alt: 'Hero Image 3' },
+    { src: heroImage4, alt: 'Hero Image 4' }
+  ];
+
+  // Auto-slide effect - changes image every 8 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 8000); // 8 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
       
-      {/* Hero Section for Doctors Page */}
-      <section className="py-20 bg-gradient-to-r from-green-600 to-blue-600">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6" style={{fontFamily: 'Playfair Display, serif'}}>
-            Meet Our Expert Team
-          </h1>
-          <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Our certified Ayurvedic practitioners bring years of experience and dedication to your wellness journey
-          </p>
+      {/* Hero Section with Image Slider */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-800 via-amber-600 to-orange-500">
+        <div className="absolute inset-0 w-full h-full">
+          {heroImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={image.src}
+                alt={image.alt}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.log(`Error loading image ${index + 1}:`, e);
+                  e.target.style.display = 'none';
+                }}
+              />
+              {/* Gradient overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="relative z-10 px-4 w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 text-white leading-tight drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
+              Find Your Doctor
+            </h1>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white/90 mb-6 drop-shadow-lg">
+              Expert Ayurvedic Practitioners
+            </h2>
+            <p className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
+              Connect with verified and experienced Ayurvedic doctors who are dedicated to your wellness journey through authentic healing practices.
+            </p>
+            <button className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl hover:bg-white">
+              Browse Doctors
+            </button>
+          </div>
         </div>
       </section>
 
