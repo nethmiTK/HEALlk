@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import Pagination from './pagination';
+import Pagination from './Pagination';
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -18,7 +18,7 @@ const Services = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [servicesPerPage] = useState(10);
+  const [servicesPerPage] = useState(5);
 
   const categories = [
     'General Consultation',
@@ -320,14 +320,12 @@ const Services = () => {
         </table>
       </div>
 
-      {services.length > servicesPerPage && (
-        <Pagination
-          itemsPerPage={servicesPerPage}
-          totalItems={services.length}
-          paginate={paginate}
-          currentPage={currentPage}
-        />
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={services.length}
+        itemsPerPage={servicesPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {services.length === 0 && (
         <div className="text-center py-12">

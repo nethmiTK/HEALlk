@@ -356,215 +356,232 @@ const Profile = () => {
         {/* Profile Information Card */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:scale-105 transition-transform" 
-                   onClick={isEditing ? () => fileInputRef.current?.click() : (user?.profile_pic ? handleImageRemove : null)}
-                   style={{ cursor: isEditing ? 'pointer' : (user?.profile_pic ? 'pointer' : 'default') }}
-                   title={isEditing ? 'Click to change profile picture' : (user?.profile_pic ? 'Click to remove profile picture' : `${user?.full_name || 'User'}'s initial`)}>
-                {user?.profile_pic || previewImage ? (
-                  <img 
-                    src={previewImage || user.profile_pic} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                ) : (
-                  <span>
-                    {user?.full_name?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:scale-105 transition-transform" 
+                     onClick={isEditing ? () => fileInputRef.current?.click() : (user?.profile_pic ? handleImageRemove : null)}
+                     style={{ cursor: isEditing ? 'pointer' : (user?.profile_pic ? 'pointer' : 'default') }}
+                     title={isEditing ? 'Click to change profile picture' : (user?.profile_pic ? 'Click to remove profile picture' : `${user?.full_name || 'User'}'s initial`)}>
+                  {user?.profile_pic || previewImage ? (
+                    <img 
+                      src={previewImage || user.profile_pic} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <span>
+                      {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="file-input"
+                  style={{ display: 'none' }}
+                />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-1">{user?.full_name || 'Unknown User'}</h2>
+                  <p className="text-gray-600 mb-2">{user?.email}</p>
+                  <p>
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                      {user?.role === 'admin' ? 'Administrator' : 'Doctor'}
+                    </span>
+                  </p>
+                </div>
               </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
-                className="file-input"
-                style={{ display: 'none' }}
-              />
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-1">{user?.full_name || 'Unknown User'}</h2>
-                <p className="text-gray-600 mb-2">{user?.email}</p>
-                <p>
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                    {user?.role === 'admin' ? 'Administrator' : 'Doctor'}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
+              <div className="flex gap-2">
               {!isEditing ? (
                 <button 
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                   onClick={() => setIsEditing(true)}
-                  title="Edit your profile information including name, email, phone, and profile picture"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  Edit Profile
+                  ✏️ Edit Profile
                 </button>
               ) : (
                 <div className="flex gap-2">
                   <button 
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium disabled:opacity-50 shadow-md hover:shadow-lg flex items-center gap-2"
+                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     onClick={handleProfileSubmit}
                     disabled={saving}
-                    title="Save all changes made to your profile information"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        💾 Save Changes
+                      </>
+                    )}
                   </button>
                   <button 
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium disabled:opacity-50"
+                    className="px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-semibold disabled:opacity-50 transition-all duration-200"
                     onClick={cancelEdit}
                     disabled={saving}
-                    title="Cancel editing and discard all unsaved changes"
                   >
-                    Cancel
+                    ❌ Cancel
                   </button>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
           {/* Profile Form */}
-          <div className="p-6">
-            <form onSubmit={handleProfileSubmit}>
+          <div className="p-8">
+            <form onSubmit={handleProfileSubmit} className="space-y-8">
+              {/* Basic Information Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                  👤 Personal Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="full_name" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      📝 Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="full_name"
+                      name="full_name"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+                      value={profileForm.full_name}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      required
+                      placeholder="Enter your full name"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="full_name"
-                    name="full_name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    value={profileForm.full_name}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    required
-                    placeholder="Enter your full name"
-                    title="Your full name as it will appear on your profile"
-                  />
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      📧 Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 cursor-not-allowed shadow-sm"
+                      value={profileForm.email}
+                      disabled={true}
+                      placeholder="Email cannot be changed"
+                    />
+                    <small className="text-xs text-gray-500 mt-2 block flex items-center gap-1">
+                      🔒 Email address cannot be modified for security reasons
+                    </small>
+                  </div>
                 </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                    value={profileForm.email}
-                    disabled={true}
-                    placeholder="Email cannot be changed"
-                  />
-                  <small className="text-xs text-gray-500 mt-1 block">Email address cannot be modified</small>
-                </div>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      📱 Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+                      value={profileForm.phone}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="phone" className="form-label">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    className="form-input"
-                    value={profileForm.phone}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    placeholder="Enter your phone number"
-                    title="Your contact phone number"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Account Created</label>
-                  <div className="form-display">
-                    {user?.created_at ? formatDate(user.created_at) : 'Unknown'}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      📅 Account Created
+                    </label>
+                    <div className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 shadow-sm">
+                      {user?.created_at ? formatDate(user.created_at) : 'Unknown'}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Cover Photo Section */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Cover Photo</label>
-                  <div className="cover-photo-section">
-                    {previewCover || user?.cover_photo ? (
-                      <div className="cover-preview">
-                        <img 
-                          src={previewCover || user.cover_photo} 
-                          alt="Cover" 
-                          className="cover-image"
-                          style={{width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px'}}
-                        />
-                        {isEditing && (
-                          <button 
-                            type="button" 
-                            onClick={handleCoverRemove}
-                            className="btn btn-secondary"
-                            style={{marginTop: '8px'}}
-                          >
-                            Remove Cover
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="cover-placeholder" style={{height: '200px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                        <span>No cover photo</span>
-                      </div>
-                    )}
-                    {isEditing && (
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                  🖼️ Cover Photo
+                </h3>
+                <div className="space-y-4">
+                  {previewCover || user?.cover_photo ? (
+                    <div className="relative">
+                      <img 
+                        src={previewCover || user.cover_photo} 
+                        alt="Cover" 
+                        className="w-full h-48 object-cover rounded-xl shadow-lg border-2 border-white"
+                      />
+                      {isEditing && (
+                        <button 
+                          type="button" 
+                          onClick={handleCoverRemove}
+                          className="absolute top-3 right-3 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium shadow-lg"
+                        >
+                          🗑️ Remove
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div className="text-4xl mb-2">📷</div>
+                      <span className="text-gray-500 font-medium">No cover photo uploaded</span>
+                    </div>
+                  )}
+                  {isEditing && (
+                    <>
                       <input
                         type="file"
                         ref={coverInputRef}
                         onChange={handleCoverChange}
                         accept="image/*"
-                        className="file-input"
-                        style={{ display: 'none' }}
+                        className="hidden"
                       />
-                    )}
-                    {isEditing && (
                       <button 
                         type="button" 
                         onClick={() => coverInputRef.current?.click()}
-                        className="btn btn-outline"
-                        style={{marginTop: '8px'}}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                       >
-                        {previewCover || user?.cover_photo ? 'Change Cover' : 'Add Cover Photo'}
+                        📸 {previewCover || user?.cover_photo ? 'Change Cover Photo' : 'Upload Cover Photo'}
                       </button>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
 
-              {/* Description Section */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="description" className="form-label">
-                    Professional Description
+              {/* Professional Description Section */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                  📋 Professional Description
+                </h3>
+                <div>
+                  <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    ✍️ About Your Practice
                   </label>
                   <textarea
                     id="description"
                     name="description"
-                    className="form-input"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md resize-none"
                     value={profileForm.description}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    rows="4"
-                    placeholder="Describe your professional background, specializations, and experience..."
-                    title="Your professional description that will appear on your public profile"
+                    rows="5"
+                    placeholder="Describe your professional background, specializations, experience, and what makes your practice unique..."
                   />
+                  <small className="text-xs text-gray-500 mt-2 block">
+                    💡 This description will appear on your public profile to help patients understand your expertise
+                  </small>
                 </div>
               </div>
             </form>
@@ -572,43 +589,48 @@ const Profile = () => {
         </div>
 
         {/* Security Section */}
-        <div className="profile-card">
-          <div className="profile-card-header">
-            <div className="section-info">
-              <h3 className="section-title">Security Settings</h3>
-              <p className="section-subtitle">Manage your password and account security</p>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  🔐 Security Settings
+                </h3>
+                <p className="text-gray-600">Manage your password and account security</p>
+              </div>
+              <button 
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                onClick={() => setShowPasswordForm(!showPasswordForm)}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                {showPasswordForm ? '❌ Cancel' : '🔒 Change Password'}
+              </button>
             </div>
-            <button 
-              className="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-all duration-200 font-medium shadow-sm hover:shadow-md flex items-center gap-2"
-              onClick={() => setShowPasswordForm(!showPasswordForm)}
-              title={showPasswordForm ? 'Cancel password change' : 'Change your account password'}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              {showPasswordForm ? 'Cancel' : 'Change Password'}
-            </button>
           </div>
 
           {showPasswordForm && (
-            <div className="password-form-section">
-              <form onSubmit={handlePasswordSubmit}>
+            <div className="p-8">
+              <form onSubmit={handlePasswordSubmit} className="space-y-6">
                 {passwordError && (
-                  <div className="alert alert-error">
-                    <span className="alert-icon">⚠️</span>
-                    <span className="alert-message">{passwordError}</span>
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-red-500 text-lg mr-3">⚠️</span>
+                      <span className="text-red-700 font-medium">{passwordError}</span>
+                    </div>
                   </div>
                 )}
 
-                <div className="form-group">
-                  <label htmlFor="currentPassword" className="form-label">
-                    Current Password <span className="required">*</span>
+                <div>
+                  <label htmlFor="currentPassword" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    🔑 Current Password <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="password"
                     id="currentPassword"
                     name="currentPassword"
-                    className="form-input"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 shadow-sm hover:shadow-md"
                     value={passwordForm.currentPassword}
                     onChange={handlePasswordChange}
                     required
@@ -616,16 +638,16 @@ const Profile = () => {
                   />
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="newPassword" className="form-label">
-                      New Password <span className="required">*</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      🆕 New Password <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
                       id="newPassword"
                       name="newPassword"
-                      className="form-input"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 shadow-sm hover:shadow-md"
                       value={passwordForm.newPassword}
                       onChange={handlePasswordChange}
                       required
@@ -634,15 +656,15 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="confirmPassword" className="form-label">
-                      Confirm New Password <span className="required">*</span>
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      ✅ Confirm Password <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
                       id="confirmPassword"
                       name="confirmPassword"
-                      className="form-input"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 shadow-sm hover:shadow-md"
                       value={passwordForm.confirmPassword}
                       onChange={handlePasswordChange}
                       required
@@ -651,21 +673,10 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="form-actions">
-                  <button 
-                    type="submit"
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium disabled:opacity-50 shadow-md hover:shadow-lg flex items-center gap-2"
-                    disabled={saving}
-                    title="Update your account password with the new password"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {saving ? 'Updating...' : 'Update Password'}
-                  </button>
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
                   <button 
                     type="button"
-                    className="btn btn-secondary"
+                    className="px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-semibold transition-all duration-200"
                     onClick={() => {
                       setShowPasswordForm(false);
                       setPasswordForm({
@@ -675,9 +686,27 @@ const Profile = () => {
                       });
                       setPasswordError(null);
                     }}
-                    title="Cancel password change and clear form"
                   >
-                    Cancel
+                    ❌ Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        🔒 Update Password
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
@@ -685,55 +714,26 @@ const Profile = () => {
           )}
 
           {!showPasswordForm && (
-            <div className="security-info">
-              <div className="security-item" title="Your account password security information">
-                <div className="security-details">
-                  <h4>Password</h4>
-                  <p>Your password was last updated on your registration date</p>
-                </div>
-                <div className="security-status">
-                  <span className="status-badge secure" title="Your password meets security requirements">Secure</span>
+            <div className="p-8">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      🔐 Password Security
+                    </h4>
+                    <p className="text-gray-600">Your password was last updated on your registration date</p>
+                  </div>
+                  <div>
+                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                      ✅ Secure
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Account Statistics */}
-        <div className="profile-stats">
-          <div className="stat-card" title="Your account role and permissions level">
-            <div className="stat-info">
-              <h3>Account Type</h3>
-              <p className="stat-value">{user?.role === 'admin' ? 'Administrator' : 'Doctor'}</p>
-            </div>
-          </div>
-
-          <div className="stat-card" title="Date when your account was created">
-            <div className="stat-info">
-              <h3>Member Since</h3>
-              <p className="stat-value">
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'short' 
-                }) : 'Unknown'}
-              </p>
-            </div>
-          </div>
-
-          <div className="stat-card" title="Your account security rating based on password strength and settings">
-            <div className="stat-info">
-              <h3>Security Level</h3>
-              <p className="stat-value">High</p>
-            </div>
-          </div>
-
-          <div className="stat-card" title="Current status of your account">
-            <div className="stat-info">
-              <h3>Account Status</h3>
-              <p className="stat-value">Active</p>
-            </div>
-          </div>
-        </div>
+ 
       </div>
     </div>
   );

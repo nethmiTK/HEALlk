@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
+import Pagination from './Pagination';
 
 const ProductTest = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(5);
   const [formData, setFormData] = useState({
     product_name: '',
     price: '',
@@ -206,7 +209,6 @@ const ProductTest = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price (Rs.)</th>
@@ -217,11 +219,8 @@ const ProductTest = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product) => (
+              {products.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage).map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    #{product.id}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <h3 className="text-sm font-medium text-gray-900">{product.product_name}</h3>
@@ -279,6 +278,13 @@ const ProductTest = () => {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalItems={products.length}
+        itemsPerPage={productsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {isModalOpen && (
         <div className="fixed inset-0 z-40">

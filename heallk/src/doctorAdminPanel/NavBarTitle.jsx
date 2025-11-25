@@ -92,7 +92,7 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
               className="text-sm font-semibold text-gray-800 m-0 cursor-pointer"
               onClick={() => navigate('/doctor-admin/profile')}
             >
-              Dr. {formatUserName()}
+              Dr. {user?.full_name || formatUserName()}
             </h3>
             <span className="text-xs text-gray-600 cursor-pointer">
               {user?.email || 'admin@gmail.com'}

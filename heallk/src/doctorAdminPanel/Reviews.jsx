@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Pagination from './Pagination';
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -19,11 +20,13 @@ const Reviews = () => {
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reviewsPerPage] = useState(5);
   const [pagination, setPagination] = useState({
     current_page: 1,
     total_pages: 1,
     total_reviews: 0,
-    per_page: 10
+    per_page: 5
   });
 
   useEffect(() => {
@@ -361,7 +364,7 @@ const Reviews = () => {
 
       {/* Reviews List */}
       <div className="space-y-6">
-        {filteredReviews.map((review) => (
+        {filteredReviews.slice((currentPage - 1) * reviewsPerPage, currentPage * reviewsPerPage).map((review) => (
           <div key={review.review_id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-all duration-200">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-4">
@@ -445,6 +448,13 @@ const Reviews = () => {
           </div>
         ))}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredReviews.length}
+        itemsPerPage={reviewsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {filteredReviews.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">

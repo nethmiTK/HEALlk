@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
+import Pagination from './Pagination';
 
 const Qualifications = () => {
   const [qualifications, setQualifications] = useState([]);
@@ -17,6 +18,8 @@ const Qualifications = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [qualificationsPerPage] = useState(5);
 
   const specializations = [
     'General Medicine',
@@ -306,6 +309,7 @@ const Qualifications = () => {
             ) : filteredQualifications.length > 0 ? (
               filteredQualifications
                 .sort((a, b) => parseInt(b.year_completed) - parseInt(a.year_completed))
+                .slice((currentPage - 1) * qualificationsPerPage, currentPage * qualificationsPerPage)
                 .map((qual) => (
                   <tr key={qual.qualification_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -374,6 +378,13 @@ const Qualifications = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredQualifications.length}
+        itemsPerPage={qualificationsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {qualifications.length === 0 && !loading && (
         <div className="text-center py-12">
