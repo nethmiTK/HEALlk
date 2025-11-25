@@ -92,10 +92,11 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
                 to={item.path}
                 className={`flex items-center gap-3 py-3 px-5 text-gray-600 no-underline transition-all duration-200 relative ${
                   isActiveItem(item) 
-                    ? 'bg-blue-100 text-blue-900 font-medium' 
-                    : 'hover:bg-gray-200 hover:text-blue-900'
+                    ? 'bg-green-100 text-green-900 font-medium' 
+                    : 'hover:bg-gray-200 hover:text-green-900'
                 }`}
                 onClick={() => {
+                  console.log('Navigating to:', item.path);
                   // Close any open modals/forms when navigating
                   const closeButtons = document.querySelectorAll('[data-modal-close]');
                   closeButtons.forEach(btn => btn.click());
@@ -103,7 +104,7 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
               >
                 <span className="text-xl flex items-center justify-center w-6 h-6">{item.icon}</span>
                 {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                {isActiveItem(item) && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-900"></div>}
+                {isActiveItem(item) && <div className="absolute right-0 top-0 bottom-0 w-1 bg-green-900"></div>}
               </Link>
             </li>
           ))}

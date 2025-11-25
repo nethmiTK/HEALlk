@@ -293,111 +293,152 @@ const Reviews = () => {
       </div>
 
       {/* Filters and Controls */}
-      <div className="reviews-controls">
-        <div className="filter-tabs">
-          <button 
-            className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            All Reviews ({stats.total_reviews})
-          </button>
-          <button 
-            className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
-            onClick={() => setFilter('pending')}
-          >
-            Pending ({stats.pending_reviews})
-          </button>
-          <button 
-            className={`filter-tab ${filter === 'approved' ? 'active' : ''}`}
-            onClick={() => setFilter('approved')}
-          >
-            Approved ({stats.approved_reviews})
-          </button>
-          <button 
-            className={`filter-tab ${filter === 'rejected' ? 'active' : ''}`}
-            onClick={() => setFilter('rejected')}
-          >
-            Rejected ({stats.rejected_reviews})
-          </button>
-        </div>
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div className="flex flex-wrap gap-2">
+            <button 
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                filter === 'all' 
+                  ? 'bg-green-600 text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilter('all')}
+            >
+              All Reviews ({stats.total_reviews})
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                filter === 'pending' 
+                  ? 'bg-orange-500 text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilter('pending')}
+            >
+              Pending ({stats.pending_reviews})
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                filter === 'approved' 
+                  ? 'bg-green-500 text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilter('approved')}
+            >
+              Approved ({stats.approved_reviews})
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                filter === 'rejected' 
+                  ? 'bg-red-500 text-white shadow-md' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilter('rejected')}
+            >
+              Rejected ({stats.rejected_reviews})
+            </button>
+          </div>
 
-        <div className="sort-controls">
-          <label htmlFor="sortBy">Sort by:</label>
-          <select 
-            id="sortBy" 
-            value={`${sortBy}_${order}`} 
-            onChange={(e) => {
-              const [sort, orderVal] = e.target.value.split('_');
-              setSortBy(sort);
-              setOrder(orderVal);
-            }}
-          >
-            <option value="created_at_DESC">Newest First</option>
-            <option value="created_at_ASC">Oldest First</option>
-            <option value="rating_DESC">Highest Rating</option>
-            <option value="rating_ASC">Lowest Rating</option>
-          </select>
+          <div className="flex items-center gap-3">
+            <label htmlFor="sortBy" className="text-sm font-medium text-gray-700">Sort by:</label>
+            <select 
+              id="sortBy" 
+              value={`${sortBy}_${order}`} 
+              onChange={(e) => {
+                const [sort, orderVal] = e.target.value.split('_');
+                setSortBy(sort);
+                setOrder(orderVal);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+            >
+              <option value="created_at_DESC">Newest First</option>
+              <option value="created_at_ASC">Oldest First</option>
+              <option value="rating_DESC">Highest Rating</option>
+              <option value="rating_ASC">Lowest Rating</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Reviews List */}
-      <div className="reviews-list">
+      <div className="space-y-6">
         {filteredReviews.map((review) => (
-          <div key={review.review_id} className={`review-card ${review.status}`}>
-            <div className="review-header">
-              <div className="reviewer-info">
-                <div className="reviewer-avatar">👤</div>
-                <div className="reviewer-details">
-                  <h4 className="reviewer-name">Patient #{review.review_id}</h4>
-                  <div className="review-meta">
-                    <span className="review-rating">{getRatingStars(review.rating)}</span>
-                    <span className="review-date">{formatDate(review.created_at)}</span>
+          <div key={review.review_id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-all duration-200">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  {review.review_id.toString().slice(-1)}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">Patient #{review.review_id}</h4>
+                  <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className={`w-4 h-4 ${
+                          i < review.rating ? 'text-yellow-400' : 'text-gray-300'
+                        }`} fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                      <span className="ml-2 text-sm font-medium text-gray-600">({review.rating}/5)</span>
+                    </div>
+                    <span className="text-sm text-gray-500">{formatDate(review.created_at)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="review-status-badge">
-                <span className={`status-badge ${review.status}`}>
-                  {review.status === 'pending' && '⏳ Pending'}
-                  {review.status === 'approved' && '✅ Approved'}
-                  {review.status === 'rejected' && '❌ Rejected'}
-                </span>
-              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                review.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                review.status === 'approved' ? 'bg-green-100 text-green-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {review.status === 'pending' && '⏳ Pending'}
+                {review.status === 'approved' && '✅ Approved'}
+                {review.status === 'rejected' && '❌ Rejected'}
+              </span>
             </div>
 
-            <div className="review-content">
-              <p className="review-comment">{review.comment}</p>
+            <div className="mb-4">
+              <p className="text-gray-700 leading-relaxed">{review.comment}</p>
             </div>
 
-            {/* Note: Doctor reply functionality can be added later if needed */}
-
-            {/* Review Actions */}
-            <div className="review-actions">
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
               {review.status === 'pending' && (
                 <>
                   <button 
-                    className="btn btn-success"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center gap-2"
                     onClick={() => handleApproveReview(review.review_id)}
                   >
-                    ✅ Approve
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Approve
                   </button>
                   <button 
-                    className="btn btn-danger"
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center gap-2"
                     onClick={() => handleRejectReview(review.review_id)}
                   >
-                    ❌ Reject
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Reject
                   </button>
                 </>
               )}
               <button 
-                className="btn btn-danger btn-text"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm flex items-center gap-2"
                 onClick={() => handleDeleteReview(review.review_id)}
               >
-                🗑️ Delete
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
               </button>
               {review.rating <= 3 && (
-                <button className="btn btn-text warning">
-                  ⚠️ Flag for Follow-up
+                <button className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition-colors font-medium text-sm flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  Flag for Follow-up
                 </button>
               )}
             </div>
@@ -406,10 +447,10 @@ const Reviews = () => {
       </div>
 
       {filteredReviews.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">⭐</div>
-          <h3>No reviews found</h3>
-          <p>
+        <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="text-6xl mb-4">⭐</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No reviews found</h3>
+          <p className="text-gray-500">
             {filter === 'all' 
               ? 'You haven\'t received any reviews yet. Provide excellent care to get your first review!'
               : `No reviews match the "${filter}" filter.`

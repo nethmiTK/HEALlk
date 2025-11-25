@@ -43,7 +43,7 @@ app.use('/api/public', publicRoutes);
 app.use('/api/clinics', clinicRoutes);
 
 // Register product routes
-const productRoutes = require('./Routes/ProductRoutes');
+const productRoutes = require('./Routes/ProductsRoutes');
 app.use('/api/products', productRoutes);
 
 app.use((req, res, next) => {

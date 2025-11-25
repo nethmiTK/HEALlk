@@ -394,20 +394,26 @@ const Profile = () => {
             <div className="flex gap-2">
               {!isEditing ? (
                 <button 
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center gap-2"
                   onClick={() => setIsEditing(true)}
                   title="Edit your profile information including name, email, phone, and profile picture"
                 >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                   Edit Profile
                 </button>
               ) : (
                 <div className="flex gap-2">
                   <button 
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium disabled:opacity-50 shadow-md hover:shadow-lg flex items-center gap-2"
                     onClick={handleProfileSubmit}
                     disabled={saving}
                     title="Save all changes made to your profile information"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                   <button 
@@ -573,10 +579,13 @@ const Profile = () => {
               <p className="section-subtitle">Manage your password and account security</p>
             </div>
             <button 
-              className="btn btn-outline"
+              className="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-all duration-200 font-medium shadow-sm hover:shadow-md flex items-center gap-2"
               onClick={() => setShowPasswordForm(!showPasswordForm)}
               title={showPasswordForm ? 'Cancel password change' : 'Change your account password'}
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
               {showPasswordForm ? 'Cancel' : 'Change Password'}
             </button>
           </div>
@@ -645,10 +654,13 @@ const Profile = () => {
                 <div className="form-actions">
                   <button 
                     type="submit"
-                    className="btn btn-primary"
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium disabled:opacity-50 shadow-md hover:shadow-lg flex items-center gap-2"
                     disabled={saving}
                     title="Update your account password with the new password"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     {saving ? 'Updating...' : 'Update Password'}
                   </button>
                   <button 

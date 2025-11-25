@@ -40,6 +40,11 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
           title: 'Patient Reviews',
           subtitle: 'View and respond to patient feedback'
         };
+        case '/doctor-admin/products':
+        return {
+          title: 'Products',
+          subtitle: 'Manage your products and inventory'
+        };
       default:
         return {
           title: pageName || 'Dashboard',

@@ -78,7 +78,12 @@ const Overview = () => {
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200" title="Recent activities and updates in your clinic management system">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-800">Recent Activity</h3>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium" title="View all recent activities and system updates">View All</button>
+            <button className="text-green-600 hover:text-green-800 text-sm font-medium flex items-center gap-1" title="View all recent activities and system updates">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              View All
+            </button>
           </div>
           <div className="space-y-4">
             {recentActivity.map((activity) => (
@@ -104,7 +109,7 @@ const Overview = () => {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {quickActions.map((action) => (
-              <button key={action.id} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200 hover:border-blue-300" title={`Navigate to ${action.title} section`}>
+              <button key={action.id} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-green-50 rounded-lg transition-colors border border-gray-200 hover:border-green-300 shadow-sm hover:shadow-md" title={`Navigate to ${action.title} section`}>
                 <span className="text-2xl mb-2">{action.icon}</span>
                 <span className="text-sm font-medium text-gray-700">{action.title}</span>
               </button>
