@@ -51,7 +51,7 @@ class ServicesController {
                 u.full_name as doctor_name, u.user_id as doctor_id
          FROM services s
          INNER JOIN users u ON s.doctor_id = u.user_id
-         WHERE s.is_active = TRUE AND s.doctor_id = ? AND u.role IN ('doctor', 'admin')
+         WHERE s.doctor_id = ? AND u.role IN ('doctor', 'admin')
          ORDER BY s.created_at DESC`,
         [doctorId]
       );

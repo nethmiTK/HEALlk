@@ -24,7 +24,7 @@ const Products = ({ doctor }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
       
-      const response = await fetch(`${API_BASE_URL}/products/public/${doctor.id}`, {
+      const response = await fetch(`${API_BASE_URL}/public/products/doctor/${doctor.id}`, {
         signal: controller.signal
       });
       

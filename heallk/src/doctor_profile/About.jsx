@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReviewSystem from '../doctor_profile/ReviewSystem';
 import aboutImg from '../assets/about.png';
-
+import ServicesSection from '../doctor_profile/ServicesSection';
 const About = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,6 +16,14 @@ const About = () => {
     loadDoctorProfile();
     fetchDoctorData();
   }, [id]);
+  useEffect(() => {
+  const interval = setInterval(() => {
+    nextServices();
+  }, 8000);
+
+  return () => clearInterval(interval);
+}, [currentServiceIndex]);
+
 
   const loadDoctorProfile = async () => {
     // Using static data since backend is not available
@@ -82,111 +90,31 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="relative h-96 overflow-hidden pt-16">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          {doctor?.cover_photo ? (
-            <img src={doctor.cover_photo} alt="Doctor Cover" className="w-full h-full object-cover" />
-          ) : (
-            <img src={aboutImg} alt="Medical Background" className="w-full h-full object-cover" />
-          )}
-        </div>
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        <div className="absolute bottom-6 left-6 text-white">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{doctor?.name || 'Dr. Sample Doctor'}</h1>
-          <p className="text-lg opacity-90">Ayurvedic Specialist</p>
-        </div>
-      </section>
+    
       
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      {/* About Me Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2" style={{fontFamily: 'Playfair Display, serif'}}>About Me</h2>
-          <div className="w-24 h-1 bg-green-500 mx-auto rounded-full"></div>
-        </div>
-        <div className="text-center">
-          <p className="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto">
-            {doctorData?.description || doctor?.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
-          </p>
-        </div>
-      </div>
+       
+      {/* Section 3: button */}
 
-      {/* Section 2: Ready to Book a Consultation? */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-md p-8 text-white text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Book a Consultation?</h2>
-        <p className="text-lg mb-6">Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}</p>
-        <button 
-          onClick={() => {
-            const contactSection = document.getElementById('contact');
-            if (contactSection) {
-              contactSection.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
-          className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-        >
-          Contact Now
-        </button>
-      </div>
+      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-white text-center">
+    <h2 className="text-3xl font-bold mb-4">Ready to Book a Consultation?</h2>
+    <p className="text-lg mb-6">Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}</p>
+    <button
+      onClick={() => {
+        const contactSection = document.getElementById('contact');
+        if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
+      }}
+      className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+    >
+      Contact Now
+    </button>
+             </div>
+       </div>
 
-      {/* Section 3: Our Services */}
-      <div id="services" className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2" style={{fontFamily: 'Playfair Display, serif'}}>Our Services</h2>
-            <div className="w-24 h-1 bg-green-500 rounded-full"></div>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={prevServices}
-              className="w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center justify-center font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              ‹
-            </button>
-            <button 
-              onClick={nextServices}
-              className="w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 flex items-center justify-center font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          {services.slice(currentServiceIndex, currentServiceIndex + 3).map((service, index) => (
-            <div key={service.id || index} className="bg-gradient-to-br from-white to-green-50 border-2 border-green-100 rounded-xl p-6 hover:shadow-xl hover:border-green-300 transition-all duration-300 transform hover:-translate-y-2">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xl">⚕️</span>
-                </div>
-                <span className="text-2xl font-bold text-green-600">Rs. {service.price || '2,500'}</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3" style={{fontFamily: 'Playfair Display, serif'}}>
-                {service.title || service.name || `Service ${index + 1}`}
-              </h3>
-              <p className="text-gray-600 mb-4 leading-relaxed">
-                {service.description || 'Professional healthcare service'}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">{service.duration || '30 mins'}</span>
-                <button 
-                  onClick={() => {
-                    const servicesTab = document.querySelector('[data-tab="services"]');
-                    if (servicesTab) {
-                      servicesTab.click();
-                    } else {
-                      window.location.hash = 'services';
-                    }
-                  }}
-                  className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-600 transition-colors"
-                >
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+{/* Section 3: Our Services */}
+ 
+      <ServicesSection doctorId={doctor?.id} />
 
       {/* Section 4: Clinic Information */}
       <div id="clinic" className="bg-white rounded-lg shadow-md p-6">

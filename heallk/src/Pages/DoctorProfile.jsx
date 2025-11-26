@@ -7,6 +7,7 @@ import Services from '../doctor_profile/Services';
 import ClinicInfo from '../doctor_profile/ClinicInfo';
 import Contact from '../doctor_profile/Contact';
 import ReviewSystem from '../doctor_profile/ReviewSystem';
+import Products from '../doctor_profile/Products';
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ const DoctorProfile = () => {
   const tabs = [
     { id: 'about', label: 'About' },
     { id: 'services', label: 'Services' },
+    { id: 'products', label: 'Products' },
     { id: 'clinics', label: 'Clinic Info' },
     { id: 'contact', label: 'Contact' },
     { id: 'reviews', label: 'Reviews' }
@@ -261,6 +263,17 @@ const DoctorProfile = () => {
                 </p>
               </div>
               <Contact doctor={doctor} />
+            </div>
+          )}
+          {activeTab === 'products' && (
+            <div className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Ayurvedic Products</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                  Natural remedies and herbal products by Dr. {doctor.name}
+                </p>
+              </div>
+              <Products doctor={doctor} />
             </div>
           )}
           {activeTab === 'reviews' && (

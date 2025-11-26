@@ -9,6 +9,7 @@ const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
 const servicesRoutes = require('./Routes/ServicesRoutes');
 const contactRoutes = require("./Routes/ContactRoutes");
+const doctorContactRoutes = require('./Routes/DoctorContactRoutes');
 
 const { testConnection, initializeDatabase } = require('./config/database');
 
@@ -37,9 +38,25 @@ app.use('/api/services', servicesRoutes);
 const qualificationRoutes = require("./Routes/QualificationRoutes");
 app.use("/api/qualifications", qualificationRoutes);
 app.use("/api/contact", contactRoutes);
+app.use('/api/doctor-contact', doctorContactRoutes);
 
 const publicRoutes = require('./Routes/PublicRoutes');
 app.use('/api/public', publicRoutes);
+
+// Direct products route for testing
+const { query } = require('./config/database');
+app.get('/api/public/products/doctor/:doctorId', async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+    const products = await query(
+      'SELECT id, product_name, price, ingredient, description, category FROM products WHERE user_id = ?',
+      [doctorId]
+    );
+    res.json({ success: true, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch products' });
+  }
+});
 
 // Register clinic routes
 app.use('/api/clinics', clinicRoutes);
