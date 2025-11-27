@@ -222,6 +222,7 @@ const initializeDatabase = async () => {
         duration VARCHAR(100) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
         category VARCHAR(100) NOT NULL,
+        service_for VARCHAR(255) NULL,
         media_urls JSON NULL,
         is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -241,6 +242,25 @@ const initializeDatabase = async () => {
 
     await query(createServicesTable);
     console.log('✅ Services table ensured');
+
+    // Add service_for column if it doesn't exist
+    try {
+      const serviceForColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'services' AND column_name = 'service_for'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (serviceForColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE services 
+          ADD COLUMN service_for VARCHAR(255) NULL
+        `);
+        console.log('✅ Added service_for column to services table');
+      }
+    } catch (error) {
+      console.warn('Service_for column check/creation warning:', error.message);
+    }
 
     // Create service categories table if it doesn't exist
     const createServiceCategoriesTable = `

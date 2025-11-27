@@ -6,7 +6,7 @@ const getServicesByDoctor = async (req, res) => {
     const doctorId = req.params.doctorId;
     
     const services = await query(
-      'SELECT id, title, description, price FROM services WHERE doctor_id = ?',
+      'SELECT id, title, description, duration, price, category, service_for FROM services WHERE doctor_id = ?',
       [doctorId]
     );
 

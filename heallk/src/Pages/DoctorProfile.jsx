@@ -30,8 +30,9 @@ const DoctorProfile = () => {
     { id: 'services', label: 'Services' },
     { id: 'products', label: 'Products' },
     { id: 'clinic', label: 'Clinic Info' },
-    { id: 'contact', label: 'Contact' },
-    { id: 'reviews', label: 'Reviews' }
+    { id: 'reviews', label: 'Reviews' },
+        { id: 'contact', label: 'Contact' },
+
   ];
 
   const handleTabClick = (tabId) => {
@@ -103,14 +104,14 @@ const DoctorProfile = () => {
               </div>
               
               {/* Profile Tabs */}
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2 bg-white rounded-full p-2 shadow-lg">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                    className={`px-6 py-3 rounded-full font-medium transition-all duration-300 text-sm ${
                       activeTab === tab.id
-                        ? 'bg-green-500 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg transform scale-105'
                         : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
                     }`}
                   >
@@ -119,7 +120,7 @@ const DoctorProfile = () => {
                 ))}
               </div>
               
-              <button onClick={() => navigate('/register')} className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300">Register</button>
+              {/* <button onClick={() => navigate('/register')} className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300">Register</button> */}
             </div>
           </div>
         </nav>
@@ -180,26 +181,26 @@ const DoctorProfile = () => {
                 </div>
                 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   <a 
                     href={`tel:${doctor.phone}`}
-                    className="bg-white text-green-600 px-5 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
+                    className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm border-2 border-green-200"
                   >
-                    📞 Call Now
+                    <span className="text-lg">📞</span> Call Now
                   </a>
                   <a 
                     href={`mailto:${doctor.email}`}
-                    className="bg-green-200 text-black px-5 py-2 rounded-full font-semibold hover:bg-green-300 transition-all duration-300 flex items-center gap-2 text-sm"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
                   >
-                    📧 Email
+                    <span className="text-lg">📧</span> Email
                   </a>
                   <a 
                     href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-green-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
                   >
-                    📱 WhatsApp
+                    <span className="text-lg">📱</span> WhatsApp
                   </a>
                 </div>
               </div>
@@ -220,8 +221,8 @@ const DoctorProfile = () => {
 
 
       {/* Tab Content */}
-      <section className="py-12 bg-green-50 min-h-screen">
-        <div className="w-full">
+      <section className="py-12 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4">
           {activeTab === 'about' && (
             <div className="w-full">
               {/* Hero Section */}
@@ -249,20 +250,20 @@ const DoctorProfile = () => {
                     </p>
                     
                     {/* Stats Cards */}
-                    <div className="grid grid-cols-3 gap-4 mt-6">
+                    {/* <div className="grid grid-cols-3 gap-4 mt-6">
                       <div className="bg-white rounded-lg p-4 shadow-md text-center">
                         <div className="text-2xl font-bold text-green-600">5+</div>
                         <div className="text-sm text-gray-600">Years Experience</div>
                       </div>
                       <div className="bg-white rounded-lg p-4 shadow-md text-center">
-                        <div className="text-2xl font-bold text-blue-600">500+</div>
+                        <div className="text-2xl font-bold text-blue-600">99</div>
                         <div className="text-sm text-gray-600">Happy Patients</div>
                       </div>
                       <div className="bg-white rounded-lg p-4 shadow-md text-center">
                         <div className="text-2xl font-bold text-purple-600">4.9</div>
                         <div className="text-sm text-gray-600">Rating</div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -345,18 +346,77 @@ const DoctorProfile = () => {
                   Professional healthcare services offered by Dr. {doctor.name}
                 </p>
               </div>
-              <Services doctor={doctor} />
+              <Services doctor={doctor} onBookNow={() => handleTabClick('contact')} />
             </div>
           )}
           {activeTab === 'clinic' && (
             <div className="w-full">
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Clinic Information</h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
-                  Visit our clinic for professional healthcare services
+              {/* Header Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8 mb-8 text-center">
+                <div className="text-6xl mb-4">🏥</div>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Clinic Locations</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                  Visit our state-of-the-art facilities for comprehensive Ayurvedic healthcare
                 </p>
               </div>
-              <ClinicInfo doctor={doctor} />
+              
+              {/* Enhanced Clinic Info */}
+              <div className="space-y-8">
+                <ClinicInfo doctor={doctor} />
+                
+                {/* Additional Features */}
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div className="text-4xl mb-4">🚗</div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Free Parking</h3>
+                    <p className="text-gray-600">Convenient parking available for all patients</p>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div className="text-4xl mb-4">♿</div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Wheelchair Access</h3>
+                    <p className="text-gray-600">Fully accessible facilities for all patients</p>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+                    <div className="text-4xl mb-4">📱</div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Online Booking</h3>
+                    <p className="text-gray-600">Easy appointment scheduling through our platform</p>
+                  </div>
+                </div>
+                
+                {/* Emergency Contact */}
+                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="text-3xl">🚨</div>
+                    <div>
+                      <h3 className="text-xl font-bold text-red-800 mb-2">Emergency Contact</h3>
+                      <p className="text-red-700">For medical emergencies, please call: <strong>{doctor?.phone || '+94 77 123 4567'}</strong></p>
+                      <p className="text-red-600 text-sm mt-1">Available 24/7 for urgent medical assistance</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Appointment CTA */}
+                <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-8 text-white text-center">
+                  <h3 className="text-2xl font-bold mb-4">Ready to Visit Our Clinic?</h3>
+                  <p className="text-lg mb-6 opacity-90">Schedule your appointment today for personalized care</p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button 
+                      onClick={() => handleTabClick('contact')}
+                      className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                    >
+                      📅 Book Appointment
+                    </button>
+                    <a 
+                      href={`tel:${doctor?.phone}`}
+                      className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-colors"
+                    >
+                      📞 Call Now
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           {activeTab === 'contact' && (
@@ -395,30 +455,79 @@ const DoctorProfile = () => {
         </div>
       </section>
 
-
-
-
-
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white">
-        <div className="w-full px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4" style={{fontFamily: 'Playfair Display, serif'}}>
-            Ready to Book a Consultation?
-          </h2>
-          <p className="text-lg mb-8">Contact {doctor.name} directly to schedule your appointment</p>
-          <div className="flex justify-center space-x-4">
+      {/* Enhanced CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse"></div>
+          <div className="absolute top-32 right-20 w-16 h-16 border-2 border-white rounded-full animate-bounce"></div>
+          <div className="absolute bottom-20 left-1/4 w-12 h-12 border-2 border-white rounded-full animate-ping"></div>
+          <div className="absolute bottom-32 right-1/3 w-24 h-24 border-2 border-white rounded-full animate-pulse"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <div className="mb-8">
+            {/* <div className="text-6xl mb-4"></div> */}
+            <h2 className="text-4xl font-bold mb-4">
+              Ready to Transform Your Health?
+            </h2>
+            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+              Join thousands of satisfied patients who have experienced the healing power of Ayurveda with Dr. {doctor.name}
+            </p>
+          </div>
+          
+          {/* Stats Row */}
+          <div className="grid grid-cols-3 gap-8 mb-12">
+            <div className="text-center">
+              <div className="text-3xl font-bold mb-2">500+</div>
+              <div className="text-sm opacity-80">Happy Patients</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold mb-2">5+</div>
+              <div className="text-sm opacity-80">Years Experience</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold mb-2">4.9⭐</div>
+              <div className="text-sm opacity-80">Patient Rating</div>
+            </div>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              onClick={() => handleTabClick('contact')}
+              className="bg-white text-green-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-3"
+            >
+              <span className="text-2xl">📅</span>
+              Book Your Consultation
+            </button>
             <a 
               href={`tel:${doctor.phone}`}
-              className="bg-white text-green-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-lg"
+              className="border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-3"
             >
-              📞 Call Now
+              <span className="text-2xl">📞</span>
+              Call Now: {doctor.phone}
             </a>
-            <a 
-              href={`mailto:${doctor.email}`}
-              className="bg-white bg-opacity-20 text-white px-6 py-3 rounded-full font-medium hover:bg-opacity-30 transition-colors border border-white"
-            >
-              📧 Send Email
-            </a>
+          </div>
+          
+          {/* Trust Indicators */}
+          <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm opacity-80">
+            <div className="flex items-center gap-2">
+              <span>✅</span>
+              <span>Licensed Professional</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>🔒</span>
+              <span>Confidential Consultations</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>⚡</span>
+              <span>Quick Response</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>💯</span>
+              <span>Satisfaction Guaranteed</span>
+            </div>
           </div>
         </div>
       </section>

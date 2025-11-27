@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config';
 
-const Services = ({ doctor }) => {
+const Services = ({ doctor, onBookNow }) => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,9 +84,17 @@ const Services = ({ doctor }) => {
                   {service.category || 'General'}
                 </span>
               </div>
+              {service.service_for && (
+                <p className="text-sm text-blue-600 mb-2">
+                  <strong>Service for:</strong> {service.service_for}
+                </p>
+              )}
               <p className="text-gray-700 mb-3">{service.description || 'No description available'}</p>
               <div className="flex gap-2">
-                <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm">
+                <button 
+                  onClick={onBookNow}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm"
+                >
                   Book Now
                 </button>
                 <button className="border border-green-500 text-green-500 px-4 py-2 rounded hover:bg-green-50 text-sm">
