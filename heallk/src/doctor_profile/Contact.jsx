@@ -1,6 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
 
 const Contact = ({ doctor }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.phone) {
+      toast.error('Name and phone number are required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/contact/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          date: formData.date,
+          message: formData.message,
+          doctorId: doctor?.id
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success('✅ Appointment saved to database successfully!', {
+          position: "top-right",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        setFormData({ name: '', email: '', phone: '', date: '', message: '' });
+      } else {
+        toast.error(data.message || 'Failed to send appointment request');
+      }
+    } catch (error) {
+      toast.error('Failed to send appointment request');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -58,36 +120,54 @@ const Contact = ({ doctor }) => {
             {/* Appointment Form */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Book Appointment</h2>
-              <form className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Your Name"
-                  className="w-full p-3 border rounded-lg"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Your Name *"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
                 />
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   placeholder="Your Email"
-                  className="w-full p-3 border rounded-lg"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
                 <input
                   type="tel"
-                  placeholder="Phone Number"
-                  className="w-full p-3 border rounded-lg"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Phone Number *"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
                 />
                 <input
                   type="date"
-                  className="w-full p-3 border rounded-lg"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
                 <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   placeholder="Message (Optional)"
                   rows="4"
-                  className="w-full p-3 border rounded-lg"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 ></textarea>
                 <button
                   type="submit"
-                  className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600"
+                  disabled={isSubmitting}
+                  className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Book Appointment
+                  {isSubmitting ? 'Sending...' : 'Book Appointment'}
                 </button>
               </form>
             </div>

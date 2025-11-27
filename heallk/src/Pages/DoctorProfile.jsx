@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import aboutImg from '../assets/about.png';
 import About from '../doctor_profile/About';
@@ -12,18 +12,32 @@ import Products from '../doctor_profile/Products';
 const DoctorProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('about');
+
+  // Get active tab from URL
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (hash && ['about', 'services', 'products', 'clinic', 'contact', 'reviews'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, [location.hash]);
 
   const tabs = [
     { id: 'about', label: 'About' },
     { id: 'services', label: 'Services' },
     { id: 'products', label: 'Products' },
-    { id: 'clinics', label: 'Clinic Info' },
+    { id: 'clinic', label: 'Clinic Info' },
     { id: 'contact', label: 'Contact' },
     { id: 'reviews', label: 'Reviews' }
   ];
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    navigate(`/doctor-profile/${id}#${tabId}`, { replace: true });
+  };
 
   useEffect(() => {
     const loadDoctorProfile = async () => {
@@ -93,7 +107,7 @@ const DoctorProfile = () => {
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabClick(tab.id)}
                     className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
                       activeTab === tab.id
                         ? 'bg-green-500 text-white shadow-lg'
@@ -210,26 +224,117 @@ const DoctorProfile = () => {
         <div className="w-full">
           {activeTab === 'about' && (
             <div className="w-full">
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>About Me</h2>
-              </div>
-              <div className="flex items-start gap-8 mb-8 px-4">
-                <div className="w-64 h-64 rounded-lg overflow-hidden shadow-xl border-4 border-green-300 flex-shrink-0">
-                  {doctor.profilePic ? (
-                    <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                      <span className="text-8xl text-white font-bold">Dr</span>
+              {/* Hero Section */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 mb-8">
+                <div className="flex flex-col lg:flex-row items-center gap-8">
+                  <div className="relative">
+                    <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl border-4 border-white">
+                      {doctor.profilePic ? (
+                        <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                          <span className="text-6xl text-white font-bold">Dr</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-lg text-gray-700 leading-relaxed" style={{fontFamily: 'Playfair Display, serif'}}>
-                    {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
-                  </p>
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-white text-xl">✓</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 text-center lg:text-left">
+                    <h2 className="text-4xl font-bold text-gray-800 mb-4">About Dr. {doctor.name}</h2>
+                    <p className="text-lg text-gray-600 leading-relaxed mb-6">
+                      {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
+                    </p>
+                    
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-3 gap-4 mt-6">
+                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
+                        <div className="text-2xl font-bold text-green-600">5+</div>
+                        <div className="text-sm text-gray-600">Years Experience</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
+                        <div className="text-2xl font-bold text-blue-600">500+</div>
+                        <div className="text-sm text-gray-600">Happy Patients</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
+                        <div className="text-2xl font-bold text-purple-600">4.9</div>
+                        <div className="text-sm text-gray-600">Rating</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <About doctor={doctor} />
+              
+              {/* Specializations */}
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="bg-white rounded-xl p-6 shadow-lg">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="text-3xl mr-3">🌿</span>
+                    Specializations
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-gray-700">Panchakarma Therapy</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-gray-700">Herbal Medicine</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-gray-700">Stress Management</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-gray-700">Lifestyle Counseling</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-lg">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span className="text-3xl mr-3">🎓</span>
+                    Education & Certifications
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="border-l-4 border-green-500 pl-4">
+                      <h4 className="font-semibold text-gray-800">BAMS Degree</h4>
+                      <p className="text-gray-600 text-sm">Bachelor of Ayurvedic Medicine</p>
+                    </div>
+                    <div className="border-l-4 border-blue-500 pl-4">
+                      <h4 className="font-semibold text-gray-800">MD Ayurveda</h4>
+                      <p className="text-gray-600 text-sm">Specialized in Panchakarma</p>
+                    </div>
+                    <div className="border-l-4 border-purple-500 pl-4">
+                      <h4 className="font-semibold text-gray-800">Certified Practitioner</h4>
+                      <p className="text-gray-600 text-sm">Traditional Ayurvedic Medicine</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Contact CTA */}
+              <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-8 text-white text-center">
+                <h3 className="text-2xl font-bold mb-4">Ready to Start Your Healing Journey?</h3>
+                <p className="text-lg mb-6 opacity-90">Book a consultation with Dr. {doctor.name} today</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button 
+                    onClick={() => handleTabClick('contact')}
+                    className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    📅 Book Appointment
+                  </button>
+                  <button 
+                    onClick={() => handleTabClick('services')}
+                    className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-colors"
+                  >
+                    🔍 View Services
+                  </button>
+                </div>
+              </div>
             </div>
           )}
           {activeTab === 'services' && (
@@ -243,7 +348,7 @@ const DoctorProfile = () => {
               <Services doctor={doctor} />
             </div>
           )}
-          {activeTab === 'clinics' && (
+          {activeTab === 'clinic' && (
             <div className="w-full">
               <div className="text-center mb-8">
                 <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Clinic Information</h2>

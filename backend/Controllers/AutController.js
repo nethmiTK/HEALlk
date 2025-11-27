@@ -103,7 +103,7 @@ const login = async (req, res) => {
     }
 
     const users = await query(
-      'SELECT user_id, full_name, email, password, phone, role, created_at FROM users WHERE email = ?',
+      'SELECT user_id, full_name, email, password, phone, role, status, created_at FROM users WHERE email = ?',
       [email.toLowerCase()]
     );
     
@@ -115,6 +115,15 @@ const login = async (req, res) => {
     }
 
     const { password: _, ...user } = users[0];
+    
+    // Check if user status is inactive
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account is inactive. Please contact admin for activation.'
+      });
+    }
+    
     const token = generateToken(user);
 
     res.json({
@@ -242,8 +251,17 @@ const changePassword = async (req, res) => {
 };
 
 // Logout Controller
-const logout = (req, res) => {
-  res.json({ success: true, message: 'Logged out successfully' });
+const logout = async (req, res) => {
+  try {
+    if (req.user && req.user.userId) {
+      // Update user status to inactive when they log out
+      await query('UPDATE users SET status = "inactive" WHERE user_id = ?', [req.user.userId]);
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.json({ success: true, message: 'Logged out successfully' });
+  }
 };
 
 // Get All Users (Admin only)

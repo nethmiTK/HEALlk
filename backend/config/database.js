@@ -194,6 +194,24 @@ const initializeDatabase = async () => {
       console.warn('Profile pic column check/creation warning:', error.message);
     }
 
+    // Check if status column exists and add it if it doesn't
+    try {
+      const statusColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'users' AND column_name = 'status'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (statusColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE users 
+          ADD COLUMN status ENUM('active', 'inactive') DEFAULT 'inactive'
+        `);
+       }
+    } catch (error) {
+      console.warn('Status column check/creation warning:', error.message);
+    }
+
     // Create services table if it doesn't exist
     const createServicesTable = `
       CREATE TABLE IF NOT EXISTS services (
@@ -258,6 +276,27 @@ const initializeDatabase = async () => {
 
     await query(createProductsTable);
     console.log('✅ Products table ensured');
+
+    // Create appointments table if it doesn't exist
+    const createAppointmentsTable = `
+      CREATE TABLE IF NOT EXISTS appointments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        doctor_id INT NOT NULL,
+        patient_name VARCHAR(255) NOT NULL,
+        patient_email VARCHAR(255),
+        patient_phone VARCHAR(20) NOT NULL,
+        appointment_date DATE,
+        message TEXT,
+        status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `;
+
+    await query(createAppointmentsTable);
+    console.log('✅ Appointments table ensured');
 
     // Insert default service categories if table is empty
     const categoryCount = await query('SELECT COUNT(*) as count FROM service_categories');

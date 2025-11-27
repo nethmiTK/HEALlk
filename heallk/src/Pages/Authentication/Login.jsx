@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Navbar from '../../Components/Navbar';
 import './Auth.css';
 import authVideo from '../../assets/auth.mp4';
@@ -94,6 +95,17 @@ const Login = () => {
             navigate('/doctor-admin');
           }, 1500);
         } else {
+          // Check if it's an inactive account error
+          if (response.status === 403 && data.message.includes('inactive')) {
+            toast.error(data.message, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            });
+          }
           throw new Error(data.message || 'Login failed');
         }
       } catch (error) {
