@@ -28,7 +28,7 @@ const Products = () => {
     { src: heroImage4, alt: 'Hero Image 4' }
   ];
 
-  const categories = ['All', 'Herbal Medicine', 'Supplements', 'Oils', 'Powders', 'Capsules', 'Tablets'];
+  const categories = ['All', 'Herbal Medicine', 'Supplement', 'Oil', 'Powder', 'Capsule', 'Tablet'];
 
   // Auto-slide effect - changes image every 4 seconds
   useEffect(() => {
@@ -90,7 +90,10 @@ const Products = () => {
   }, []);
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.product_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const search = searchTerm.toLowerCase();
+    const matchesSearch =
+      product.product_name.toLowerCase().includes(search) ||
+      (product.category && product.category.toLowerCase().includes(search));
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory && product.is_active !== false;
   });
