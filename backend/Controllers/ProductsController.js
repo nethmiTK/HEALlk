@@ -1,5 +1,35 @@
 const db = require('../config/database');
 
+// Get all active products for public viewing
+const getAllPublicProducts = async (req, res) => {
+  try {
+    // If you want to show only products from active users, make sure users table and is_active column exist
+    // Otherwise, fallback to just products
+    let products;
+    try {
+      [products] = await db.execute(
+        'SELECT p.*, u.name as doctor_name FROM products p LEFT JOIN users u ON p.user_id = u.id WHERE p.is_active = 1 AND u.is_active = 1 ORDER BY p.created_at DESC'
+      );
+    } catch (err) {
+      // Fallback: if users table or is_active column does not exist, just show active products
+      [products] = await db.execute(
+        'SELECT * FROM products WHERE is_active = 1 ORDER BY created_at DESC'
+      );
+    }
+    
+    res.json({
+      success: true,
+      products: products
+    });
+  } catch (error) {
+    console.error('Error fetching public products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch products'
+    });
+  }
+};
+
 // Get all products for authenticated user
 const getProducts = async (req, res) => {
   try {
@@ -129,5 +159,6 @@ module.exports = {
   getProducts,
   addProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getAllPublicProducts
 };

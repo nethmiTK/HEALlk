@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getProducts, addProduct, updateProduct, deleteProduct } = require('../Controllers/ProductsController');
+const { getProducts, addProduct, updateProduct, deleteProduct, getAllPublicProducts } = require('../Controllers/ProductsController');
 const { authenticateToken } = require('../middlewares/authMiddleware');
+
+// Public route - Get all active products
+router.get('/public', getAllPublicProducts);
 
 // Get all products for authenticated user
 router.get('/', authenticateToken, getProducts);

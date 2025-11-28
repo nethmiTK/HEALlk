@@ -18,6 +18,7 @@ import DoctorServicesPage from './doctor_profile/DoctorServicesPage'
 import DoctorClinicPage from './doctor_profile/DoctorClinicPage'
 import DoctorContactPage from './doctor_profile/DoctorContactPage'
 import DoctorReviewsPage from './doctor_profile/DoctorReviewsPage'
+import Products from './Pages/Products'
 function App() {
   const location = useLocation();
   const authPages = ['/register', '/login'];
@@ -40,6 +41,7 @@ function App() {
         <Route path="/doctor/:id/clinic" element={<DoctorClinicPage />} />
         <Route path="/doctor/:id/contact" element={<DoctorContactPage />} />
         <Route path="/doctor/:id/reviews" element={<DoctorReviewsPage />} />
+        <Route path="/products" element={<Products />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>
             <DoctorAdminDashboard />
