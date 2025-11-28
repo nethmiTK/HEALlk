@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { submitContact } = require("../Controllers/ContactController");
+const { submitContact, submitGeneralContact } = require("../Controllers/ContactController");
 
-router.post("/submit", submitContact);
+router.post("/submit", submitGeneralContact); // General contact form
+router.post("/appointment", submitContact); // Appointment booking
 
 module.exports = router;

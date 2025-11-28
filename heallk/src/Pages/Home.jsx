@@ -79,13 +79,13 @@ const Home = () => {
     loadDoctors();
   }, []);
 
-  // Auto-slide effect - changes image every 8 seconds
+  // Auto-slide effect - changes image every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 8000); // 8 seconds
+    }, 4000); // 4 seconds
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
@@ -142,7 +142,13 @@ const Home = () => {
               <p className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-lg">
                 Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices
               </p>
-              <button className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl hover:bg-white">
+              <button 
+                onClick={() => {
+                  const doctorsSection = document.getElementById('doctors');
+                  if (doctorsSection) doctorsSection.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl hover:bg-white"
+              >
                 Explore Doctors
               </button>
             </div>
@@ -218,26 +224,13 @@ const Home = () => {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className="text-xl font-bold mb-2 text-gray-800" style={{fontFamily: 'Playfair Display, serif'}}>{doctor.name}</h3>
-                      <p className="text-green-600 font-medium mb-3">{doctor.role === 'admin' ? 'Senior Consultant' : 'Ayurveda Specialist'}</p>
-                      <div className="text-gray-600 text-sm mb-4 leading-relaxed">
-                        <p>📧 {doctor.email}</p>
-                        <p>📞 {doctor.phone}</p>
-                        {doctor.cities.length > 0 && <p>📍 {doctor.cities.join(', ')}</p>}
-                        {doctor.clinicCount > 0 && <p>🏥 {doctor.clinicCount} Clinic{doctor.clinicCount > 1 ? 's' : ''}</p>}
-                      </div>
-                      <div className="flex justify-center space-x-2 mb-4">
-                        <span className={`${badgeColors[index % badgeColors.length]} px-3 py-1 rounded-full text-xs`}>Verified</span>
-                        <span className={`${badgeColors[index % badgeColors.length]} px-3 py-1 rounded-full text-xs`}>{doctor.role}</span>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        <p className="text-xs text-gray-500">Member since: {new Date(doctor.joinedDate).getFullYear()}</p>
-                      </div>
+                      <h3 className="text-xl font-bold mb-3 text-gray-800" style={{fontFamily: 'Playfair Display, serif'}}>{doctor.name}</h3>
+                      <p className="text-gray-600 text-lg mb-4">📞 {doctor.phone}</p>
                       <button 
                         onClick={() => navigate(`/doctor-profile/${doctor.id}`)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 w-full mb-2"
+                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 w-full"
                       >
-                        View Profile
+                        Book Appointment
                       </button>
                     </div>
                   </div>
@@ -403,7 +396,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-8" style={{fontFamily: 'Playfair Display, serif'}}>Get In Touch</h2>
           <p className="text-lg mb-8">Ready to start your healing journey? Contact us today!</p>
-          <button className="bg-white text-green-600 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-lg">
+          <button 
+            onClick={() => navigate('/contact')}
+            className="bg-white text-green-600 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-lg"
+          >
             Book Consultation
           </button>
         </div>

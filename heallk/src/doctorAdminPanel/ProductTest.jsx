@@ -288,7 +288,7 @@ const ProductTest = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-opacity-80 backdrop-blur-sm"></div>
         </div>
       )}
       
