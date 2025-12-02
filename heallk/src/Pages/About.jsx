@@ -157,7 +157,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* EXPERT DOCTORS SECTION */}
+      {/* EXPERT DOCTORS SECTION
       <section className="py-20 bg-gradient-to-r from-green-600 to-blue-600 text-center text-white">
         <h1 className="text-6xl font-bold mb-4" style={{ fontFamily: "Playfair Display" }}>
           Meet Our Expert Team
@@ -165,10 +165,10 @@ const About = () => {
         <p className="text-xl max-w-3xl mx-auto">
           Our certified Ayurvedic practitioners bring years of experience to your wellness journey.
         </p>
-      </section>
+      </section> */}
 
       {/* DOCTOR CARDS SECTION */}
-      <section id="doctors" className="py-20 bg-white">
+      {/* <section id="doctors" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>
@@ -228,7 +228,7 @@ const About = () => {
             </div>
           )}
         </div>
-      </section>
+      </section> */}
 
       {/* CONTACT CTA */}
       <section className="py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white text-center">
@@ -240,7 +240,19 @@ const About = () => {
           Book Now
         </button>
       </section>
-
+{/* ABOUT US SECTION */}
+      <section className="about-us" style={{ backgroundColor: '#e0f7e9', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
+  <h2 style={{ color: '#2e7d32', fontSize: '2rem' }}>About Us</h2>
+  <p style={{ color: '#4caf50', fontSize: '1.25rem', lineHeight: '1.8', margin: '0 auto', maxWidth: '600px' }}>
+    අයුර්වේද වෛද්‍යවරුන්ගේ එකමුතුවක් ලෙස, අපි සාම්ප්‍රදායික ආයුර්වේද පද්ධතිය
+    සමකාළීන වෛද්‍ය විද්‍යාව සමඟ එකසුසුම් කරමින් සමාජයට විශ්වාසනීය සේවාවක්
+    ලබාදීමට කැපවෙමු.
+  </p>
+  <p style={{ color: '#4caf50', fontSize: '1.25rem', lineHeight: '1.8', margin: '0 auto', maxWidth: '600px' }}>
+    අපගේ කණ්ඩායමට එක් වීමට ඔබටද හැක. දැන්ම අප හා සම්බන්ධවී, මේ සුවය හා
+    ජීවිතෝන්දායී මාර්ගයේ එක්වන්න.
+  </p>
+</section>
       {/* SPECIALIZATIONS SECTION */}
       <section
         id="specializations"
@@ -267,6 +279,8 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      
     </div>
   );
 };

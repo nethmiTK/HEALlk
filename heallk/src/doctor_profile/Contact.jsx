@@ -26,8 +26,15 @@ const Contact = ({ doctor }) => {
       return;
     }
 
+    if (!doctor?.id) {
+      toast.error('Doctor information not found');
+      console.error('Doctor object:', doctor);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      console.log('Submitting appointment for doctor ID:', doctor.id);
       const response = await fetch(`${API_BASE_URL}/contact/submit`, {
         method: 'POST',
         headers: {
@@ -55,9 +62,11 @@ const Contact = ({ doctor }) => {
         });
         setFormData({ name: '', email: '', phone: '', date: '', message: '' });
       } else {
+        console.error('Backend error:', data);
         toast.error(data.message || 'Failed to send appointment request');
       }
     } catch (error) {
+      console.error('Request error:', error);
       toast.error('Failed to send appointment request');
     } finally {
       setIsSubmitting(false);

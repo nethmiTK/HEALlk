@@ -10,6 +10,7 @@ const profileRoutes = require('./Routes/ProfileRoutes');
 const servicesRoutes = require('./Routes/ServicesRoutes');
 const contactRoutes = require("./Routes/ContactRoutes");
 const doctorContactRoutes = require('./Routes/DoctorContactRoutes');
+const appointmentsRoutes = require('./Routes/AppointmentsRoutes');
 
 const { testConnection, initializeDatabase } = require('./config/database');
 
@@ -39,6 +40,7 @@ const qualificationRoutes = require("./Routes/QualificationRoutes");
 app.use("/api/qualifications", qualificationRoutes);
 app.use("/api/contact", contactRoutes);
 app.use('/api/doctor-contact', doctorContactRoutes);
+app.use('/api/appointments', appointmentsRoutes);
 
 const publicRoutes = require('./Routes/PublicRoutes');
 app.use('/api/public', publicRoutes);
@@ -75,6 +77,15 @@ app.use((req, res, next) => {
   }
   
   next();
+});
+
+// 404 handler for non-existent routes
+app.use((req, res) => {
+  console.log(`404 Not Found: ${req.method} ${req.path}`);
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.path}`
+  });
 });
 
 app.use((err, req, res, next) => {

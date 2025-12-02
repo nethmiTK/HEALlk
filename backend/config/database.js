@@ -318,6 +318,34 @@ const initializeDatabase = async () => {
     await query(createAppointmentsTable);
     console.log('✅ Appointments table ensured');
 
+    // Insert sample appointments if table is empty
+    try {
+      const appointmentCount = await query('SELECT COUNT(*) as count FROM appointments');
+      if (appointmentCount[0].count === 0) {
+        // Get first doctor from database (usually user_id = 1)
+        const doctors = await query('SELECT user_id FROM users LIMIT 1');
+        
+        if (doctors.length > 0) {
+          const doctorId = doctors[0].user_id;
+          const sampleAppointments = [
+            [doctorId, 'John Doe', 'john@example.com', '0701234567', '2025-12-10', 'General checkup', 'pending'],
+            [doctorId, 'Jane Smith', 'jane@example.com', '0712345678', '2025-12-11', 'Follow-up consultation', 'confirmed'],
+            [doctorId, 'Mike Johnson', 'mike@example.com', '0723456789', '2025-12-12', 'Lab test results review', 'pending']
+          ];
+
+          for (const appointment of sampleAppointments) {
+            await query(
+              'INSERT INTO appointments (doctor_id, patient_name, patient_email, patient_phone, appointment_date, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              appointment
+            );
+          }
+          console.log('✅ Sample appointments inserted');
+        }
+      }
+    } catch (error) {
+      console.warn('Sample appointments insertion warning:', error.message);
+    }
+
     // Insert default service categories if table is empty
     const categoryCount = await query('SELECT COUNT(*) as count FROM service_categories');
     if (categoryCount[0].count === 0) {

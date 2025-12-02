@@ -1,19 +1,26 @@
 const { query } = require('../config/database');
 
-// General contact form submission (for contacts table)
+// General contact form submission (now saves to appointments table)
 exports.submitGeneralContact = async (req, res) => {
   try {
-    const { name, email, phone, message } = req.body;
+    const { name, email, phone, message, doctorId } = req.body;
 
-    if (!name || !message) {
+    if (!name || !phone) {
       return res.status(400).json({
         success: false,
-        message: "Name and message are required.",
+        message: "Name and phone number are required.",
       });
     }
 
-    const sql = `INSERT INTO contacts (name, email, phone, message) VALUES (?, ?, ?, ?)`;
-    await query(sql, [name, email || null, phone || null, message]);
+    if (!doctorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Doctor ID is required.",
+      });
+    }
+
+    const sql = `INSERT INTO appointments (doctor_id, patient_name, patient_email, patient_phone, appointment_date, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    await query(sql, [doctorId, name, email || null, phone, null, message || null, 'pending']);
 
     return res.json({
       success: true,
@@ -33,6 +40,8 @@ exports.submitContact = async (req, res) => {
   try {
     const { name, email, phone, message, doctorId, date } = req.body;
 
+    console.log('Appointment booking request:', { name, email, phone, message, doctorId, date });
+
     if (!name || !phone) {
       return res.status(400).json({
         success: false,
@@ -48,7 +57,9 @@ exports.submitContact = async (req, res) => {
     }
 
     const sql = `INSERT INTO appointments (doctor_id, patient_name, patient_email, patient_phone, appointment_date, message) VALUES (?, ?, ?, ?, ?, ?)`;
-    await query(sql, [doctorId, name, email, phone, date || null, message]);
+    const result = await query(sql, [doctorId, name, email || null, phone, date || null, message || null]);
+
+    console.log('Appointment saved successfully with ID:', result.insertId);
 
     return res.json({
       success: true,
@@ -59,6 +70,7 @@ exports.submitContact = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to save appointment request",
+      error: error.message
     });
   }
 };

@@ -18,6 +18,7 @@ const Profile = () => {
   const [profileForm, setProfileForm] = useState({
     full_name: '',
     email: '',
+    country_code: '+94',
     phone: '',
     profile_pic: '',
     cover_photo: '',
@@ -55,6 +56,7 @@ const Profile = () => {
         setProfileForm({
           full_name: data.user.full_name || '',
           email: data.user.email || '',
+          country_code: data.user.country_code || '+94',
           phone: data.user.phone || '',
           profile_pic: data.user.profile_pic || '',
           cover_photo: data.user.cover_photo || '',
@@ -83,6 +85,18 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validate phone number - only allow 10 digits
+    if (name === 'phone') {
+      const phoneValue = value.replace(/\D/g, '');
+      if (phoneValue.length > 9) return;
+      setProfileForm(prev => ({
+        ...prev,
+        [name]: phoneValue
+      }));
+      return;
+    }
+    
     setProfileForm(prev => ({
       ...prev,
       [name]: value
@@ -180,6 +194,23 @@ const Profile = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate phone number before submission
+    if (!profileForm.phone || profileForm.phone.length !== 10) {
+      toast.error('Please enter a valid 10-digit phone number 📱', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    if (!profileForm.country_code) {
+      toast.error('Please select a country code 🌍', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      return;
+    }
+    
     try {
       setSaving(true);
       const token = localStorage.getItem('heallk_token');
@@ -192,6 +223,7 @@ const Profile = () => {
         },
         body: JSON.stringify({
           full_name: profileForm.full_name,
+          country_code: profileForm.country_code,
           phone: profileForm.phone,
           profile_pic: profileForm.profile_pic,
           cover_photo: profileForm.cover_photo,
@@ -298,6 +330,7 @@ const Profile = () => {
     setProfileForm({
       full_name: user?.full_name || '',
       email: user?.email || '',
+      country_code: user?.country_code || '+94',
       phone: user?.phone || '',
       profile_pic: user?.profile_pic || '',
       cover_photo: user?.cover_photo || '',
@@ -408,7 +441,8 @@ const Profile = () => {
                   <button 
                     className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     onClick={handleProfileSubmit}
-                    disabled={saving}
+                    disabled={saving || profileForm.phone.length !== 9}
+                    title={profileForm.phone.length !== 9 ? 'Please enter a 9-digit phone number' : ''}
                   >
                     {saving ? (
                       <>
@@ -484,19 +518,52 @@ const Profile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div>
+                    <label htmlFor="country_code" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      🌍 Country Code
+                    </label>
+                    <select
+                      id="country_code"
+                      name="country_code"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+                      value={profileForm.country_code}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    >
+                      <option value="+94">🇱🇰 Sri Lanka (+94)</option>
+                      <option value="+1">🇺🇸 United States (+1)</option>
+                      <option value="+44">🇬🇧 United Kingdom (+44)</option>
+                      <option value="+61">🇦🇺 Australia (+61)</option>
+                      <option value="+86">🇨🇳 China (+86)</option>
+                      <option value="+81">🇯🇵 Japan (+81)</option>
+                      <option value="+91">🇮🇳 India (+91)</option>
+                      <option value="+65">🇸🇬 Singapore (+65)</option>
+                      <option value="+60">🇲🇾 Malaysia (+60)</option>
+                      <option value="+66">🇹🇭 Thailand (+66)</option>
+                    </select>
+                  </div>
+
+                  <div>
                     <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                       📱 Phone Number
                     </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-                      value={profileForm.phone}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      placeholder="Enter your phone number"
-                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 font-medium whitespace-nowrap">{profileForm.country_code}</span>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+                        value={profileForm.phone}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        placeholder="Enter 10-digit phone number"
+                        maxLength="10"
+                        inputMode="numeric"
+                      />
+                    </div>
+                    <small className="text-xs text-gray-500 mt-2 block">
+                      🔢 Phone number must be exactly 10 digits
+                    </small>
                   </div>
 
                   <div>
@@ -510,7 +577,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Cover Photo Section */}
+              {/* Cover Photo Section
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                   🖼️ Cover Photo
@@ -558,7 +625,7 @@ const Profile = () => {
                     </>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Professional Description Section */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
@@ -733,7 +800,7 @@ const Profile = () => {
             </div>
           )}
         </div>
- 
+
       </div>
     </div>
   );

@@ -42,6 +42,18 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       label: 'Products',
       icon: '💊',
       tooltip: 'Products'
+    },
+    {
+      path: '/doctor-admin/appointments',
+      label: 'Appointments',
+      icon: '📅',
+      tooltip: 'Appointments'
+    },
+    {
+      path: '/doctor-admin/profile',
+      label: 'Profile',
+      icon: '👤',
+      tooltip: 'Profile'
     }
   ];
 

@@ -3,18 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ReviewSystem from '../doctor_profile/ReviewSystem';
 import aboutImg from '../assets/about.png';
 import ServicesSection from '../doctor_profile/ServicesSection';
+import { API_BASE_URL } from '../config';
+
 const About = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [doctorData, setDoctorData] = useState(null);
+  const [qualifications, setQualifications] = useState([]);
   const [services, setServices] = useState([]);
   const [currentServiceIndex, setCurrentServiceIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDoctorProfile();
-    fetchDoctorData();
   }, [id]);
   useEffect(() => {
   const interval = setInterval(() => {
@@ -26,25 +28,58 @@ const About = () => {
 
 
   const loadDoctorProfile = async () => {
-    // Using static data since backend is not available
-    setDoctor({
-      id: id,
-      name: 'Dr. Sample Doctor',
-      email: 'doctor@heallk.com',
-      phone: '+94 77 123 4567',
-      address: 'Colombo, Sri Lanka',
-      description: 'Experienced Ayurvedic doctor specializing in traditional healing methods.',
-      cover_photo: null // Will use gradient background
-    });
-    fetchServices(id);
-    setLoading(false);
-  };
-
-  const fetchDoctorData = async () => {
-    // Static data - no API call
-    setDoctorData({
-      description: 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness.'
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
+      const data = await response.json();
+      
+      if (data.success && data.doctor) {
+        setDoctor({
+          id: data.doctor.id,
+          name: data.doctor.name,
+          email: data.doctor.email,
+          phone: data.doctor.phone,
+          address: data.doctor.clinics[0]?.address || 'N/A',
+          description: data.doctor.description || 'Experienced Ayurvedic doctor',
+          cover_photo: data.doctor.profilePic
+        });
+        
+        // Set qualifications
+        setQualifications(data.doctor.qualifications || []);
+        
+        // Set doctor data
+        setDoctorData({
+          description: data.doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods.'
+        });
+      } else {
+        // Fallback to static data
+        setDoctor({
+          id: id,
+          name: 'Dr. Sample Doctor',
+          email: 'doctor@heallk.com',
+          phone: '+94 77 123 4567',
+          address: 'Colombo, Sri Lanka',
+          description: 'Experienced Ayurvedic doctor specializing in traditional healing methods.',
+          cover_photo: null
+        });
+      }
+      
+      fetchServices(id);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading doctor profile:', error);
+      // Fallback to static data
+      setDoctor({
+        id: id,
+        name: 'Dr. Sample Doctor',
+        email: 'doctor@heallk.com',
+        phone: '+94 77 123 4567',
+        address: 'Colombo, Sri Lanka',
+        description: 'Experienced Ayurvedic doctor specializing in traditional healing methods.',
+        cover_photo: null
+      });
+      fetchServices(id);
+      setLoading(false);
+    }
   };
 
   const fetchServices = async (doctorId) => {
@@ -94,6 +129,48 @@ const About = () => {
       
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
        
+      {/* Education & Certifications Section */}
+      {qualifications.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2">🎓 Education & Certifications</h2>
+            <div className="w-24 h-1 bg-green-500 rounded-full"></div>
+          </div>
+          <div className="space-y-6">
+            {qualifications.map((qualification, index) => (
+              <div key={qualification.id || index} className="border-l-4 border-green-500 pl-4 py-2">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      {qualification.degreeName}
+                      {qualification.isVerified && (
+                        <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                          ✓ Verified
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-green-600 font-medium mt-1">{qualification.institution}</p>
+                    {qualification.specialization && (
+                      <p className="text-gray-600 mt-1">
+                        <span className="font-medium">Specialization:</span> {qualification.specialization}
+                      </p>
+                    )}
+                    {qualification.description && (
+                      <p className="text-gray-600 mt-2">{qualification.description}</p>
+                    )}
+                  </div>
+                  <div className="ml-4 text-right">
+                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                      {qualification.yearCompleted}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Section 3: button */}
 
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">

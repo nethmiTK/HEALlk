@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 import aboutImg from '../assets/about.png';
 import About from '../doctor_profile/About';
@@ -16,6 +17,7 @@ const DoctorProfile = () => {
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('about');
+  const [currentQualificationIndex, setCurrentQualificationIndex] = useState(0);
 
   // Get active tab from URL
   useEffect(() => {
@@ -225,97 +227,285 @@ const DoctorProfile = () => {
         <div className="max-w-7xl mx-auto px-4">
           {activeTab === 'about' && (
             <div className="w-full">
-              {/* Hero Section */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 mb-8">
-                <div className="flex flex-col lg:flex-row items-center gap-8">
-                  <div className="relative">
-                    <div className="w-48 h-48 rounded-full overflow-hidden shadow-2xl border-4 border-white">
-                      {doctor.profilePic ? (
-                        <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                          <span className="text-6xl text-white font-bold">Dr</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white text-xl">✓</span>
-                    </div>
-                  </div>
+              {/* Hero Section - About Dr. */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl p-8 mb-8 shadow-xl border border-purple-100"
+              >
+                <div className="text-center lg:text-left">
+                  <motion.h2 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6" 
+                    style={{fontFamily: 'Poppins, sans-serif'}}
+                  >
+                    About Dr. {doctor.name}
+                  </motion.h2>
                   
-                  <div className="flex-1 text-center lg:text-left">
-                    <h2 className="text-4xl font-bold text-gray-800 mb-4">About Dr. {doctor.name}</h2>
-                    <p className="text-lg text-gray-600 leading-relaxed mb-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                  >
+                    <p className="text-lg text-gray-700 leading-relaxed mb-4" style={{fontFamily: 'Inter, sans-serif', lineHeight: '1.8'}}>
                       {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
                     </p>
-                    
-                    {/* Stats Cards */}
-                    {/* <div className="grid grid-cols-3 gap-4 mt-6">
-                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
-                        <div className="text-2xl font-bold text-green-600">5+</div>
-                        <div className="text-sm text-gray-600">Years Experience</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
-                        <div className="text-2xl font-bold text-blue-600">99</div>
-                        <div className="text-sm text-gray-600">Happy Patients</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-4 shadow-md text-center">
-                        <div className="text-2xl font-bold text-purple-600">4.9</div>
-                        <div className="text-sm text-gray-600">Rating</div>
-                      </div>
-                    </div> */}
-                  </div>
+                  </motion.div>
+
+                  {/* Decorative underline */}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "150px" }}
+                    transition={{ delay: 0.6, duration: 0.8 }}
+                    className="h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-full mx-auto lg:mx-0"
+                  />
                 </div>
-              </div>
+              </motion.div>
               
-              {/* Specializations */}
-              <div className="grid md:grid-cols-2 gap-8 mb-8">
-                <div className="bg-white rounded-xl p-6 shadow-lg">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                    <span className="text-3xl mr-3">🌿</span>
-                    Specializations
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-gray-700">Panchakarma Therapy</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-gray-700">Herbal Medicine</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-gray-700">Stress Management</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-gray-700">Lifestyle Counseling</span>
-                    </div>
+              {/* Education & Certifications - Advanced Animated UI */}
+              {doctor.qualifications && doctor.qualifications.length > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="mb-8"
+                >
+                  <div className="text-center mb-8">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      className="inline-block"
+                    >
+                      <h3 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3 flex items-center justify-center gap-3" style={{fontFamily: 'Poppins, sans-serif'}}>
+                        <span className="text-5xl">🎓</span>
+                        Education & Certifications
+                      </h3>
+                    </motion.div>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "120px" }}
+                      transition={{ delay: 0.4, duration: 0.6 }}
+                      className="h-1.5 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 rounded-full mx-auto"
+                    />
+                    <p className="text-gray-600 mt-4" style={{fontFamily: 'Inter, sans-serif'}}>
+                      {/* {currentQualificationIndex + 1} of {doctor.qualifications.length} */}
+                    </p>
                   </div>
-                </div>
-                
-                <div className="bg-white rounded-xl p-6 shadow-lg">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                    <span className="text-3xl mr-3">🎓</span>
-                    Education & Certifications
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-green-500 pl-4">
-                      <h4 className="font-semibold text-gray-800">BAMS Degree</h4>
-                      <p className="text-gray-600 text-sm">Bachelor of Ayurvedic Medicine</p>
-                    </div>
-                    <div className="border-l-4 border-blue-500 pl-4">
-                      <h4 className="font-semibold text-gray-800">MD Ayurveda</h4>
-                      <p className="text-gray-600 text-sm">Specialized in Panchakarma</p>
-                    </div>
-                    <div className="border-l-4 border-purple-500 pl-4">
-                      <h4 className="font-semibold text-gray-800">Certified Practitioner</h4>
-                      <p className="text-gray-600 text-sm">Traditional Ayurvedic Medicine</p>
-                    </div>
+                  
+                  {/* Carousel Container */}
+                  <div className="relative max-w-2xl mx-auto">
+                    {/* Navigation Arrows */}
+                    {doctor.qualifications.length > 1 && (
+                      <>
+                        {/* Previous Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.1, x: -3 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setCurrentQualificationIndex(prev => 
+                            prev === 0 ? doctor.qualifications.length - 1 : prev - 1
+                          )}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-green-50 p-3 rounded-full shadow-xl border border-green-200 transition-all duration-300 group backdrop-blur-sm"
+                          aria-label="Previous qualification"
+                        >
+                          <svg 
+                            className="w-5 h-5 text-green-600 group-hover:text-green-700" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </motion.button>
+
+                        {/* Next Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.1, x: 3 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setCurrentQualificationIndex(prev => 
+                            prev === doctor.qualifications.length - 1 ? 0 : prev + 1
+                          )}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-green-50 p-3 rounded-full shadow-xl border border-green-200 transition-all duration-300 group backdrop-blur-sm"
+                          aria-label="Next qualification"
+                        >
+                          <svg 
+                            className="w-5 h-5 text-green-600 group-hover:text-green-700" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </motion.button>
+                      </>
+                    )}
+
+                    {/* Qualification Card */}
+                    {doctor.qualifications.map((qualification, index) => (
+                      index === currentQualificationIndex && (
+                        <motion.div
+                          key={qualification.id || index}
+                          initial={{ opacity: 0, x: 100, scale: 0.9 }}
+                          animate={{ opacity: 1, x: 0, scale: 1 }}
+                          exit={{ opacity: 0, x: -100, scale: 0.9 }}
+                          transition={{ 
+                            duration: 0.5,
+                            type: "spring",
+                            stiffness: 100
+                          }}
+                          whileHover={{ 
+                            scale: 1.02,
+                            boxShadow: "0 25px 50px rgba(0,0,0,0.2)",
+                            transition: { duration: 0.3 }
+                          }}
+                          className="relative bg-gradient-to-br from-white via-green-50/30 to-blue-50/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-green-100/50 overflow-hidden group"
+                        >
+                          {/* Animated Background Effect */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-green-400/10 via-blue-400/10 to-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                            initial={false}
+                          />
+                          
+                          {/* Decorative Corner */}
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-400/15 to-transparent rounded-bl-full" />
+                          
+                          <div className="relative z-10">
+                            {/* Header with Year Badge */}
+                            <div className="flex items-start justify-between mb-4">
+                              <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="flex-1"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2.5 h-2.5 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-pulse" />
+                                  <span className="text-xs font-bold text-green-700 uppercase tracking-widest" style={{fontFamily: 'Inter, sans-serif'}}>
+                                    Qualification
+                                  </span>
+                                </div>
+                                <h4 className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent leading-tight" style={{fontFamily: 'Poppins, sans-serif'}}>
+                                  {qualification.degreeName}
+                                </h4>
+                              </motion.div>
+                              
+                              <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ 
+                                  delay: 0.4,
+                                  type: "spring",
+                                  stiffness: 200
+                                }}
+                              >
+                                <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full text-sm font-bold shadow-lg">
+                                  {qualification.yearCompleted}
+                                </span>
+                              </motion.div>
+                            </div>
+                            
+                            {/* Institution */}
+                            <motion.div
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ delay: 0.5 }}
+                              className="mb-3"
+                            >
+                              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-green-100/50">
+                                <span className="text-2xl">🏛️</span>
+                                <div className="flex-1">
+                                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{fontFamily: 'Inter, sans-serif'}}>Institution</p>
+                                  <p className="text-green-700 font-bold text-lg" style={{fontFamily: 'Poppins, sans-serif'}}>{qualification.institution}</p>
+                                </div>
+                              </div>
+                            </motion.div>
+                            
+                            {/* Specialization */}
+                            {qualification.specialization && (
+                              <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="mb-3"
+                              >
+                                <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-green-100/50">
+                                  <span className="text-2xl">⭐</span>
+                                  <div className="flex-1">
+                                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{fontFamily: 'Inter, sans-serif'}}>Specialization</p>
+                                    <p className="text-green-700 font-semibold text-base" style={{fontFamily: 'Poppins, sans-serif'}}>{qualification.specialization}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                            
+                            {/* Description */}
+                            {qualification.description && (
+                              <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.7 }}
+                                className="mb-3"
+                              >
+                                <p className="text-gray-700 text-sm leading-relaxed bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-gray-100" style={{fontFamily: 'Inter, sans-serif', lineHeight: '1.7'}}>
+                                  {qualification.description}
+                                </p>
+                              </motion.div>
+                            )}
+                            
+                            {/* Verified Badge */}
+                            {qualification.isVerified && (
+                              <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ 
+                                  delay: 0.8,
+                                  type: "spring",
+                                  stiffness: 300
+                                }}
+                                className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white px-4 py-2.5 rounded-full shadow-lg"
+                              >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-sm font-bold" style={{fontFamily: 'Poppins, sans-serif'}}>Verified Credential</span>
+                              </motion.div>
+                            )}
+                          </div>
+                          
+                          {/* Hover Glow Effect */}
+                          <motion.div
+                            className="absolute -inset-1 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"
+                            initial={false}
+                          />
+                        </motion.div>
+                      )
+                    ))}
+
+                    {/* Dots Indicator */}
+                    {doctor.qualifications.length > 1 && (
+                      <div className="flex justify-center gap-3 mt-8">
+                        {doctor.qualifications.map((_, index) => (
+                          <motion.button
+                            key={index}
+                            whileHover={{ scale: 1.3 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setCurrentQualificationIndex(index)}
+                            className={`transition-all duration-300 rounded-full ${
+                              index === currentQualificationIndex 
+                                ? 'w-12 h-3 bg-gradient-to-r from-green-500 to-emerald-600' 
+                                : 'w-3 h-3 bg-gray-300 hover:bg-green-300'
+                            }`}
+                            aria-label={`Go to qualification ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              )}
               
               {/* Contact CTA */}
               <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-8 text-white text-center">
