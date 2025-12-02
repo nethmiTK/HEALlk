@@ -35,7 +35,7 @@ const ReviewSystem = ({ doctorId = 1 }) => {
 
   const loadReviews = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/public`);
+      const response = await fetch(`${API_BASE_URL}/reviews/public?doctor_id=${doctorId}`);
       const data = await response.json();
       if (data.success) {
         setReviews(data.reviews);

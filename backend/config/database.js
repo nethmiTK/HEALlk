@@ -156,6 +156,65 @@ const initializeDatabase = async () => {
     await query(createReviewsTableNew);
     console.log('✅ Doctor reviews table ensured');
 
+    // Check if doctor_id column exists in reviews table and add it if it doesn't
+    try {
+      const doctorIdColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'doctor_id'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (doctorIdColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE reviews 
+          ADD COLUMN doctor_id INT NOT NULL DEFAULT 1 AFTER review_id,
+          ADD INDEX idx_doctor_id (doctor_id)
+        `);
+        console.log('✅ Added doctor_id column to reviews table');
+      }
+    } catch (error) {
+      console.warn('Doctor ID column check/creation warning:', error.message);
+    }
+
+    // Check if user_id column exists in reviews table and add it if it doesn't
+    try {
+      const userIdColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'user_id'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (userIdColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE reviews 
+          ADD COLUMN user_id INT NULL AFTER doctor_id,
+          ADD INDEX idx_user_id (user_id)
+        `);
+        console.log('✅ Added user_id column to reviews table');
+      }
+    } catch (error) {
+      console.warn('User ID column check/creation warning:', error.message);
+    }
+
+    // Check if comment column exists in reviews table and add it if it doesn't
+    try {
+      const commentColumnExists = await query(`
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'comment'
+      `, [process.env.DB_NAME || 'heallk_db']);
+
+      if (commentColumnExists[0].count === 0) {
+        await query(`
+          ALTER TABLE reviews 
+          ADD COLUMN comment TEXT NULL AFTER rating
+        `);
+        console.log('✅ Added comment column to reviews table');
+      }
+    } catch (error) {
+      console.warn('Comment column check/creation warning:', error.message);
+    }
+
     // Check if status column exists and add it if it doesn't
     try {
       const statusColumnExists = await query(`

@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   addReview,
   getAllReviews,
+  getPublicReviews,
   getReviewById,
   updateReview,
   deleteReview,
@@ -14,7 +15,7 @@ const {
 const { authenticateToken, optionalAuth } = require('../middlewares/authMiddleware');
 
 // Public routes (no authentication required)
-router.get('/public', getAllReviews); // Get approved reviews for public display
+router.get('/public', getPublicReviews); // Get approved reviews for public display (filtered by doctor_id)
 router.post('/public', addReview); // Allow public to submit reviews
 
 // Admin routes for managing reviews (require authentication)

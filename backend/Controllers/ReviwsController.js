@@ -57,6 +57,12 @@ const getAllReviews = async (req, res) => {
   try {
     const { page = 1, limit = 10, sort = 'created_at', order = 'DESC' } = req.query;
     
+    // Get doctor_id from authenticated user if available
+    const doctorId = req.user?.userId;
+    
+    console.log('🔍 getAllReviews - Authenticated user:', req.user);
+    console.log('🔍 getAllReviews - Doctor ID to filter:', doctorId);
+    
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
@@ -66,18 +72,29 @@ const getAllReviews = async (req, res) => {
     const sortColumn = allowedSortColumns.includes(sort) ? sort : 'created_at';
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     
+    // Build WHERE clause based on doctor_id
+    const whereClause = doctorId ? 'WHERE doctor_id = ?' : '';
+    const queryParams = doctorId ? [doctorId] : [];
+    
+    console.log('🔍 SQL WHERE clause:', whereClause);
+    console.log('🔍 SQL params:', queryParams);
+    
     // Get total count
-    const [countResult] = await query('SELECT COUNT(*) as total FROM reviews');
+    const countQuery = `SELECT COUNT(*) as total FROM reviews ${whereClause}`;
+    const [countResult] = await query(countQuery, queryParams);
     const totalReviews = countResult.total;
 
-    // Get reviews with pagination
-    console.log('Pagination params:', { limitNum, offset, pageNum });
-    const reviews = await query(
-      `SELECT * FROM reviews ORDER BY ${sortColumn} ${orderDirection} LIMIT ${limitNum} OFFSET ${offset}`
-    );
+    console.log('🔍 Total reviews found for doctor', doctorId, ':', totalReviews);
 
-    // Calculate statistics
-    const [statsResult] = await query(`
+    // Get reviews with pagination
+    console.log('Pagination params:', { limitNum, offset, pageNum, doctorId });
+    const reviewsQuery = `SELECT * FROM reviews ${whereClause} ORDER BY ${sortColumn} ${orderDirection} LIMIT ${limitNum} OFFSET ${offset}`;
+    const reviews = await query(reviewsQuery, queryParams);
+    
+    console.log('🔍 Reviews returned:', reviews.length);
+
+    // Calculate statistics for this doctor
+    const statsQuery = `
       SELECT 
         AVG(rating) as average_rating,
         COUNT(*) as total_reviews,
@@ -87,7 +104,9 @@ const getAllReviews = async (req, res) => {
         SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as two_star,
         SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as one_star
       FROM reviews
-    `);
+      ${whereClause}
+    `;
+    const [statsResult] = await query(statsQuery, queryParams);
 
     res.json({
       success: true,
@@ -262,7 +281,20 @@ const deleteReview = async (req, res) => {
 // Get reviews statistics
 const getReviewsStatistics = async (req, res) => {
   try {
-    const [stats] = await query(`
+    // Get doctor_id from authenticated user if available
+    const doctorId = req.user?.userId;
+    
+    console.log('📊 getReviewsStatistics - Authenticated user:', req.user);
+    console.log('📊 getReviewsStatistics - Doctor ID to filter:', doctorId);
+    
+    // Build WHERE clause based on doctor_id
+    const whereClause = doctorId ? 'WHERE doctor_id = ?' : '';
+    const queryParams = doctorId ? [doctorId] : [];
+    
+    console.log('📊 SQL WHERE clause:', whereClause);
+    console.log('📊 SQL params:', queryParams);
+    
+    const statsQuery = `
       SELECT 
         COUNT(*) as total_reviews,
         AVG(rating) as average_rating,
@@ -275,14 +307,18 @@ const getReviewsStatistics = async (req, res) => {
         SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_reviews,
         SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_reviews
       FROM reviews
-    `);
+      ${whereClause}
+    `;
+    const [stats] = await query(statsQuery, queryParams);
 
-    // Get recent reviews (last 7 days)
-    const recentReviews = await query(`
+    // Get recent reviews (last 7 days) for this doctor
+    const recentQuery = `
       SELECT COUNT(*) as recent_count 
       FROM reviews 
       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-    `);
+      ${doctorId ? 'AND doctor_id = ?' : ''}
+    `;
+    const recentReviews = await query(recentQuery, queryParams);
 
     res.json({
       success: true,
@@ -358,9 +394,78 @@ const updateReviewStatus = async (req, res) => {
   }
 };
 
+// Get public reviews (filtered by doctor_id from query params)
+const getPublicReviews = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, sort = 'created_at', order = 'DESC', doctor_id } = req.query;
+    
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const offset = (pageNum - 1) * limitNum;
+    
+    // Validate sort column to prevent SQL injection
+    const allowedSortColumns = ['created_at', 'rating'];
+    const sortColumn = allowedSortColumns.includes(sort) ? sort : 'created_at';
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    
+    // Build WHERE clause - filter by doctor_id and only show approved reviews for public
+    let whereClause = "WHERE status = 'approved'";
+    let queryParams = [];
+    
+    if (doctor_id) {
+      whereClause += " AND doctor_id = ?";
+      queryParams.push(parseInt(doctor_id));
+    }
+    
+    // Get total count
+    const countQuery = `SELECT COUNT(*) as total FROM reviews ${whereClause}`;
+    const [countResult] = await query(countQuery, queryParams);
+    const totalReviews = countResult.total;
+
+    // Get reviews with pagination
+    const reviewsQuery = `SELECT * FROM reviews ${whereClause} ORDER BY ${sortColumn} ${orderDirection} LIMIT ${limitNum} OFFSET ${offset}`;
+    const reviews = await query(reviewsQuery, queryParams);
+
+    // Calculate statistics (only for approved reviews)
+    const statsQuery = `
+      SELECT 
+        AVG(rating) as average_rating,
+        COUNT(*) as total_reviews,
+        SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) as five_star,
+        SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) as four_star,
+        SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as three_star,
+        SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as two_star,
+        SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as one_star
+      FROM reviews
+      ${whereClause}
+    `;
+    const [statsResult] = await query(statsQuery, queryParams);
+
+    res.json({
+      success: true,
+      reviews,
+      pagination: {
+        current_page: pageNum,
+        total_pages: Math.ceil(totalReviews / limitNum),
+        total_reviews: totalReviews,
+        per_page: limitNum
+      },
+      statistics: statsResult
+    });
+
+  } catch (error) {
+    console.error('Get public reviews error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
 module.exports = {
   addReview,
   getAllReviews,
+  getPublicReviews,
   getReviewById,
   updateReview,
   deleteReview,
