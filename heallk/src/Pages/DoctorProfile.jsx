@@ -9,6 +9,7 @@ import ClinicInfo from '../doctor_profile/ClinicInfo';
 import Contact from '../doctor_profile/Contact';
 import ReviewSystem from '../doctor_profile/ReviewSystem';
 import Products from '../doctor_profile/Products';
+import BlogSection from '../doctor_profile/BlogSection';
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ const DoctorProfile = () => {
   // Get active tab from URL
   useEffect(() => {
     const hash = location.hash.replace('#', '');
-    if (hash && ['about', 'services', 'products', 'clinic', 'contact', 'reviews'].includes(hash)) {
+    if (hash && ['about', 'services', 'products', 'clinic', 'contact', 'reviews', 'blog'].includes(hash)) {
       setActiveTab(hash);
     }
   }, [location.hash]);
@@ -33,8 +34,8 @@ const DoctorProfile = () => {
     { id: 'products', label: 'Products' },
     { id: 'clinic', label: 'Clinic Info' },
     { id: 'reviews', label: 'Reviews' },
-        { id: 'contact', label: 'Contact' },
-
+    { id: 'blog', label: 'Blog' },
+    { id: 'contact', label: 'Contact' },
   ];
 
   const handleTabClick = (tabId) => {
@@ -640,6 +641,11 @@ const DoctorProfile = () => {
                 </p>
               </div>
               {doctor?.id && <ReviewSystem doctorId={doctor.id} />}
+            </div>
+          )}
+          {activeTab === 'blog' && (
+            <div className="w-full">
+              <BlogSection doctorId={id} />
             </div>
           )}
         </div>

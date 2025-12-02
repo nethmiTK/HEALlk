@@ -38,6 +38,8 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/services', servicesRoutes);
 const qualificationRoutes = require("./Routes/QualificationRoutes");
 app.use("/api/qualifications", qualificationRoutes);
+const blogRoutes = require("./Routes/BlogRoutes");
+app.use("/api/blogs", blogRoutes);
 app.use("/api/contact", contactRoutes);
 app.use('/api/doctor-contact', doctorContactRoutes);
 app.use('/api/appointments', appointmentsRoutes);

@@ -8,7 +8,7 @@ import Services from './Services';
 import Qualifications from './Qualifications';
 import ClinicForm from './ClinicForm';
 import Reviews from './Reviews';
-
+import Blogs from './Blogs';
 import ProductTest from './ProductTest';
 import Appoinment from './Appoinment';
 
@@ -108,6 +108,7 @@ const DoctorAdminDashboard = () => {
             <Route path="/qualifications" element={<Qualifications />} />
             <Route path="/clinic-info" element={<ClinicForm />} />
             <Route path="/reviews" element={<Reviews />} />
+            <Route path="/blogs" element={<Blogs />} />
             <Route path="/products" element={<ProductTest />} />
             <Route path="/appointments" element={<Appoinment user={user} />} />
             {/* Redirect any unknown routes to overview */}

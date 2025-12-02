@@ -38,6 +38,12 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
       tooltip: 'Reviews'
     },
     {
+      path: '/doctor-admin/blogs',
+      label: 'Blogs',
+      icon: '📝',
+      tooltip: 'Blog Articles'
+    },
+    {
       path: '/doctor-admin/products',
       label: 'Products',
       icon: '💊',

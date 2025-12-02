@@ -6,6 +6,18 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem('heallk_token');
+    navigate('/login');
+  };
+
+  const handleViewProfile = () => {
+    const userId = user?.user_id;
+    if (userId) {
+      navigate(`/doctor-profile/${userId}`);
+    }
+  };
+
   const getPageInfo = () => {
     const path = location.pathname;
 
@@ -86,34 +98,57 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
         </div>
 
         {/* User Profile Section - Now on the right */}
-        <div className="flex items-center gap-2 bg-gray-100 py-1.5 px-3 rounded-xl border border-gray-200 ml-auto relative">
-          <div className="flex flex-col gap-0 text-right sm:hidden">
-            <h3
-              className="text-sm font-semibold text-gray-800 m-0 cursor-pointer"
+        <div className="flex items-center gap-3 ml-auto">
+          {/* View Profile Button */}
+          <button
+            onClick={handleViewProfile}
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+            title="View My Public Profile"
+          >
+            <span className="text-lg">👤</span>
+            <span className="font-semibold text-sm hidden md:inline">My Profile</span>
+          </button>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg"
+            title="Logout"
+          >
+            <span className="text-lg">🚪</span>
+            <span className="font-semibold text-sm hidden md:inline">Logout</span>
+          </button>
+
+          {/* User Info with Avatar */}
+          <div className="flex items-center gap-2 bg-gray-100 py-1.5 px-3 rounded-xl border border-gray-200">
+            <div className="flex flex-col gap-0 text-right sm:hidden">
+              <h3
+                className="text-sm font-semibold text-gray-800 m-0 cursor-pointer"
+                onClick={() => navigate('/doctor-admin/profile')}
+              >
+                Dr. {user?.full_name || formatUserName()}
+              </h3>
+              <span className="text-xs text-gray-600 cursor-pointer">
+                {user?.email || 'admin@gmail.com'}
+              </span>
+            </div>
+
+            <div
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-white to-gray-50 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-gray-300 shadow-sm"
               onClick={() => navigate('/doctor-admin/profile')}
             >
-              Dr. {user?.full_name || formatUserName()}
-            </h3>
-            <span className="text-xs text-gray-600 cursor-pointer">
-              {user?.email || 'admin@gmail.com'}
-            </span>
-          </div>
-
-          <div
-            className="w-10 h-10 rounded-full bg-gradient-to-br from-white to-gray-50 flex items-center justify-center cursor-pointer overflow-hidden border-2 border-gray-300 shadow-sm"
-            onClick={() => navigate('/doctor-admin/profile')}
-          >
-            {user?.profile_pic ? (
-              <img
-                src={user.profile_pic}
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <span className="text-base font-bold text-blue-900">
-                {getUserInitials()}
-              </span>
-            )}
+              {user?.profile_pic ? (
+                <img
+                  src={user.profile_pic}
+                  alt="Profile"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ) : (
+                <span className="text-base font-bold text-blue-900">
+                  {getUserInitials()}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

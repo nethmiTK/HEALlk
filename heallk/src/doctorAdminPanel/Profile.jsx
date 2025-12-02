@@ -194,9 +194,9 @@ const Profile = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate phone number before submission
-    if (!profileForm.phone || profileForm.phone.length !== 10) {
-      toast.error('Please enter a valid 10-digit phone number 📱', {
+    // Validate phone number only if provided
+    if (profileForm.phone && profileForm.phone.length !== 10) {
+      toast.error('Phone number must be 10 digits if provided 📱', {
         position: "top-right",
         autoClose: 4000,
       });
@@ -441,8 +441,7 @@ const Profile = () => {
                   <button 
                     className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     onClick={handleProfileSubmit}
-                    disabled={saving || profileForm.phone.length !== 9}
-                    title={profileForm.phone.length !== 9 ? 'Please enter a 9-digit phone number' : ''}
+                    disabled={saving}
                   >
                     {saving ? (
                       <>
