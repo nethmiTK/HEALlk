@@ -73,13 +73,13 @@ const Navbar = ({ user, isCollapsed, setIsCollapsed, onMouseEnter, onMouseLeave 
   return (
     <div 
       className={`fixed left-0 top-0 h-screen bg-gray-50 text-white flex flex-col shadow-lg z-50 transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-[280px]'
+        isCollapsed ? 'w-20 -translate-x-full lg:translate-x-0' : 'w-[280px] translate-x-0'
       }`}
       onMouseEnter={() => isCollapsed && setIsCollapsed(false)}
       onMouseLeave={() => !isCollapsed && setIsCollapsed(true)}
     >
       {/* Sidebar Header */}
-      <div className="p-5 border-b border-gray-200 flex items-center justify-between min-h-[80px]">
+      <div className="p-3 sm:p-5 border-b border-gray-200 flex items-center justify-between min-h-[70px] sm:min-h-[80px]">
         <div className="flex flex-col items-center">
           {!isCollapsed && (
             <>

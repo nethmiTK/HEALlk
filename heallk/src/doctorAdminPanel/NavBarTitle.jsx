@@ -81,18 +81,27 @@ const NavBarTitle = ({ user, pageName, isCollapsed, setIsCollapsed }) => {
   };
 
   return (
-    <div className={`fixed top-0 z-30 p-2.5 bg-gray-50 border-b-2 border-black border-opacity-10 shadow-lg h-[70px] flex items-center transition-all duration-300 ${
-      isCollapsed ? 'left-20 w-[calc(100vw-80px)]' : 'left-[280px] w-[calc(100vw-280px)]'
+    <div className={`fixed top-0 z-30 p-2 sm:p-2.5 bg-gray-50 border-b-2 border-black border-opacity-10 shadow-lg h-[60px] sm:h-[70px] flex items-center transition-all duration-300 ${
+      isCollapsed ? 'left-0 w-full lg:left-20 lg:w-[calc(100vw-80px)]' : 'left-0 w-full lg:left-[280px] lg:w-[calc(100vw-280px)]'
     }`}>
-      <div className="flex items-center justify-between w-full h-full">
+      <div className="flex items-center justify-between w-full h-full gap-2">
 
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="lg:hidden p-2 text-gray-800 hover:bg-gray-200 rounded-lg transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
         
         {/* Page Title Section */}
-        <div className="text-left flex-1">
-          <h2 className="text-3xl font-extrabold text-gray-800 m-0 cursor-pointer transition-all duration-300 hover:text-blue-900 tracking-tight lg:text-2xl md:text-xl sm:text-lg">
+        <div className="text-left flex-1 min-w-0">
+          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-800 m-0 cursor-pointer transition-all duration-300 hover:text-blue-900 tracking-tight truncate">
             {pageInfo.title}
           </h2>
-          <p className="text-sm text-gray-600 mt-1 mb-0 cursor-pointer transition-colors duration-300 hover:text-blue-900 block font-medium lg:text-xs sm:hidden">
+          <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 mb-0 cursor-pointer transition-colors duration-300 hover:text-blue-900 font-medium hidden md:block truncate">
             {pageInfo.subtitle}
           </p>
         </div>

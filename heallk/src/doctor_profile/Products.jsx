@@ -77,24 +77,24 @@ const Products = ({ doctor }) => {
   // Remove error state - handle empty products gracefully
 
   return (
-    <div className="bg-gradient-to-br from-green-50 to-white min-h-screen py-10 px-2 sm:px-0">
+    <div className="bg-gradient-to-br from-green-50 to-white min-h-screen py-6 sm:py-10 px-2 sm:px-4">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-extrabold mb-2 text-green-700 tracking-tight">Ayurvedic Products</h1>
-          <p className="text-gray-600 text-lg">Natural remedies and herbal products by Dr. {doctor?.name || 'Doctor'}</p>
+        <div className="mb-6 sm:mb-8 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-2 text-green-700 tracking-tight">Ayurvedic Products</h1>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg">Natural remedies and herbal products by Dr. {doctor?.name || 'Doctor'}</p>
         </div>
 
         {products.length > 0 ? (
           <>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+            <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8 sm:mb-12">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="group bg-white rounded-2xl shadow-lg border border-green-100 hover:border-green-400 hover:shadow-2xl transition-all duration-300 p-6 flex flex-col items-center relative overflow-hidden"
+                  className="group bg-white rounded-2xl shadow-lg border border-green-100 hover:border-green-400 hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 flex flex-col items-center relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 m-3 text-2xl opacity-10 group-hover:opacity-20 transition">{getCategoryIcon(product.category)}</div>
-                  <div className="text-5xl mb-3 text-green-500 group-hover:scale-110 transition-transform">{getCategoryIcon(product.category)}</div>
-                  <h3 className="text-lg font-bold mb-1 text-gray-800 text-center group-hover:text-green-700 transition-colors">{product.product_name}</h3>
+                  <div className="absolute top-0 right-0 m-2 sm:m-3 text-xl sm:text-2xl opacity-10 group-hover:opacity-20 transition">{getCategoryIcon(product.category)}</div>
+                  <div className="text-4xl sm:text-5xl mb-2 sm:mb-3 text-green-500 group-hover:scale-110 transition-transform">{getCategoryIcon(product.category)}</div>
+                  <h3 className="text-base sm:text-lg font-bold mb-1 text-gray-800 text-center group-hover:text-green-700 transition-colors">{product.product_name}</h3>
                   <span className="inline-block bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full mb-2 group-hover:bg-green-200 transition">{product.category}</span>
                   {product.description && (
                     <p className="text-gray-600 mb-2 text-sm leading-relaxed text-center">{product.description}</p>

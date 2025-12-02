@@ -86,12 +86,12 @@ const ReviewSystem = ({ doctorId = 1 }) => {
   const averageRating = stats ? parseFloat(stats.average_rating).toFixed(1) : 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold">Reviews ({stats?.total_reviews || 0})</h3>
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mt-4 sm:mt-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 gap-2 sm:gap-0">
+        <h3 className="text-lg sm:text-xl font-semibold">Reviews ({stats?.total_reviews || 0})</h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+          className="bg-green-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-green-600 w-full sm:w-auto"
         >
           Add Review
         </button>

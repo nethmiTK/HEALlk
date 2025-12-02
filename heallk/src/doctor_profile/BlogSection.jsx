@@ -92,7 +92,7 @@ const BlogSection = ({ doctorId }) => {
       className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
     >
       {blog.image && (
-        <div className="relative h-56 overflow-hidden">
+        <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
           <img
             src={blog.image}
             alt={blog.title}

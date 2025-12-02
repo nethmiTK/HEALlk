@@ -202,19 +202,19 @@ const Services = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="bg-green-50 min-h-screen p-6 sm:p-4 relative">
+    <div className="bg-green-50 min-h-screen p-2 sm:p-4 lg:p-6 relative">
       {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
+      <div className="mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Services Management</h1>
-            <p className="text-gray-600">Manage your medical services and offerings</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">Services Management</h1>
+            <p className="text-sm sm:text-base text-gray-600">Manage your medical services and offerings</p>
           </div>
           <button 
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center gap-2"
+            className="px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base"
             onClick={() => setIsModalOpen(true)}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Add Service
@@ -224,14 +224,14 @@ const Services = () => {
         {/* Search Bar */}
         <div className="max-w-md relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input
             type="text"
             placeholder="Search services..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm"
+            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -239,14 +239,14 @@ const Services = () => {
       </div>
 
       {/* Services Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <div className="text-3xl font-bold text-blue-600 mb-2">{services.length}</div>
-          <div className="text-sm text-gray-600 font-medium">Total Services</div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">{services.length}</div>
+          <div className="text-xs sm:text-sm text-gray-600 font-medium">Total Services</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <div className="text-3xl font-bold text-green-600 mb-2">{services.filter(s => s.isActive).length}</div>
-          <div className="text-sm text-gray-600 font-medium">Active Services</div>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">{services.filter(s => s.isActive).length}</div>
+          <div className="text-xs sm:text-sm text-gray-600 font-medium">Active Services</div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
           <div className="text-3xl font-bold text-purple-600 mb-2">{new Set(services.map(s => s.category)).size}</div>

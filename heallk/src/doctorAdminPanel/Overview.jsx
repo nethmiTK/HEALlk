@@ -79,25 +79,25 @@ const Overview = () => {
   }, []);
 
   return (
-    <div className="bg-green-50 min-h-screen p-6 sm:p-4">
+    <div className="bg-green-50 min-h-screen p-2 sm:p-4 lg:p-6">
       {/* Page Header */}
-      <div className="mb-8 sm:mb-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 sm:text-2xl">Dashboard Overview</h1>
+      <div className="mb-4 sm:mb-6 lg:mb-8">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">Dashboard Overview</h1>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <div className="text-3xl font-bold text-blue-600 mb-2">{stats.services}</div>
-          <div className="text-sm text-gray-600 font-medium">Total Services</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+        <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">{stats.services}</div>
+          <div className="text-xs sm:text-sm text-gray-600 font-medium">Total Services</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <div className="text-3xl font-bold text-green-600 mb-2">{stats.products}</div>
-          <div className="text-sm text-gray-600 font-medium">Products</div>
+        <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 mb-1 sm:mb-2">{stats.products}</div>
+          <div className="text-xs sm:text-sm text-gray-600 font-medium">Products</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <div className="bg-white p-3 sm:p-4 lg:p-6 rounded-lg shadow-md border border-gray-200">
           <div className="text-3xl font-bold text-purple-600 mb-2">{stats.qualifications}</div>
           <div className="text-sm text-gray-600 font-medium">Qualifications</div>
         </div>

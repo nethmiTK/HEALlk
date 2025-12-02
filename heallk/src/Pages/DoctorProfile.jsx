@@ -19,6 +19,7 @@ const DoctorProfile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('about');
   const [currentQualificationIndex, setCurrentQualificationIndex] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Get active tab from URL
   useEffect(() => {
@@ -41,6 +42,7 @@ const DoctorProfile = () => {
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
     navigate(`/doctor-profile/${id}#${tabId}`, { replace: true });
+    setIsMobileMenuOpen(false); // Close mobile menu after selection
   };
 
   useEffect(() => {
@@ -89,7 +91,7 @@ const DoctorProfile = () => {
   return (
     <div className="min-h-screen bg-green-50">
       {/* Portfolio Hero Section */}
-      <section className="relative h-96 overflow-hidden pt-16">
+      <section className="relative h-64 sm:h-80 md:h-96 overflow-hidden pt-14 sm:pt-16">
         {/* Background Image */}
         <div className="absolute inset-0">
           <img src={aboutImg} alt="Medical Background" className="w-full h-full object-cover" />
@@ -97,22 +99,23 @@ const DoctorProfile = () => {
         
         {/* Doctor Profile Navbar */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg">
-          <div className="w-full px-4">
-            <div className="flex justify-between items-center h-16">
-              <div onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
-                <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">H</span>
+          <div className="w-full px-2 sm:px-4">
+            <div className="flex justify-between items-center h-14 sm:h-16">
+              {/* Logo */}
+              <div onClick={() => navigate('/')} className="flex items-center gap-1 sm:gap-2 cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-base sm:text-lg">H</span>
                 </div>
-                <span className="text-xl font-bold text-gray-800">HEALlk</span>
+                <span className="text-lg sm:text-xl font-bold text-gray-800">HEALlk</span>
               </div>
               
-              {/* Profile Tabs */}
-              <div className="flex items-center space-x-2 bg-white rounded-full p-2 shadow-lg">
+              {/* Desktop Tabs - Hidden on mobile */}
+              <div className="hidden lg:flex items-center space-x-2 bg-white rounded-full p-2 shadow-lg">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`px-6 py-3 rounded-full font-medium transition-all duration-300 text-sm ${
+                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-full font-medium transition-all duration-300 text-xs xl:text-sm ${
                       activeTab === tab.id
                         ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg transform scale-105'
                         : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
@@ -123,28 +126,61 @@ const DoctorProfile = () => {
                 ))}
               </div>
               
-              {/* <button onClick={() => navigate('/register')} className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all duration-300">Register</button> */}
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
             </div>
+            
+            {/* Mobile Menu Dropdown */}
+            {isMobileMenuOpen && (
+              <div className="lg:hidden absolute top-14 sm:top-16 left-0 right-0 bg-white shadow-xl border-t border-gray-200 py-2">
+                <div className="flex flex-col space-y-1 px-2">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabClick(tab.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 text-sm ${
+                        activeTab === tab.id
+                          ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-md'
+                          : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </nav>
         
         {/* Medical Icons Floating */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-16 text-white opacity-20 text-5xl animate-pulse">🏥</div>
-          <div className="absolute top-32 right-24 text-white opacity-20 text-4xl animate-bounce">⚕️</div>
-          <div className="absolute bottom-32 left-24 text-white opacity-20 text-4xl animate-pulse">🌿</div>
-          <div className="absolute bottom-20 right-16 text-white opacity-20 text-5xl animate-bounce">💊</div>
-          <div className="absolute top-1/2 left-1/3 text-white opacity-10 text-6xl">🩺</div>
-          <div className="absolute top-1/3 right-1/4 text-white opacity-10 text-5xl">🧘</div>
+          <div className="absolute top-20 left-4 sm:left-16 text-white opacity-20 text-3xl sm:text-4xl md:text-5xl animate-pulse">🏥</div>
+          <div className="absolute top-32 right-6 sm:right-24 text-white opacity-20 text-2xl sm:text-3xl md:text-4xl animate-bounce">⚕️</div>
+          <div className="absolute bottom-32 left-6 sm:left-24 text-white opacity-20 text-2xl sm:text-3xl md:text-4xl animate-pulse hidden sm:block">🌿</div>
+          <div className="absolute bottom-20 right-4 sm:right-16 text-white opacity-20 text-3xl sm:text-4xl md:text-5xl animate-bounce hidden sm:block">💊</div>
+          <div className="absolute top-1/2 left-1/3 text-white opacity-10 text-4xl sm:text-5xl md:text-6xl hidden md:block">🩺</div>
+          <div className="absolute top-1/3 right-1/4 text-white opacity-10 text-3xl sm:text-4xl md:text-5xl hidden md:block">🧘</div>
         </div>
         
         {/* Main Content */}
-        <div className="relative z-10 flex items-center h-full py-8">
-          <div className="w-full px-4">
-            <div className="flex items-center gap-8">
+        <div className="relative z-10 flex items-center h-full py-4 sm:py-8">
+          <div className="w-full px-2 sm:px-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
               {/* Profile Picture */}
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden shadow-2xl border-4 border-white">
+              <div className="relative flex-shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-2xl border-2 sm:border-4 border-white">
                   {doctor.profilePic ? (
                     <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
                   ) : (
@@ -154,56 +190,56 @@ const DoctorProfile = () => {
                   )}
                 </div>
                 {/* Verified Badge */}
-                <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-xl border-2 border-white">
-                  <span className="text-white text-lg">✓</span>
+                <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-green-500 rounded-full flex items-center justify-center shadow-xl border-2 border-white">
+                  <span className="text-white text-xs sm:text-sm md:text-lg">✓</span>
                 </div>
               </div>
               
               {/* Doctor Info */}
-              <div className="text-black flex-1">
-                <h1 className="text-4xl lg:text-5xl font-bold mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
+              <div className="text-black flex-1 text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
                   {doctor?.name?.toUpperCase() || 'DOCTOR'}
                 </h1>
-                <p className="text-xl lg:text-2xl text-gray-700 mb-4 font-light" style={{fontFamily: 'Playfair Display, serif'}}>
+                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-700 mb-2 sm:mb-4 font-light" style={{fontFamily: 'Playfair Display, serif'}}>
                   {doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
                 </p>
                 
                 {/* Status Badges */}
-                <div className="flex flex-wrap gap-3 mb-6">
-                  <div className="bg-green-200 px-4 py-2 rounded-full">
-                    <span className="text-black font-medium text-sm">✓ Verified Professional</span>
+                <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 mb-3 sm:mb-6">
+                  <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                    <span className="text-black font-medium text-xs sm:text-sm">✓ Verified Professional</span>
                   </div>
-                  <div className="bg-green-200 px-4 py-2 rounded-full">
-                    <span className="text-black font-medium text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
+                  <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                    <span className="text-black font-medium text-xs sm:text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
                   </div>
                   {doctor.clinics.length > 0 && (
-                    <div className="bg-green-200 px-4 py-2 rounded-full">
-                      <span className="text-black font-medium text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
+                    <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                      <span className="text-black font-medium text-xs sm:text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
                     </div>
                   )}
                 </div>
                 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
                   <a 
                     href={`tel:${doctor.phone}`}
-                    className="bg-white text-green-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm border-2 border-green-200"
+                    className="bg-white text-green-600 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-2 border-green-200"
                   >
-                    <span className="text-lg">📞</span> Call Now
+                    <span className="text-base sm:text-lg">📞</span> Call Now
                   </a>
                   <a 
                     href={`mailto:${doctor.email}`}
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                   >
-                    <span className="text-lg">📧</span> Email
+                    <span className="text-base sm:text-lg">📧</span> Email
                   </a>
                   <a 
                     href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 text-sm"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                   >
-                    <span className="text-lg">📱</span> WhatsApp
+                    <span className="text-base sm:text-lg">📱</span> WhatsApp
                   </a>
                 </div>
               </div>

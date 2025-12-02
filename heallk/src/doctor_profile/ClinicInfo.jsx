@@ -39,34 +39,34 @@ const ClinicInfo = ({ doctor }) => {
     );
   }
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-semibold mb-6">Clinic Information</h2>
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Clinic Information</h2>
       
       {clinics.length > 0 ? (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {clinics.map((clinic, index) => (
-            <div key={index} className="border-b pb-6 last:border-b-0">
-              <h3 className="text-xl font-semibold text-green-600 mb-4">{clinic.name}</h3>
+            <div key={index} className="border-b pb-4 sm:pb-6 last:border-b-0">
+              <h3 className="text-lg sm:text-xl font-semibold text-green-600 mb-3 sm:mb-4">{clinic.name}</h3>
               
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                 {/* Location & Hours */}
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Location & Contact</h4>
+                  <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Location & Contact</h4>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <span className="text-green-600 text-xl">📍</span>
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <span className="text-green-600 text-lg sm:text-xl">📍</span>
                       <div>
-                        <p className="font-medium">Address</p>
-                        <p className="text-gray-600">{clinic.address}, {clinic.city}</p>
+                        <p className="font-medium text-sm sm:text-base">Address</p>
+                        <p className="text-gray-600 text-sm sm:text-base">{clinic.address}, {clinic.city}</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start gap-3">
-                      <span className="text-green-600 text-xl">🕒</span>
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <span className="text-green-600 text-lg sm:text-xl">🕒</span>
                       <div>
-                        <p className="font-medium">Working Hours</p>
-                        <div className="text-gray-600">
+                        <p className="font-medium text-sm sm:text-base">Working Hours</p>
+                        <div className="text-gray-600 text-sm sm:text-base">
                           {clinic.workingHours && typeof clinic.workingHours === 'object' ? (
                             Object.entries(clinic.workingHours).map(([day, hours]) => (
                               <p key={day}>{day}: {String(hours)}</p>
@@ -82,14 +82,14 @@ const ClinicInfo = ({ doctor }) => {
                       </div>
                     </div>
                     
-                    <div className="flex items-start gap-3">
-                      <span className="text-green-600 text-xl">📞</span>
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <span className="text-green-600 text-lg sm:text-xl">📞</span>
                       <div>
-                        <p className="font-medium">Contact</p>
-                        <p className="text-gray-600">{clinic.phone}</p>
-                        {clinic.email && <p className="text-gray-600">{clinic.email}</p>}
+                        <p className="font-medium text-sm sm:text-base">Contact</p>
+                        <p className="text-gray-600 text-sm sm:text-base">{clinic.phone}</p>
+                        {clinic.email && <p className="text-gray-600 text-sm sm:text-base">{clinic.email}</p>}
                         {clinic.website && (
-                          <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">
+                          <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline text-sm sm:text-base">
                             🌐 Visit Website
                           </a>
                         )}

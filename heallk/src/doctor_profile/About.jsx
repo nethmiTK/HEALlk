@@ -127,21 +127,21 @@ const About = () => {
     <div className="min-h-screen bg-gray-50">
     
       
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
        
       {/* Education & Certifications Section */}
       {qualifications.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-2">🎓 Education & Certifications</h2>
-            <div className="w-24 h-1 bg-green-500 rounded-full"></div>
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-2">🎓 Education & Certifications</h2>
+            <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {qualifications.map((qualification, index) => (
-              <div key={qualification.id || index} className="border-l-4 border-green-500 pl-4 py-2">
-                <div className="flex items-start justify-between">
+              <div key={qualification.id || index} className="border-l-4 border-green-500 pl-3 sm:pl-4 py-2">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-800">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">
                       {qualification.degreeName}
                       {qualification.isVerified && (
                         <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
@@ -174,15 +174,15 @@ const About = () => {
       {/* Section 3: button */}
 
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-white text-center">
-    <h2 className="text-3xl font-bold mb-4">Ready to Book a Consultation?</h2>
-    <p className="text-lg mb-6">Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}</p>
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 sm:p-6 lg:p-8 text-white text-center">
+    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">Ready to Book a Consultation?</h2>
+    <p className="text-sm sm:text-base lg:text-lg mb-4 sm:mb-6">Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}</p>
     <button
       onClick={() => {
         const contactSection = document.getElementById('contact');
         if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
       }}
-      className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+      className="bg-white text-green-600 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-sm sm:text-base rounded-full font-semibold hover:bg-gray-100 transition-colors"
     >
       Contact Now
     </button>
@@ -194,12 +194,12 @@ const About = () => {
       <ServicesSection doctorId={doctor?.id} />
 
       {/* Section 4: Clinic Information */}
-      <div id="clinic" className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Clinic Information</h2>
-          <div className="w-24 h-1 bg-green-500 rounded-full"></div>
+      <div id="clinic" className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Clinic Information</h2>
+          <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="text-green-600 text-xl">📍</span>
@@ -236,12 +236,12 @@ const About = () => {
       </div>
 
       {/* Contact Section */}
-      <div id="contact" className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Contact & Appointment</h2>
-          <div className="w-24 h-1 bg-green-500 rounded-full"></div>
+      <div id="contact" className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Contact & Appointment</h2>
+          <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <h3 className="text-lg font-medium mb-3">Book Appointment</h3>
             <form className="space-y-4">

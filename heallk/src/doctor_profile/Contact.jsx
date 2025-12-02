@@ -73,16 +73,16 @@ const Contact = ({ doctor }) => {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-3xl font-bold mb-6">Contact Information</h1>
+    <div className="min-h-screen bg-gray-50 pt-16 sm:pt-20">
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Contact Information</h1>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
             {/* Contact Details */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
-              <div className="space-y-4">
+              <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Get in Touch</h2>
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                     <span className="text-green-600">📞</span>
