@@ -1,19 +1,29 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
+// Database configuration - reads from .env file only
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'heallk_db',
-  port: parseInt(process.env.DB_PORT) || 3306,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: parseInt(process.env.DB_PORT),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   charset: 'utf8mb4'
 };
 
+// Validate required environment variables
+if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME || !process.env.DB_PORT) {
+   console.error('Required: DB_HOST, DB_USER, DB_NAME, DB_PORT');
+  process.exit(1);
+}
+
+// Create connection pool
 const pool = mysql.createPool(dbConfig);
+
+// Helper function for queries
 const query = async (sql, params = []) => {
   try {
     const [rows] = await pool.execute(sql, params);
@@ -24,342 +34,78 @@ const query = async (sql, params = []) => {
   }
 };
 
+// Execute wrapper (compatible with other controllers using db.execute)
+const execute = async (sql, params = []) => {
+  try {
+    return await pool.execute(sql, params);
+  } catch (error) {
+    console.error('Database execute error:', error);
+    throw error;
+  }
+};
+// Test database connection
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('Database connected successfully');
+    console.log('✅ Database connected successfully');
     connection.release();
     return true;
   } catch (error) {
-    console.error('Database connection failed:', error.message);
+    console.error('❌ Database connection failed:', error.message);
     return false;
   }
 };
 
-// Initialize database (create tables if they don't exist)
+// Initialize database and create tables if not exists
 const initializeDatabase = async () => {
   try {
-    // Create users table if it doesn't exist
-    const createUsersTable = `
+    console.log('🔄 Initializing database...');
+    
+    // Test connection first
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      throw new Error('Cannot connect to database');
+    }
+
+    // Create tables if they don't exist
+    await createTables();
+    
+    console.log('✅ Database initialized successfully');
+    return true;
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    throw error;
+  }
+};
+
+// Create all required tables
+const createTables = async () => {
+  const connection = await pool.getConnection();
+  
+  try {
+    // Users table
+    await connection.execute(`
       CREATE TABLE IF NOT EXISTS users (
         user_id INT PRIMARY KEY AUTO_INCREMENT,
         full_name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
+        email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         phone VARCHAR(20),
-        role ENUM('user', 'admin') DEFAULT 'user',
+        role ENUM('doctor', 'patient', 'admin') DEFAULT 'patient',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createUsersTable);
-    console.log('✅ Users table ensured');
-
-    // Create reviews table if it doesn't exist
-    const createReviewsTable = `
-      CREATE TABLE IF NOT EXISTS reviews (
-        review_id INT PRIMARY KEY AUTO_INCREMENT,
-        patient_name VARCHAR(255) NOT NULL,
-        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
-        review_text TEXT NOT NULL,
-        date_of_visit DATE,
-        status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createReviewsTable);
-    console.log('✅ Reviews table ensured');
-
-    // Create doctor_qualifications table if it doesn't exist
-    const createQualificationsTable = `
-      CREATE TABLE IF NOT EXISTS doctor_qualifications (
-        qualification_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        degree_name VARCHAR(100) NOT NULL,
-        specialization VARCHAR(150) NOT NULL,
-        institution VARCHAR(200) NOT NULL,
-        year_completed YEAR NOT NULL,
-        description TEXT NULL,
-        certificate_url TEXT NULL,
-        is_verified BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createQualificationsTable);
-    console.log('✅ Doctor qualifications table ensured');
-
-    // Create clinic_info table if it doesn't exist
-    const createClinicInfoTable = `
-      CREATE TABLE IF NOT EXISTS clinic_info (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id INT NOT NULL,
-        clinic_name VARCHAR(255) NOT NULL,
-        address TEXT NOT NULL,
-        city VARCHAR(100) NOT NULL,
-        postal_code VARCHAR(20),
-        phone VARCHAR(20) NOT NULL,
-        email VARCHAR(255),
-        website VARCHAR(255),
+        profile_pic TEXT,
+        cover_photo TEXT,
         description TEXT,
-        specializations JSON,
-        facilities JSON,
-        working_hours JSON,
-        emergency_contact VARCHAR(20),
-        insurance_accepted JSON,
-        images JSON,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
+        status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
+        INDEX idx_email (email),
+        INDEX idx_role (role)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
 
-    await query(createClinicInfoTable);
-    console.log('✅ Clinic info table ensured');
-
-    // Add description column to users table if it doesn't exist
-    try {
-      const descriptionColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'users' AND column_name = 'description'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (descriptionColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE users 
-          ADD COLUMN description TEXT NULL
-        `);
-        console.log('✅ Added description column to users table');
-      }
-    } catch (error) {
-      console.warn('Description column check/creation warning:', error.message);
-    }
-
-    // Create reviews table if it doesn't exist
-    const createReviewsTableNew = `
-      CREATE TABLE IF NOT EXISTS doctor_reviews (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        doctor_id INT NOT NULL,
-        reviewer_name VARCHAR(255) NOT NULL,
-        reviewer_email VARCHAR(255),
-        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
-        review_text TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createReviewsTableNew);
-    console.log('✅ Doctor reviews table ensured');
-
-    // Check if doctor_id column exists in reviews table and add it if it doesn't
-    try {
-      const doctorIdColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'doctor_id'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (doctorIdColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE reviews 
-          ADD COLUMN doctor_id INT NOT NULL DEFAULT 1 AFTER review_id,
-          ADD INDEX idx_doctor_id (doctor_id)
-        `);
-        console.log('✅ Added doctor_id column to reviews table');
-      }
-    } catch (error) {
-      console.warn('Doctor ID column check/creation warning:', error.message);
-    }
-
-    // Check if user_id column exists in reviews table and add it if it doesn't
-    try {
-      const userIdColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'user_id'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (userIdColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE reviews 
-          ADD COLUMN user_id INT NULL AFTER doctor_id,
-          ADD INDEX idx_user_id (user_id)
-        `);
-        console.log('✅ Added user_id column to reviews table');
-      }
-    } catch (error) {
-      console.warn('User ID column check/creation warning:', error.message);
-    }
-
-    // Check if comment column exists in reviews table and add it if it doesn't
-    try {
-      const commentColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'comment'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (commentColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE reviews 
-          ADD COLUMN comment TEXT NULL AFTER rating
-        `);
-        console.log('✅ Added comment column to reviews table');
-      }
-    } catch (error) {
-      console.warn('Comment column check/creation warning:', error.message);
-    }
-
-    // Check if status column exists and add it if it doesn't
-    try {
-      const statusColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'reviews' AND column_name = 'status'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (statusColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE reviews 
-          ADD COLUMN status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'
-        `);
-        console.log('✅ Added status column to reviews table');
-      }
-    } catch (error) {
-      console.warn('Status column check/creation warning:', error.message);
-    }
-
-    // Check if profile_pic column exists and add it if it doesn't
-    try {
-      const profilePicColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'users' AND column_name = 'profile_pic'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (profilePicColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE users 
-          ADD COLUMN profile_pic TEXT NULL
-        `);
-        console.log('✅ Added profile_pic column to users table');
-      }
-    } catch (error) {
-      console.warn('Profile pic column check/creation warning:', error.message);
-    }
-
-    // Check if status column exists and add it if it doesn't
-    try {
-      const statusColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'users' AND column_name = 'status'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (statusColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE users 
-          ADD COLUMN status ENUM('active', 'inactive') DEFAULT 'inactive'
-        `);
-       }
-    } catch (error) {
-      console.warn('Status column check/creation warning:', error.message);
-    }
-
-    // Create services table if it doesn't exist
-    const createServicesTable = `
-      CREATE TABLE IF NOT EXISTS services (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        doctor_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT NOT NULL,
-        duration VARCHAR(100) NOT NULL,
-        price DECIMAL(10,2) NOT NULL,
-        category VARCHAR(100) NOT NULL,
-        service_for VARCHAR(255) NULL,
-        media_urls JSON NULL,
-        is_active TINYINT(1) DEFAULT 1,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        INDEX idx_doctor_id (doctor_id),
-        INDEX idx_category (category),
-        INDEX idx_is_active (is_active),
-        INDEX idx_created_at (created_at),
-        
-        CONSTRAINT fk_services_doctor
-          FOREIGN KEY (doctor_id) REFERENCES users(user_id)
-          ON DELETE CASCADE
-          ON UPDATE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createServicesTable);
-    console.log('✅ Services table ensured');
-
-    // Add service_for column if it doesn't exist
-    try {
-      const serviceForColumnExists = await query(`
-        SELECT COUNT(*) as count 
-        FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE table_schema = ? AND table_name = 'services' AND column_name = 'service_for'
-      `, [process.env.DB_NAME || 'heallk_db']);
-
-      if (serviceForColumnExists[0].count === 0) {
-        await query(`
-          ALTER TABLE services 
-          ADD COLUMN service_for VARCHAR(255) NULL
-        `);
-        console.log('✅ Added service_for column to services table');
-      }
-    } catch (error) {
-      console.warn('Service_for column check/creation warning:', error.message);
-    }
-
-    // Create service categories table if it doesn't exist
-    const createServiceCategoriesTable = `
-      CREATE TABLE IF NOT EXISTS service_categories (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100) NOT NULL UNIQUE,
-        description TEXT,
-        is_active BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createServiceCategoriesTable);
-    console.log('✅ Service categories table ensured');
-
-    // Create products table if it doesn't exist
-    const createProductsTable = `
-      CREATE TABLE IF NOT EXISTS products (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        product_name VARCHAR(255) NOT NULL,
-        price DECIMAL(10,2) NOT NULL,
-        ingredient TEXT,
-        wage DECIMAL(10,2),
-        description TEXT,
-        category VARCHAR(50) DEFAULT 'Medicine',
-        is_active BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
-
-    await query(createProductsTable);
-    console.log('✅ Products table ensured');
-
-    // Create appointments table if it doesn't exist
-    const createAppointmentsTable = `
+    // Appointments table
+    await connection.execute(`
       CREATE TABLE IF NOT EXISTS appointments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id INT PRIMARY KEY AUTO_INCREMENT,
         doctor_id INT NOT NULL,
         patient_name VARCHAR(255) NOT NULL,
         patient_email VARCHAR(255),
@@ -369,117 +115,179 @@ const initializeDatabase = async () => {
         status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
+        KEY doctor_id (doctor_id)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Products table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS products (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        product_name VARCHAR(255) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        ingredient TEXT,
+        wage DECIMAL(10,2),
+        description TEXT,
+        image TEXT,
+        category VARCHAR(100),
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        INDEX idx_is_active (is_active)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Services table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS services (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        doctor_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        duration VARCHAR(50),
+        price DECIMAL(10,2),
+        category VARCHAR(100),
+        media_urls JSON,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        service_for VARCHAR(100),
+        INDEX idx_doctor_id (doctor_id),
+        INDEX idx_services_created_at (created_at)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Blogs table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS blogs (
+        blog_id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        image TEXT,
+        summary TEXT,
+        is_published BOOLEAN DEFAULT FALSE,
+        views INT DEFAULT 0,
+        likes INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        INDEX idx_created (created_at)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Blog likes table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS blog_likes (
+        like_id INT PRIMARY KEY AUTO_INCREMENT,
+        blog_id INT NOT NULL,
+        user_id INT,
+        ip_address VARCHAR(45),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_like (blog_id, user_id, ip_address),
+        INDEX idx_blog_id (blog_id)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Reviews table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        review_id INT PRIMARY KEY AUTO_INCREMENT,
+        doctor_id INT NOT NULL,
+        user_id INT NOT NULL,
+        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+        INDEX idx_doctor_id (doctor_id),
+        INDEX idx_user_id (user_id)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Qualifications table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS qualifications (
+        qualification_id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        degree_name VARCHAR(255) NOT NULL,
+        institution VARCHAR(255) NOT NULL,
+        specialization VARCHAR(255),
+        year_completed VARCHAR(4),
+        description TEXT,
+        certificate_url TEXT,
+        is_verified BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Clinic info table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS clinic_info (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        clinic_name VARCHAR(255) NOT NULL,
+        address TEXT NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        postal_code VARCHAR(20),
+        phone VARCHAR(20) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        website VARCHAR(255),
+        description TEXT,
+        emergency_contact VARCHAR(20),
+        specializations JSON,
+        facilities JSON,
+        working_hours JSON,
+        insurance_accepted JSON,
+        images JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Contacts table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS contacts (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(20),
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `);
+
+    // Service categories table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS service_categories (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) UNIQUE NOT NULL,
+        description TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `;
+    `);
 
-    await query(createAppointmentsTable);
-    console.log('✅ Appointments table ensured');
-
-    // Insert sample appointments if table is empty
-    try {
-      const appointmentCount = await query('SELECT COUNT(*) as count FROM appointments');
-      if (appointmentCount[0].count === 0) {
-        // Get first doctor from database (usually user_id = 1)
-        const doctors = await query('SELECT user_id FROM users LIMIT 1');
-        
-        if (doctors.length > 0) {
-          const doctorId = doctors[0].user_id;
-          const sampleAppointments = [
-            [doctorId, 'John Doe', 'john@example.com', '0701234567', '2025-12-10', 'General checkup', 'pending'],
-            [doctorId, 'Jane Smith', 'jane@example.com', '0712345678', '2025-12-11', 'Follow-up consultation', 'confirmed'],
-            [doctorId, 'Mike Johnson', 'mike@example.com', '0723456789', '2025-12-12', 'Lab test results review', 'pending']
-          ];
-
-          for (const appointment of sampleAppointments) {
-            await query(
-              'INSERT INTO appointments (doctor_id, patient_name, patient_email, patient_phone, appointment_date, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              appointment
-            );
-          }
-          console.log('✅ Sample appointments inserted');
-        }
-      }
-    } catch (error) {
-      console.warn('Sample appointments insertion warning:', error.message);
-    }
-
-    // Insert default service categories if table is empty
-    const categoryCount = await query('SELECT COUNT(*) as count FROM service_categories');
-    if (categoryCount[0].count === 0) {
-      const defaultCategories = [
-        ['General Consultation', 'Basic medical consultations and health assessments'],
-        ['Specialist Consultation', 'Specialized medical consultations in various fields'],
-        ['Diagnostic Services', 'Medical tests, imaging, and diagnostic procedures'],
-        ['Treatment Services', 'Medical treatments and therapeutic procedures'],
-        ['Emergency Care', 'Urgent medical care and emergency services'],
-        ['Preventive Care', 'Preventive medicine and health screenings']
-      ];
-
-      for (const [name, description] of defaultCategories) {
-        await query(
-          'INSERT INTO service_categories (name, description) VALUES (?, ?)',
-          [name, description]
-        );
-      }
-      console.log('✅ Default service categories inserted');
-    }
-
-    // Create indexes for better performance
-    const userIndexes = [
-      { table: 'users', name: 'idx_email', column: 'email' },
-      { table: 'users', name: 'idx_role', column: 'role' }
-    ];
-
-    const reviewIndexes = [
-      { table: 'reviews', name: 'idx_rating', column: 'rating' },
-      { table: 'reviews', name: 'idx_status', column: 'status' },
-      { table: 'reviews', name: 'idx_created_at', column: 'created_at' }
-    ];
-
-    const serviceIndexes = [
-      { table: 'services', name: 'idx_services_doctor_id', column: 'doctor_id' },
-      { table: 'services', name: 'idx_services_category', column: 'category' },
-      { table: 'services', name: 'idx_services_is_active', column: 'is_active' },
-      { table: 'services', name: 'idx_services_created_at', column: 'created_at' }
-    ];
-
-    const allIndexes = [...userIndexes, ...reviewIndexes, ...serviceIndexes];
-
-    for (const index of allIndexes) {
-      try {
-        const exists = await query(
-          'SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = ? AND table_name = ? AND index_name = ?',
-          [process.env.DB_NAME || 'heallk_db', index.table, index.name]
-        );
-        
-        if (exists[0].count === 0) {
-          await query(`CREATE INDEX ${index.name} ON ${index.table}(${index.column})`);
-          console.log(`✅ ${index.name} created on ${index.table}`);
-        }
-      } catch (error) {
-        if (error.code !== 'ER_DUP_KEYNAME') {
-          console.warn(`${index.name} warning:`, error.message);
-        }
-      }
-    }
-
-    console.log(' Database initialization completed');
-    return true;
+    console.log('✅ All tables created/verified successfully');
+    
   } catch (error) {
-    console.error('Database initialization failed:', error);
-    return false;
+    console.error('Error creating tables:', error);
+    throw error;
+  } finally {
+    connection.release();
   }
 };
 
-// For operations that need access to metadata like insertId
-const execute = async (sql, params = []) => {
+// Close all connections
+const closePool = async () => {
   try {
-    return await pool.execute(sql, params);
+    await pool.end();
+    console.log('Database connections closed');
   } catch (error) {
-    console.error('Database execute error:', error);
-    throw error;
+    console.error('Error closing database connections:', error);
   }
 };
 
@@ -488,5 +296,7 @@ module.exports = {
   query,
   execute,
   testConnection,
-  initializeDatabase
+  initializeDatabase,
+  closePool
 };
+ 

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-// import axios from 'axios'; // Uncomment if using axios
-
-
-
+ 
 const Appoinment = ({ user }) => {
 	const [appointments, setAppointments] = useState([]);
 	const [loading, setLoading] = useState(true);
