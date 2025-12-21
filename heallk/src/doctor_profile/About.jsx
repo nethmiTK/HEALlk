@@ -43,16 +43,13 @@ const About = () => {
           cover_photo: data.doctor.profilePic
         });
         
-        // Set qualifications
-        setQualifications(data.doctor.qualifications || []);
+         setQualifications(data.doctor.qualifications || []);
         
-        // Set doctor data
-        setDoctorData({
+         setDoctorData({
           description: data.doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods.'
         });
       } else {
-        // Fallback to static data
-        setDoctor({
+         setDoctor({
           id: id,
           name: 'Dr. Sample Doctor',
           email: 'doctor@heallk.com',
@@ -67,8 +64,7 @@ const About = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error loading doctor profile:', error);
-      // Fallback to static data
-      setDoctor({
+       setDoctor({
         id: id,
         name: 'Dr. Sample Doctor',
         email: 'doctor@heallk.com',
@@ -83,8 +79,7 @@ const About = () => {
   };
 
   const fetchServices = async (doctorId) => {
-    // Using fallback data until backend is ready
-    setServices([
+     setServices([
       { id: 1, title: 'Consultation', description: 'General health consultation', price: '2500', duration: '30 mins' },
       { id: 2, title: 'Treatment', description: 'Ayurvedic treatment', price: '3500', duration: '45 mins' },
       { id: 3, title: 'Therapy', description: 'Specialized therapy', price: '4000', duration: '60 mins' }
@@ -131,39 +126,51 @@ const About = () => {
        
       {/* Education & Certifications Section */}
       {qualifications.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
           <div className="mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold mb-2">🎓 Education & Certifications</h2>
-            <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-2">🎓 Education & Certifications</h2>
+            <div className="w-20 sm:w-28 h-1 bg-green-500 rounded-full"></div>
           </div>
-          <div className="space-y-4 sm:space-y-6">
+
+          <div className="grid gap-4 sm:grid-cols-2">
             {qualifications.map((qualification, index) => (
-              <div key={qualification.id || index} className="border-l-4 border-green-500 pl-3 sm:pl-4 py-2">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0">
-                  <div className="flex-1">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">
+              <div
+                key={qualification.id || index}
+                className="flex items-start gap-4 p-4 border border-gray-100 rounded-lg hover:shadow-lg transition-shadow bg-white"
+              >
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 font-semibold text-sm">
+                    {qualification.institution ? qualification.institution.charAt(0).toUpperCase() : '🎓'}
+                  </div>
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                       {qualification.degreeName}
-                      {qualification.isVerified && (
-                        <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                          ✓ Verified
-                        </span>
-                      )}
                     </h3>
-                    <p className="text-green-600 font-medium mt-1">{qualification.institution}</p>
-                    {qualification.specialization && (
-                      <p className="text-gray-600 mt-1">
-                        <span className="font-medium">Specialization:</span> {qualification.specialization}
-                      </p>
-                    )}
-                    {qualification.description && (
-                      <p className="text-gray-600 mt-2">{qualification.description}</p>
+                    {qualification.isVerified && (
+                      <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                        ✓ Verified
+                      </span>
                     )}
                   </div>
-                  <div className="ml-4 text-right">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                      {qualification.yearCompleted}
-                    </span>
-                  </div>
+
+                  <p className="text-sm text-green-600 font-medium mt-1">{qualification.institution}</p>
+                  {qualification.specialization && (
+                    <p className="text-gray-600 mt-1 text-sm">
+                      <span className="font-medium">Specialization:</span> {qualification.specialization}
+                    </p>
+                  )}
+                  {qualification.description && (
+                    <p className="text-gray-600 mt-2 text-sm">{qualification.description}</p>
+                  )}
+                </div>
+
+                <div className="ml-4 text-right hidden sm:block">
+                  <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                    {qualification.yearCompleted}
+                  </span>
                 </div>
               </div>
             ))}
@@ -189,7 +196,7 @@ const About = () => {
              </div>
        </div>
 
-{/* Section 3: Our Services */}
+      {/* Section 3: Our Services */}
  
       <ServicesSection doctorId={doctor?.id} />
 

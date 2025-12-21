@@ -59,7 +59,7 @@ const Navbar = () => {
                   key={link.label}
                   to={link.href}
                   onClick={handleNavClick}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  className={`px-5 py-8 rounded-md text-base font-medium transition-colors duration-200 ${
                     scrolled
                       ? 'text-gray-700 hover:text-green-600 hover:bg-green-50'
                       : 'text-white hover:text-green-200 hover:bg-white/10'
@@ -76,7 +76,7 @@ const Navbar = () => {
             <Link
               to="/register"
               onClick={handleNavClick}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-6 py-2 rounded-full text-base font-medium transition-all duration-200 ${
                 scrolled
                   ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
                   : 'bg-white text-green-600 hover:bg-green-50 border border-green-200'
