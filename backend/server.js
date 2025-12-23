@@ -23,6 +23,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'http://helalanka.lk',
+    'https://helalanka.lk'
   ],
   credentials: true,
 }));
