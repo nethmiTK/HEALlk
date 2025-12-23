@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Pagination from './Pagination';
+import Pagination from './pagination';
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);

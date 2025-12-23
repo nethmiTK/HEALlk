@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
-import Pagination from './Pagination';
+import Pagination from './pagination';
 
 const ProductTest = () => {
   const [products, setProducts] = useState([]);
