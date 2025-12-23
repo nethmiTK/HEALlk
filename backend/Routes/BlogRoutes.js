@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/authMiddleware');
-const BlogController = require('../controllers/BlogController');
+const BlogController = require('../Controllers/BlogController');
 
 router.get('/', authenticateToken, BlogController.getBlogs);
 router.get('/:id', authenticateToken, BlogController.getBlogById);

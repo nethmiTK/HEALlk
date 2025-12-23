@@ -6,7 +6,7 @@ const {
   addClinicInfo,
   updateClinicInfo,
   deleteClinic,
-} = require('../controllers/clinicController');
+} = require('../Controllers/clinicController');
 
 router.get('/', authenticateToken, getClinicInfo);
 router.post('/', authenticateToken, addClinicInfo);
