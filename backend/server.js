@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
-const clinicRoutes = require('./Routes/ClinicRoutes');
+const clinicRoutes = require('./Routes/clinicRoutes');
 const authRoutes = require('./Routes/AuthRoutes');
 const reviewRoutes = require('./Routes/ReviewRoutes');
 const profileRoutes = require('./Routes/ProfileRoutes');
