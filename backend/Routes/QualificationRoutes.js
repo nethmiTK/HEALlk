@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middlewares/authMiddleware');
-const QualificationController = require('../controllers/QualificationController');
+const QualificationController = require('../Controllers/QualificationController');
 
  router.get('/', authenticateToken, QualificationController.getQualifications);
 router.post('/', authenticateToken, QualificationController.addQualification);
