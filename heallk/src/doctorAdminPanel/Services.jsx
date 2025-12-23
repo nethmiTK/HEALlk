@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import Pagination from './Pagination';
+import Pagination from './pagination';
 
 const Services = () => {
   const [services, setServices] = useState([]);
