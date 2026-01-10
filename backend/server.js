@@ -24,7 +24,9 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://helalanka.lk',
-    'https://helalanka.lk'
+    'https://helalanka.lk',
+    'http://www.helalanka.lk',
+    'https://www.helalanka.lk'
   ],
   credentials: true,
 }));
