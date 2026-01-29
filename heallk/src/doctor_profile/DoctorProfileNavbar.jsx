@@ -1,5 +1,6 @@
 import React from 'react';
 import './DoctorProfileNavbar.css';
+import logoImage from '../assets/logo.png';
 
 const navItems = [
   { label: 'About', href: 'about' },
@@ -13,6 +14,9 @@ const navItems = [
 
 const DoctorProfileNavbar = () => (
   <nav className="doctor-profile-navbar">
+    <div className="navbar-logo">
+      <img src={logoImage} alt="Ayurveda Logo" />
+    </div>
     <ul>
       {navItems.map((item) => (
         <li key={item.label}>

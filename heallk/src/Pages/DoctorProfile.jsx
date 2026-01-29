@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 import aboutImg from '../assets/about.png';
+import logoImage from '../assets/logo.png';
 import About from '../doctor_profile/About';
 import Services from '../doctor_profile/Services';
 import ClinicInfo from '../doctor_profile/ClinicInfo';
@@ -137,27 +138,28 @@ const DoctorProfile = () => {
         </div>
         
         {/* Doctor Profile Navbar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg">
-          <div className="w-full px-2 sm:px-4">
-            <div className="flex justify-between items-center h-14 sm:h-16">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-blue-50 to-white shadow-xl backdrop-blur-sm border-b border-gray-100">
+          <div className="w-full px-2 sm:px-4 lg:px-6">
+            <div className="flex justify-between items-center h-16 sm:h-20">
               {/* Logo */}
-              <div onClick={() => navigate('/')} className="flex items-center gap-1 sm:gap-2 cursor-pointer">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-base sm:text-lg">H</span>
-                </div>
-                {/* Removed HEALlk text */}
+              <div onClick={() => navigate('/')} className="flex items-center cursor-pointer group hover:opacity-80 transition-all duration-300">
+                <img 
+                  src={logoImage} 
+                  alt="Ayurveda Logo" 
+                  className="h-12 sm:h-14 w-auto object-contain drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300"
+                />
               </div>
               
               {/* Desktop Tabs - Hidden on mobile */}
-              <div className="hidden lg:flex items-center space-x-2 bg-white rounded-full p-2 shadow-lg">
+              <div className="hidden lg:flex items-center space-x-1 bg-gradient-to-r from-white/80 to-blue-50/80 backdrop-blur-md rounded-full p-1.5 shadow-xl border border-white/50">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id)}
-                    className={`px-4 xl:px-6 py-2 xl:py-3 rounded-full font-medium transition-all duration-300 text-xs xl:text-sm ${
+                    className={`px-5 xl:px-7 py-2.5 xl:py-3 rounded-full font-semibold transition-all duration-300 text-sm xl:text-base whitespace-nowrap ${
                       activeTab === tab.id
-                        ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg transform scale-105'
-                        : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg transform scale-105'
+                        : 'text-gray-700 hover:text-green-600 hover:bg-white/50'
                     }`}
                   >
                     {tab.label}
@@ -168,7 +170,7 @@ const DoctorProfile = () => {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                className="lg:hidden p-2.5 text-gray-700 hover:text-green-600 hover:bg-green-50/80 rounded-lg transition-all duration-300 backdrop-blur-sm"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {isMobileMenuOpen ? (
@@ -182,16 +184,16 @@ const DoctorProfile = () => {
             
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden absolute top-14 sm:top-16 left-0 right-0 bg-white shadow-xl border-t border-gray-200 py-2">
+              <div className="lg:hidden absolute top-16 sm:top-20 left-0 right-0 bg-gradient-to-b from-white via-blue-50/80 to-green-50/80 shadow-2xl border-t border-green-100 py-3 backdrop-blur-md">
                 <div className="flex flex-col space-y-1 px-2">
                   {tabs.map(tab => (
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 text-sm ${
+                      className={`w-full text-left px-4 py-3.5 rounded-lg font-semibold transition-all duration-300 text-base ${
                         activeTab === tab.id
-                          ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-md'
-                          : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105'
+                          : 'text-gray-700 hover:text-green-600 hover:bg-white/60'
                       }`}
                     >
                       {tab.label}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import Contact from './Contact';
+import logoImage from '../assets/logo.png';
 
 const DoctorContactPage = () => {
   const { id } = useParams();
@@ -54,17 +55,19 @@ const DoctorContactPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-green-400 via-blue-500 to-indigo-600 shadow-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-blue-50 to-white shadow-xl backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div onClick={() => navigate('/')} className="flex items-center gap-1 sm:gap-2 cursor-pointer">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white border-opacity-30">
-                <span className="text-white font-bold text-base sm:text-lg">H</span>
-              </div>
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div onClick={() => navigate('/')} className="flex items-center cursor-pointer group hover:opacity-80 transition-all duration-300">
+              <img 
+                src={logoImage} 
+                alt="Ayurveda Logo" 
+                className="h-12 sm:h-14 w-auto object-contain drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300"
+              />
             </div>
             <button 
               onClick={() => navigate(`/doctor-profile/${id}`)}
-              className="bg-white bg-opacity-20 backdrop-blur-sm border-2 border-white border-opacity-50 text-white px-3 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base rounded-full font-semibold hover:bg-white hover:text-green-600 transition-all duration-300"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base rounded-full font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Back to Profile
             </button>

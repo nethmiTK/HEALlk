@@ -17,10 +17,9 @@ exports.getVerifiedDoctors = async (req, res) => {
         COUNT(DISTINCT c.id) as clinic_count
       FROM users u
       LEFT JOIN clinic_info c ON u.user_id = c.user_id
-      WHERE u.role = 'doctor' AND u.status = 'accepted'
+      WHERE u.role = 'doctor' AND u.status = 'active'
       GROUP BY u.user_id
       ORDER BY u.created_at DESC
-      LIMIT 20
     `;
     
     const doctors = await query(sql);
