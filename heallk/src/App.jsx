@@ -41,6 +41,7 @@ function App() {
         <Route path="/doctor/:id/clinic" element={<DoctorClinicPage />} />
         <Route path="/doctor/:id/contact" element={<DoctorContactPage />} />
         <Route path="/doctor/:id/reviews" element={<DoctorReviewsPage />} />
+        <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/products" element={<Products />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>

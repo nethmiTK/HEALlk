@@ -87,6 +87,11 @@ const Login = () => {
           // Save token
           localStorage.setItem('heallk_token', data.token);
           
+          // Save user data with phone number
+          if (data.user) {
+            localStorage.setItem('heallk_user', JSON.stringify(data.user));
+          }
+          
           // Show success message
           setSuccessMessage('Login successful! Redirecting...');
           
@@ -149,7 +154,7 @@ const Login = () => {
 
           <div className="auth-header">
           <h2>Welcome Back</h2>
-          <p>Sign in to your HEALlk account</p>
+          <p>Sign in to your HEALA Lanka account</p>
         </div>
 
         <div className="auth-form-container">

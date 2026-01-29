@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Link, useLocation } from 'react-router-dom';
 import logoImage from '../assets/logo.png';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   const handleNavClick = () => {
     window.scrollTo(0, 0);
@@ -40,13 +42,17 @@ const Navbar = () => {
           <div className="flex items-center">
             <div className="shrink-0">
               <Link to="/" className="flex items-center group" onClick={handleNavClick}>
-                <div className="p-2">
+                <motion.div 
+                  className="p-2"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <img 
                     src={logoImage} 
-                    alt="HEALlk Logo" 
-                    className="h-10 w-auto transition-all duration-300 group-hover:scale-105 brightness-100 drop-shadow-lg"
+                    alt="Ayurveda Logo" 
+                    className="h-12 w-auto transition-all duration-300 brightness-100 drop-shadow-lg"
                   />
-                </div>
+                </motion.div>
               </Link>
             </div>
           </div>
@@ -54,20 +60,46 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  onClick={handleNavClick}
-                  className={`px-5 py-8 rounded-md text-base font-medium transition-colors duration-200 ${
-                    scrolled
-                      ? 'text-gray-700 hover:text-green-600 hover:bg-green-50'
-                      : 'text-white hover:text-green-200 hover:bg-white/10'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isActive =
+                  link.href === '/'
+                    ? location.pathname === '/'
+                    : location.pathname.startsWith(link.href);
+                const textRef = useRef(null);
+                const [underlineWidth, setUnderlineWidth] = useState(0);
+
+                useEffect(() => {
+                  if (isActive && textRef.current) {
+                    setUnderlineWidth(textRef.current.offsetWidth);
+                  }
+                }, [isActive, location.pathname]);
+
+                return (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    onClick={handleNavClick}
+                    className={`relative px-5 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+                      scrolled
+                        ? isActive
+                          ? 'text-green-700'
+                          : 'text-gray-700 hover:text-green-600'
+                        : isActive
+                          ? 'text-green-200'
+                          : 'text-white hover:text-green-200'
+                    }`}
+                  >
+                    {link.label}
+                    {isActive && (
+                      <motion.div
+                        className={`absolute bottom-0 left-0 right-0 h-[3px] rounded-full ${scrolled ? 'bg-green-600' : 'bg-green-300'}`}
+                        layoutId="navbar-underline"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
@@ -117,19 +149,29 @@ const Navbar = () => {
       {menuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200 shadow-lg max-h-screen overflow-y-auto">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="block px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors touch-manipulation"
-                onClick={() => {
-                  setMenuOpen(false);
-                  handleNavClick();
-                }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive =
+                link.href === '/'
+                  ? location.pathname === '/'
+                  : location.pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className={`block px-4 py-3 rounded-md text-base font-medium transition-colors touch-manipulation ${
+                    isActive
+                      ? 'text-green-700 bg-green-100 font-semibold shadow'
+                      : 'text-gray-700 hover:text-green-600 hover:bg-green-50'
+                  }`}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleNavClick();
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
               to="/register"
               className="block px-4 py-3 mt-4 bg-green-600 text-white text-center rounded-md font-medium hover:bg-green-700 transition-colors touch-manipulation"

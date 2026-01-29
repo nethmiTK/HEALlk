@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Navbar from '../Components/Navbar';
+import SpecializationFilter from '../Components/SpecializationFilter';
 import { API_BASE_URL } from '../config';
 import heroImage1 from '../assets/Hero/1.png';
 import heroImage2 from '../assets/Hero/2.png';
@@ -10,7 +12,10 @@ import heroImage4 from '../assets/Hero/4.png';
 const Doctors = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSpecialization, setSelectedSpecialization] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   
   const heroImages = [
@@ -28,6 +33,7 @@ const Doctors = () => {
         if (response.ok) {
           const data = await response.json();
           setDoctors(data.doctors || []);
+          setFilteredDoctors(data.doctors || []);
         }
       } catch (error) {
         console.error('Error loading doctors:', error);
@@ -37,6 +43,26 @@ const Doctors = () => {
     };
     loadDoctors();
   }, []);
+
+  // Filter doctors by specialization and search term
+  useEffect(() => {
+    let filtered = doctors;
+    
+    // Filter by specialization
+    if (selectedSpecialization) {
+      filtered = filtered.filter(doc => doc.specialization === selectedSpecialization);
+    }
+    
+    // Filter by search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(doc => 
+        doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (doc.full_name && doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    setFilteredDoctors(filtered);
+  }, [selectedSpecialization, doctors, searchTerm]);
 
   // Auto-slide effect - changes image every 8 seconds
   useEffect(() => {
@@ -125,22 +151,52 @@ const Doctors = () => {
       <section id="doctors" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>
+            <motion.h2 
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl md:text-5xl font-bold text-gray-800 mb-4" 
+              style={{fontFamily: 'Playfair Display, serif'}}
+            >
               Our Verified Ayurveda Doctors
-            </h2>
+            </motion.h2>
             <div className="w-24 h-1 bg-green-500 mx-auto rounded-full mb-4"></div>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Meet our team of certified and experienced Ayurvedic practitioners dedicated to your wellness journey
             </p>
+          </div>
+
+          {/* Specialization Filter */}
+          <div className="mb-12">
+            <SpecializationFilter 
+              selectedSpecialization={selectedSpecialization}
+              onSpecializationChange={setSelectedSpecialization}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
           </div>
           
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-500"></div>
             </div>
+          ) : filteredDoctors.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <p className="text-xl text-gray-600 mb-4">No doctors found in this specialization</p>
+              <button 
+                onClick={() => setSelectedSpecialization(null)}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-medium transition-all"
+              >
+                View All Doctors
+              </button>
+            </motion.div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {doctors.map((doctor, index) => {
+              {filteredDoctors.map((doctor, index) => {
                 const colors = [
                   'from-green-400 to-green-600',
                   'from-blue-400 to-blue-600', 
@@ -159,7 +215,13 @@ const Doctors = () => {
                 ];
                 
                 return (
-                  <div key={doctor.id} className="bg-green-50 p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 border border-green-200 hover:border-green-300">
+                  <motion.div 
+                    key={doctor.id} 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="bg-green-50 p-8 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 border border-green-200 hover:border-green-300"
+                  >
                     <div className="relative mb-6">
                       <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-xl border-4 border-white">
                         {doctor.profilePic ? (
@@ -176,15 +238,30 @@ const Doctors = () => {
                     </div>
                     <div className="text-center">
                       <h3 className="text-xl font-bold mb-3 text-gray-800" style={{fontFamily: 'Playfair Display, serif'}}>{doctor.name}</h3>
+                      
+                      {/* Specialization Badge */}
+                      {doctor.specialization && (
+                        <motion.div 
+                          whileHover={{ scale: 1.05 }}
+                          className="mb-3 inline-block"
+                        >
+                          <span className={`inline-block ${badgeColors[index % badgeColors.length]} px-4 py-1.5 rounded-full text-xs font-semibold mb-3`}>
+                            {doctor.specialization}
+                          </span>
+                        </motion.div>
+                      )}
+                      
                       <p className="text-gray-600 text-lg mb-4">📞 {doctor.phone}</p>
-                      <button 
-                        onClick={() => navigate(`/doctor-profile/${doctor.id}`)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 w-full"
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate(`/doctor/${encodeURIComponent(doctor.full_name)}`)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 w-full"
                       >
                         Book Appointment
-                      </button>
+                      </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

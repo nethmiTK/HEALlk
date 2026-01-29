@@ -5,7 +5,7 @@ require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET || 'heallk_secret_key_2025';
 
 const validateRegistrationData = (data) => {
-  const { full_name, email, password, phone } = data;
+  const { full_name, email, password, phone, role, specialization } = data;
   const errors = [];
 
   if (!full_name?.trim()) errors.push('Full name is required');
@@ -23,6 +23,14 @@ const validateRegistrationData = (data) => {
   if (phone && phone.length < 10) {
     errors.push('Please enter a valid phone number');
   }
+
+  // Require specialization for all users
+  const validSpecializations = ['Ayurvedic Physicians', 'Panchakarma Specialists', 'Wellness & Lifestyle Consultants'];
+  if (!specialization) {
+    errors.push('Specialization is required');
+  } else if (!validSpecializations.includes(specialization)) {
+    errors.push('Invalid specialization selected');
+  }
   
   return errors;
 };
@@ -30,13 +38,34 @@ const validateRegistrationData = (data) => {
 // Register Controller
 const register = async (req, res) => {
   try {
-    const { full_name, email, password, phone } = req.body;
+    const { full_name, email, password, phone, role = 'doctor', specialization, status = 'requested' } = req.body;
+    const paymentSlip = req.file;
+    
+    console.log('Registration attempt:', { full_name, email, phone, specialization, status });
+    console.log('File upload info:', paymentSlip ? { filename: paymentSlip.filename, size: paymentSlip.size } : 'No file');
     
     const validationErrors = validateRegistrationData(req.body);
     if (validationErrors.length > 0) {
       return res.status(400).json({
         success: false,
         message: validationErrors[0]
+      });
+    }
+
+    // Validate payment slip
+    if (!paymentSlip) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment slip is required'
+      });
+    }
+
+    // Check allowed file types
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!allowedTypes.includes(paymentSlip.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment slip must be a PDF, JPG, or PNG file'
       });
     }
 
@@ -49,13 +78,17 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    
+    // Generate payment slip path
+    const paymentSlipPath = `/uploads/payment-slips/${Date.now()}-${paymentSlip.filename}`;
+    
     const insertResult = await query(
-      'INSERT INTO users (full_name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
-      [full_name.trim(), email.toLowerCase().trim(), hashedPassword, phone || null, 'user']
+      'INSERT INTO users (full_name, email, password, phone, role, specialization, status, payment_slip, payment_slip_uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+      [full_name.trim(), email.toLowerCase().trim(), hashedPassword, phone || null, role, specialization || null, status, paymentSlipPath]
     );
 
     const [newUser] = await query(
-      'SELECT user_id, full_name, email, phone, role, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, role, specialization, status, payment_slip, created_at FROM users WHERE user_id = ?',
       [insertResult.insertId]
     );
 
@@ -63,7 +96,7 @@ const register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Account created successfully! Welcome to HEALlk',
+      message: 'Account created successfully! Your registration is pending approval.',
       user: newUser,
       token
     });

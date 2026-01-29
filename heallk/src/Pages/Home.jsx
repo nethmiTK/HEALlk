@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import { API_BASE_URL } from '../config';
@@ -130,27 +131,60 @@ const Home = () => {
           ))}
         </div>
 
-         <div className="relative z-10 px-4 w-full h-full flex items-center">
+        <div className="relative z-10 px-4 w-full h-full flex items-center">
           <div className="w-full flex justify-end">
             <div className="text-right pr-8 md:pr-16 lg:pr-20">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
+              <motion.h1
+                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl"
+                style={{ fontFamily: 'Playfair Display, serif' }}
+                initial={{ opacity: 0, y: 60 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, type: 'spring', stiffness: 80 }}
+              >
                 Panchkarma
-              </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
+              </motion.h1>
+              <motion.h2
+                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl"
+                style={{ fontFamily: 'Playfair Display, serif' }}
+                initial={{ opacity: 0, y: 60 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, type: 'spring', stiffness: 80 }}
+              >
                 Treatment
-              </h2>
-              <p className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-lg">
+              </motion.h2>
+              <motion.p
+                className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-lg"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5, type: 'spring', stiffness: 80 }}
+              >
                 Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices
-              </p>
-              <button 
+              </motion.p>
+              <motion.button
                 onClick={() => {
                   const doctorsSection = document.getElementById('doctors');
                   if (doctorsSection) doctorsSection.scrollIntoView({ behavior: 'smooth' });
                 }}
                 className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl hover:bg-white"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{
+                  opacity: 1,
+                  y: [0, -10, 0],
+                  boxShadow: [
+                    '0 2px 8px rgba(16,185,129,0.15)',
+                    '0 12px 32px rgba(16,185,129,0.25)',
+                    '0 2px 8px rgba(16,185,129,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                  ease: 'easeInOut'
+                }}
               >
                 Explore Doctors
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

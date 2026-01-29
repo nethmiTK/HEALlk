@@ -88,7 +88,7 @@ const createTables = async () => {
       CREATE TABLE IF NOT EXISTS users (
         user_id INT PRIMARY KEY AUTO_INCREMENT,
         full_name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
+        email VARCHAR(191) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         phone VARCHAR(20),
         role ENUM('doctor', 'patient', 'admin') DEFAULT 'patient',
@@ -96,9 +96,13 @@ const createTables = async () => {
         profile_pic TEXT,
         cover_photo TEXT,
         description TEXT,
-        status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
+        specialization VARCHAR(255),
+        status ENUM('active', 'inactive', 'suspended', 'requested', 'rejected', 'accepted') DEFAULT 'requested',
+        payment_slip TEXT,
+        payment_slip_uploaded_at TIMESTAMP NULL,
         INDEX idx_email (email),
-        INDEX idx_role (role)
+        INDEX idx_role (role),
+        INDEX idx_status (status)
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
     `);
 
@@ -233,7 +237,7 @@ const createTables = async () => {
         city VARCHAR(100) NOT NULL,
         postal_code VARCHAR(20),
         phone VARCHAR(20) NOT NULL,
-        email VARCHAR(255) NOT NULL,
+        email VARCHAR(191),
         website VARCHAR(255),
         description TEXT,
         emergency_contact VARCHAR(20),
@@ -252,7 +256,7 @@ const createTables = async () => {
       CREATE TABLE IF NOT EXISTS contacts (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
+        email VARCHAR(191) NOT NULL,
         phone VARCHAR(20),
         message TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -26,16 +26,10 @@ const Contact = ({ doctor }) => {
       return;
     }
 
-    if (!doctor?.id) {
-      toast.error('Doctor information not found');
-      console.error('Doctor object:', doctor);
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      console.log('Submitting appointment for doctor ID:', doctor.id);
-      const response = await fetch(`${API_BASE_URL}/contact/submit`, {
+      console.log('Submitting appointment request');
+      const response = await fetch(`${API_BASE_URL}/contact/appointment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,15 +38,15 @@ const Contact = ({ doctor }) => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          date: formData.date,
+          date: formData.date || null,
           message: formData.message,
-          doctorId: doctor?.id
+          doctorId: doctor?.id || null
         })
       });
 
       const data = await response.json();
       if (data.success) {
-        toast.success('✅ Appointment saved to database successfully!', {
+        toast.success('✅ Appointment saved successfully!', {
           position: "top-right",
           autoClose: 4000,
           hideProgressBar: false,
@@ -63,11 +57,11 @@ const Contact = ({ doctor }) => {
         setFormData({ name: '', email: '', phone: '', date: '', message: '' });
       } else {
         console.error('Backend error:', data);
-        toast.error(data.message || 'Failed to send appointment request');
+        toast.error(data.message || 'Failed to save appointment');
       }
     } catch (error) {
       console.error('Request error:', error);
-      toast.error('Failed to send appointment request');
+      toast.error('Failed to save appointment');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +83,7 @@ const Contact = ({ doctor }) => {
                   </div>
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-gray-600">{doctor?.phone || '+94 77 123 4567'}</p>
+                    <p className="text-gray-600">{doctor?.phone || '+94 77 7858 521'}</p>
                   </div>
                 </div>
                 
@@ -178,6 +172,16 @@ const Contact = ({ doctor }) => {
                 >
                   {isSubmitting ? 'Sending...' : 'Book Appointment'}
                 </button>
+                
+                {/* WhatsApp Button */}
+                <a
+                  href="https://wa.me/94777858521?text=Hello%20I%20would%20like%20to%20book%20an%20appointment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full block text-center bg-gradient-to-r from-green-400 to-green-600 text-white py-3 rounded-lg hover:from-green-500 hover:to-green-700 transition font-medium"
+                >
+                  💬 Chat on WhatsApp
+                </a>
               </form>
             </div>
           </div>

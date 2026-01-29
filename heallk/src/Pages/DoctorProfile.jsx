@@ -21,6 +21,13 @@ const DoctorProfile = () => {
   const [currentQualificationIndex, setCurrentQualificationIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Update browser tab title when doctor loads
+  useEffect(() => {
+    if (doctor?.name) {
+      document.title = `Dr. ${doctor.name}`;
+    }
+  }, [doctor]);
+
   // Get active tab from URL
   useEffect(() => {
     const hash = location.hash.replace('#', '');
@@ -41,19 +48,51 @@ const DoctorProfile = () => {
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
-    navigate(`/doctor-profile/${id}#${tabId}`, { replace: true });
+    if (doctor?.name) {
+      navigate(`/doctor/${encodeURIComponent(doctor.name)}#${tabId}`, { replace: true });
+    }
     setIsMobileMenuOpen(false); // Close mobile menu after selection
   };
 
   useEffect(() => {
     const loadDoctorProfile = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setDoctor(data.doctor);
+        // Check if id is numeric (user_id) or a name
+        const isNumeric = /^\d+$/.test(id);
+        
+        if (isNumeric) {
+          // Fetch by ID
+          const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setDoctor(data.doctor);
+            // Redirect to name-based URL
+            navigate(`/doctor/${encodeURIComponent(data.doctor.name)}`, { replace: true });
+          } else {
+            navigate('/');
+          }
         } else {
-          navigate('/');
+          // Fetch by name - get all doctors and find by name
+          const response = await fetch(`${API_BASE_URL}/public/doctors`);
+          if (response.ok) {
+            const data = await response.json();
+            const decodedName = decodeURIComponent(id).replace(/^Dr\.\s+/, ''); // Remove "Dr. " prefix if present
+            const foundDoctor = data.doctors.find(doc => {
+              const doctorName = doc.name || doc.full_name || ''; // Handle both field names
+              return (
+                doctorName.toLowerCase() === decodedName.toLowerCase() ||
+                doctorName.toLowerCase().includes(decodedName.toLowerCase())
+              );
+            });
+            
+            if (foundDoctor) {
+              setDoctor(foundDoctor);
+            } else {
+              navigate('/');
+            }
+          } else {
+            navigate('/');
+          }
         }
       } catch (error) {
         console.error('Error loading doctor profile:', error);
@@ -106,7 +145,7 @@ const DoctorProfile = () => {
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-base sm:text-lg">H</span>
                 </div>
-                <span className="text-lg sm:text-xl font-bold text-gray-800">HEALlk</span>
+                {/* Removed HEALlk text */}
               </div>
               
               {/* Desktop Tabs - Hidden on mobile */}
@@ -198,11 +237,20 @@ const DoctorProfile = () => {
               {/* Doctor Info */}
               <div className="text-black flex-1 text-center sm:text-left">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
-                  {doctor?.name?.toUpperCase() || 'DOCTOR'}
+                  Dr. {doctor?.name?.toUpperCase() || 'DOCTOR'}
                 </h1>
                 <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-700 mb-2 sm:mb-4 font-light" style={{fontFamily: 'Playfair Display, serif'}}>
                   {doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
                 </p>
+                
+                {/* Specialization Badge */}
+                {doctor?.specialization && (
+                  <div className="mb-3 sm:mb-4">
+                    <span className="inline-block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                      🎓 {doctor.specialization}
+                    </span>
+                  </div>
+                )}
                 
                 {/* Status Badges */}
                 <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 mb-3 sm:mb-6">
@@ -241,6 +289,26 @@ const DoctorProfile = () => {
                   >
                     <span className="text-base sm:text-lg">📱</span> WhatsApp
                   </a>
+                </div>
+
+                {/* Shareable URL Section */}
+                <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-300">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2 font-semibold">📍 Share Profile:</p>
+                  <div className="flex items-center gap-2 bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 rounded-lg">
+                    <code className="text-xs sm:text-sm font-mono text-gray-700 flex-1 break-all">
+                      {window.location.href}
+                    </code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('URL copied to clipboard!');
+                      }}
+                      className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all"
+                      title="Copy URL"
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -708,31 +776,11 @@ const DoctorProfile = () => {
             </p>
           </div>
           
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-8 mb-12">
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">500+</div>
-              <div className="text-sm opacity-80">Happy Patients</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">5+</div>
-              <div className="text-sm opacity-80">Years Experience</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">4.9⭐</div>
-              <div className="text-sm opacity-80">Patient Rating</div>
-            </div>
-          </div>
+          {/* Stats Row removed as requested */}
           
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => handleTabClick('contact')}
-              className="bg-white text-green-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-3"
-            >
-              <span className="text-2xl">📅</span>
-              Book Your Consultation
-            </button>
+             
             <a 
               href={`tel:${doctor.phone}`}
               className="border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-3"

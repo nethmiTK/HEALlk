@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
+
+// Backend base URL without /api for static files
+const BACKEND_BASE_URL = API_BASE_URL.replace('/api', '');
 import Pagination from './pagination';
 
 const ProductTest = () => {
@@ -17,8 +20,10 @@ const ProductTest = () => {
     wage: '',
     description: '',
     category: 'Medicine',
-    is_active: true
+    is_active: true,
+    image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
   const categories = ['Medicine', 'Supplement', 'Oil', 'Tea', 'Capsule', 'Powder', 'Other'];
 
@@ -59,6 +64,35 @@ const ProductTest = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -72,33 +106,108 @@ const ProductTest = () => {
       const method = editingProduct ? 'PUT' : 'POST';
       const url = editingProduct ? `${API_BASE_URL}/products/${editingProduct.id}` : `${API_BASE_URL}/products`;
       
+      // Create FormData to handle both text and file data
+      const submitData = new FormData();
+      submitData.append('product_name', formData.product_name);
+      submitData.append('price', formData.price);
+      submitData.append('ingredient', formData.ingredient);
+      submitData.append('wage', formData.wage);
+      submitData.append('description', formData.description);
+      submitData.append('category', formData.category);
+      submitData.append('is_active', formData.is_active);
+      
+      // Only append image if a new file is selected
+      if (formData.image && formData.image instanceof File) {
+        submitData.append('image', formData.image);
+      }
+      
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
+          // Don't set Content-Type header - let the browser set it with boundary
         },
-        body: JSON.stringify(formData)
+        body: submitData
       });
       
       const data = await response.json();
       if (data.success) {
         if (editingProduct) {
-          setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...p, ...formData } : p));
+          // Update product in list with new image
+          const updatedImage = data.image || editingProduct.image;
+          setProducts(prev => prev.map(p => 
+            p.id === editingProduct.id ? { 
+              ...p, 
+              product_name: formData.product_name,
+              price: formData.price,
+              ingredient: formData.ingredient,
+              wage: formData.wage,
+              description: formData.description,
+              category: formData.category,
+              is_active: formData.is_active,
+              image: updatedImage
+            } : p
+          ));
           toast.success('Product updated!');
+          // For edit, close modal after brief delay
+          setTimeout(() => {
+            setIsModalOpen(false);
+          }, 1500);
         } else {
-          const newProduct = { id: data.productId, ...formData };
+          // For new product, create product object with server image path
+          const serverImagePath = data.image || null;
+          const newProduct = { 
+            id: data.productId,
+            product_name: formData.product_name,
+            price: formData.price,
+            ingredient: formData.ingredient,
+            wage: formData.wage,
+            description: formData.description,
+            category: formData.category,
+            is_active: formData.is_active,
+            image: serverImagePath
+          };
           setProducts(prev => [...prev, newProduct]);
           toast.success('Product added!');
+          
+          // Update preview to show the actual uploaded image from server
+          if (serverImagePath) {
+            setImagePreview(`${BACKEND_BASE_URL}/${serverImagePath}`);
+          }
+          
+          // Clear form fields for next product, but keep preview
+          setTimeout(() => {
+            setFormData({
+              product_name: '',
+              price: '',
+              ingredient: '',
+              wage: '',
+              description: '',
+              category: 'Medicine',
+              is_active: true,
+              image: null
+            });
+            // Preview stays visible until user manually closes or removes it
+          }, 500);
         }
-        resetForm();
+      } else {
+        toast.error(data.message || 'Failed to save product');
       }
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Failed to save product');
     }
   };
 
   const handleEdit = (product) => {
+    // Set preview first before opening modal
+    if (product.image) {
+      const imageUrl = `${API_BASE_URL}/${product.image}`;
+      setImagePreview(imageUrl);
+    } else {
+      setImagePreview(null);
+    }
+    
     setEditingProduct(product);
     setFormData({
       product_name: product.product_name,
@@ -107,8 +216,10 @@ const ProductTest = () => {
       wage: product.wage || '',
       description: product.description || '',
       category: product.category || 'Medicine',
-      is_active: product.is_active !== false
+      is_active: product.is_active !== false,
+      image: null
     });
+    
     setIsModalOpen(true);
   };
 
@@ -142,8 +253,10 @@ const ProductTest = () => {
       wage: '',
       description: '',
       category: 'Medicine',
-      is_active: true
+      is_active: true,
+      image: null
     });
+    setImagePreview(null);
     setEditingProduct(null);
     setIsModalOpen(false);
   };
@@ -210,6 +323,7 @@ const ProductTest = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price (Rs.)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wage (Rs.)</th>
@@ -228,6 +342,26 @@ const ProductTest = () => {
                         <p className="text-xs text-gray-500 mt-1">Ingredients: {product.ingredient.substring(0, 30)}...</p>
                       )}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.image ? (
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <img 
+                          className="h-10 w-10 rounded-md object-cover border border-gray-200" 
+                          src={`${BACKEND_BASE_URL}/${product.image}`} 
+                          alt={product.product_name}
+                          onError={(e) => {
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /%3E%3C/svg%3E';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-shrink-0 h-10 w-10 rounded-md bg-gray-100 flex items-center justify-center">
+                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
@@ -337,6 +471,63 @@ const ProductTest = () => {
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Product Image</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Image Upload Input */}
+                    <div>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors cursor-pointer relative overflow-hidden group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <div className="group-hover:text-green-600 transition-colors">
+                          <svg className="w-12 h-12 mx-auto mb-2 text-gray-400 group-hover:text-green-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-sm font-medium text-gray-700">Click to upload or drag and drop</p>
+                          <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image Preview */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-2">Preview</label>
+                      {imagePreview ? (
+                        <div className="relative w-full h-48 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden group">
+                          <img 
+                            src={imagePreview} 
+                            alt="Product preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImagePreview(null);
+                              setFormData(prev => ({
+                                ...prev,
+                                image: null
+                              }));
+                            }}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="w-full h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                          <p className="text-sm text-gray-500">No image selected</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import DoctorProfileNavbar from './DoctorProfileNavbar';
 import { useParams, useNavigate } from 'react-router-dom';
 import ReviewSystem from '../doctor_profile/ReviewSystem';
 import aboutImg from '../assets/about.png';
@@ -6,7 +8,7 @@ import ServicesSection from '../doctor_profile/ServicesSection';
 import { API_BASE_URL } from '../config';
 
 const About = () => {
-  const { id } = useParams();
+  const { name } = useParams();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [doctorData, setDoctorData] = useState(null);
@@ -17,7 +19,7 @@ const About = () => {
 
   useEffect(() => {
     loadDoctorProfile();
-  }, [id]);
+  }, [name]);
   useEffect(() => {
   const interval = setInterval(() => {
     nextServices();
@@ -29,9 +31,9 @@ const About = () => {
 
   const loadDoctorProfile = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
+      // Fetch doctor by name instead of id
+      const response = await fetch(`${API_BASE_URL}/public/doctors/name/${encodeURIComponent(name)}`);
       const data = await response.json();
-      
       if (data.success && data.doctor) {
         setDoctor({
           id: data.doctor.id,
@@ -42,15 +44,13 @@ const About = () => {
           description: data.doctor.description || 'Experienced Ayurvedic doctor',
           cover_photo: data.doctor.profilePic
         });
-        
-         setQualifications(data.doctor.qualifications || []);
-        
-         setDoctorData({
+        setQualifications(data.doctor.qualifications || []);
+        setDoctorData({
           description: data.doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods.'
         });
       } else {
-         setDoctor({
-          id: id,
+        setDoctor({
+          id: name,
           name: 'Dr. Sample Doctor',
           email: 'doctor@heallk.com',
           phone: '+94 77 123 4567',
@@ -59,13 +59,12 @@ const About = () => {
           cover_photo: null
         });
       }
-      
-      fetchServices(id);
+      fetchServices(name);
       setLoading(false);
     } catch (error) {
       console.error('Error loading doctor profile:', error);
-       setDoctor({
-        id: id,
+      setDoctor({
+        id: name,
         name: 'Dr. Sample Doctor',
         email: 'doctor@heallk.com',
         phone: '+94 77 123 4567',
@@ -73,7 +72,7 @@ const About = () => {
         description: 'Experienced Ayurvedic doctor specializing in traditional healing methods.',
         cover_photo: null
       });
-      fetchServices(id);
+      fetchServices(name);
       setLoading(false);
     }
   };
@@ -119,24 +118,51 @@ const About = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <DoctorProfileNavbar />
+      <div className="min-h-screen bg-gray-50">
     
       
       <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
        
       {/* Education & Certifications Section */}
       {qualifications.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
+        <motion.div 
+          className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="mb-4 sm:mb-6">
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-2">🎓 Education & Certifications</h2>
-            <div className="w-20 sm:w-28 h-1 bg-green-500 rounded-full"></div>
+            <motion.h2 
+              className="text-2xl sm:text-3xl font-semibold mb-2"
+              initial={{ x: -30, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              🎓 Education & Certifications
+            </motion.h2>
+            <motion.div 
+              className="w-20 sm:w-28 h-1 bg-green-500 rounded-full"
+              initial={{ width: 0 }}
+              whileInView={{ width: 112 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            ></motion.div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {qualifications.map((qualification, index) => (
-              <div
+              <motion.div
                 key={qualification.id || index}
                 className="flex items-start gap-4 p-4 border border-gray-100 rounded-lg hover:shadow-lg transition-shadow bg-white"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
               >
                 <div className="flex-shrink-0 mt-1">
                   <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 text-green-600 font-semibold text-sm">
@@ -172,41 +198,91 @@ const About = () => {
                     {qualification.yearCompleted}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Section 3: button */}
-
-      <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+      <motion.div 
+        className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
             <div className="bg-gradient-to-r from-green-500 to-green-600 p-4 sm:p-6 lg:p-8 text-white text-center">
-    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4">Ready to Book a Consultation?</h2>
-    <p className="text-sm sm:text-base lg:text-lg mb-4 sm:mb-6">Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}</p>
-    <button
-      onClick={() => {
-        const contactSection = document.getElementById('contact');
-        if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
-      }}
-      className="bg-white text-green-600 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-sm sm:text-base rounded-full font-semibold hover:bg-gray-100 transition-colors"
-    >
-      Contact Now
-    </button>
+              <motion.h2 
+                className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4"
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Ready to Book a Consultation?
+              </motion.h2>
+              <motion.p 
+                className="text-sm sm:text-base lg:text-lg mb-4 sm:mb-6"
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                Get personalized Ayurvedic treatment from Dr. {doctor?.name || 'John Doe'}
+              </motion.p>
+              <motion.button
+                onClick={() => {
+                  const contactSection = document.getElementById('contact');
+                  if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="bg-white text-green-600 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-sm sm:text-base rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Contact Now
+              </motion.button>
              </div>
-       </div>
+       </motion.div>
 
       {/* Section 3: Our Services */}
  
       <ServicesSection doctorId={doctor?.id} />
 
       {/* Section 4: Clinic Information */}
-      <div id="clinic" className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+      <motion.div 
+        id="clinic" 
+        className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Clinic Information</h2>
-          <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
+          <motion.h2 
+            className="text-xl sm:text-2xl font-semibold mb-2"
+            initial={{ x: -30, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            Clinic Information
+          </motion.h2>
+          <motion.div 
+            className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"
+            initial={{ width: 0 }}
+            whileInView={{ width: 96 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+          ></motion.div>
         </div>
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+        <motion.div 
+          className="grid md:grid-cols-2 gap-4 sm:gap-6"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <span className="text-green-600 text-xl">📍</span>
@@ -239,14 +315,35 @@ const About = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Contact Section */}
-      <div id="contact" className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6">
+      <motion.div 
+        id="contact" 
+        className="bg-white rounded-lg shadow-md p-3 sm:p-4 lg:p-6"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Contact & Appointment</h2>
-          <div className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"></div>
+          <motion.h2 
+            className="text-xl sm:text-2xl font-semibold mb-2"
+            initial={{ x: -30, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            Contact & Appointment
+          </motion.h2>
+          <motion.div 
+            className="w-16 sm:w-24 h-1 bg-green-500 rounded-full"
+            initial={{ width: 0 }}
+            whileInView={{ width: 96 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+          ></motion.div>
         </div>
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           <div>
@@ -277,18 +374,40 @@ const About = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Section 5: Reviews */}
-      <div id="reviews" className="bg-white rounded-lg shadow-md p-6">
+      <motion.div 
+        id="reviews" 
+        className="bg-white rounded-lg shadow-md p-6"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Patient Reviews</h2>
-          <div className="w-24 h-1 bg-green-500 rounded-full"></div>
+          <motion.h2 
+            className="text-2xl font-semibold mb-2"
+            initial={{ x: -30, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            Patient Reviews
+          </motion.h2>
+          <motion.div 
+            className="w-24 h-1 bg-green-500 rounded-full"
+            initial={{ width: 0 }}
+            whileInView={{ width: 96 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+          ></motion.div>
         </div>
         <ReviewSystem doctorId={doctor?.id || 1} />
+      </motion.div>
       </div>
     </div>
-    </div>
+    </>
   );
 };
 

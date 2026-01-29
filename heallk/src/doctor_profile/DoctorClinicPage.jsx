@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 import ClinicInfo from './ClinicInfo';
+import logoImage from '../assets/logo.png';
 
 const DoctorClinicPage = () => {
   const { id } = useParams();
@@ -58,10 +59,9 @@ const DoctorClinicPage = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div onClick={() => navigate('/')} className="flex items-center gap-1 sm:gap-2 cursor-pointer">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white border-opacity-30">
-                <span className="text-white font-bold text-base sm:text-lg">H</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white border-opacity-30">
+                <img src={logoImage} alt="Ayurveda Logo" className="h-7 w-7 sm:h-9 sm:w-9 object-contain" />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-white">HEALlk</span>
             </div>
             <button 
               onClick={() => navigate(`/doctor-profile/${id}`)}

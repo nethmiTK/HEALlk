@@ -1,0 +1,52 @@
+.doctor-profile-navbar {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 0 24px;
+  border-radius: 8px;
+  margin: 24px auto 32px auto;
+  max-width: 900px;
+}
+
+.doctor-profile-navbar ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.doctor-profile-navbar li {
+  margin: 0 18px;
+}
+
+.doctor-profile-navbar a {
+  display: block;
+  padding: 14px 0;
+  font-size: 1.08rem;
+  color: #2d3a4a;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+
+.doctor-profile-navbar a:hover,
+.doctor-profile-navbar a:focus {
+  color: #0077b6;
+  border-bottom: 2px solid #0077b6;
+}
+
+@media (max-width: 600px) {
+  .doctor-profile-navbar ul {
+    flex-direction: column;
+  }
+
+  .doctor-profile-navbar li {
+    margin: 8px 0;
+  }
+
+  .doctor-profile-navbar {
+    padding: 0 8px;
+  }
+}

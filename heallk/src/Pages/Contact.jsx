@@ -1,18 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Contact.css';
+import { API_BASE_URL } from '../config';
 
 const Contact = () => {
+  const location = useLocation();
+  const product = location.state?.product;
+  
+  // Build initial message based on product data
+  const getInitialMessage = () => {
+    if (!product) return '';
+    let msg = `I'm interested in the product: ${product.name}\n`;
+    if (product.category) msg += `Category: ${product.category}\n`;
+    if (product.price) msg += `Price: Rs. ${product.price}\n`;
+    msg += 'Please provide more information.';
+    return msg;
+  };
+
+  const getInitialSubject = () => {
+    if (!product) return '';
+    return `Inquiry about: ${product.name}`;
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    subject: '',
-    message: '',
+    subject: getInitialSubject(),
+    message: getInitialMessage(),
     preferredContact: 'email'
   });
+
+  useEffect(() => {
+    // Update form if product changes
+    if (product) {
+      setFormData(prev => ({
+        ...prev,
+        subject: getInitialSubject(),
+        message: getInitialMessage()
+      }));
+    }
+  }, [product]);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +104,7 @@ const Contact = () => {
       setIsSubmitting(true);
       try {
         // Send to backend
-        const res = await fetch('http://localhost:5000/api/contact/submit', {
+        const res = await fetch(`${API_BASE_URL}/contact/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -159,7 +190,7 @@ const Contact = () => {
             <div className="info-card">
               <div className="info-icon">📞</div>
               <h3>Call Us</h3>
-              <p>+94 77 123 4567</p>
+              <p>+94 77 7858521</p>
               <p>Mon - Fri, 8AM - 6PM</p>
               <button className="info-button" onClick={handleCallClick}>
                 Call Now
@@ -179,7 +210,7 @@ const Contact = () => {
             <div className="info-card">
               <div className="info-icon">💬</div>
               <h3>WhatsApp</h3>
-              <p>+94 77 123 4567</p>
+              <p>+94 77 7858521</p>
               <p>Quick responses available</p>
               <button className="info-button whatsapp-btn" onClick={handleWhatsAppClick}>
                 Chat Now
@@ -265,7 +296,7 @@ const Contact = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     className={`form-input ${errors.phone ? 'error' : ''}`}
-                    placeholder="+94 77 123 4567"
+                    placeholder="+94 77 7858521"
                     disabled={isSubmitting}
                   />
                   {errors.phone && <span className="error-text">{errors.phone}</span>}

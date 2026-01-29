@@ -9,7 +9,7 @@ const Footer = () => {
            <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="bg-white text-green-600 px-4 py-2 rounded-lg font-bold text-xl">
-                HEALlk
+                HEALA Lanka
               </div>
             </div>
             <p className="text-green-100 leading-relaxed">
@@ -123,8 +123,8 @@ const Footer = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-green-100 text-sm">+94 77 123 4567</p>
-                  <p className="text-green-100 text-xs">Mon - Fri, 8AM - 6PM</p>
+                  <p className="text-green-100 text-sm">+94 77 7858 521</p>
+                  <p className="text-green-100 text-xs">Mon - Sun, 8AM - 6PM</p>
                 </div>
               </div>
               
@@ -134,7 +134,7 @@ const Footer = () => {
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                   </svg>
                 </div>
-                <p className="text-green-100 text-sm">info@heallk.com</p>
+                <p className="text-green-100 text-sm">https://codebuilder.it.com</p>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ const Footer = () => {
         <div className="border-t border-green-600 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-green-100 text-sm">
-              © 2025 HEALlk. All rights reserved. Connecting you with trusted healthcare professionals.
+              © 2025 HEALA LANKA. All rights reserved. Connecting you with trusted healthcare professionals.
             </div>
             <div className="flex space-x-6 text-sm">
               <Link to="/privacy" className="text-green-100 hover:text-white transition-colors duration-200">

@@ -5,20 +5,39 @@ import './Auth.css';
 import authVideo from '../../assets/auth.mp4';
 
 const Register = () => {
+  const SPECIALIZATIONS = [
+    'Ayurvedic Physicians',
+    'Panchakarma Specialists',
+    'Wellness & Lifestyle Consultants'
+  ];
+
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
+    countryCode: '+94',
     phone: '',
     password: '',
     confirmPassword: '',
-    agreeToPolicy: false
+    agreeToPolicy: false,
+    specialization: '',
+    paymentSlip: null
   });
+
+  const COUNTRY_CODES = [
+    { code: '+94', country: 'Sri Lanka 🇱🇰', example: '701234567' },
+    { code: '+91', country: 'India 🇮🇳', example: '9876543210' },
+    { code: '+1', country: 'USA/Canada 🇺🇸', example: '2125551234' },
+    { code: '+44', country: 'UK 🇬🇧', example: '2071838750' },
+    { code: '+61', country: 'Australia 🇦🇺', example: '212345678' },
+  ];
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [slipPreview, setSlipPreview] = useState(null);
+  const navigate = useNavigate();
 
   // Preload Login page for faster switching
   useEffect(() => {
@@ -33,11 +52,37 @@ const Register = () => {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    const { name, value, type, checked, files } = e.target;
+    
+    if (type === 'file' && files && files[0]) {
+      const file = files[0];
+      setFormData(prev => ({
+        ...prev,
+        [name]: file
+      }));
+      
+      // Create preview for image files
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setSlipPreview({
+            type: 'image',
+            data: event.target.result
+          });
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type === 'application/pdf') {
+        setSlipPreview({
+          type: 'pdf',
+          name: file.name
+        });
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
     
     // Clear error when user starts typing
     if (errors[name]) {
@@ -61,8 +106,10 @@ const Register = () => {
       newErrors.email = 'Please enter a valid email';
     }
 
-    if (formData.phone && formData.phone.length < 10) {
+    if (formData.phone && formData.phone.length < 9) {
       newErrors.phone = 'Please enter a valid phone number';
+    } else if (formData.phone && !/^\d+$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number should only contain digits';
     }
 
     if (!formData.password) {
@@ -75,6 +122,20 @@ const Register = () => {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.specialization) {
+      newErrors.specialization = 'Please select your specialization';
+    } else if (!SPECIALIZATIONS.includes(formData.specialization)) {
+      newErrors.specialization = 'Invalid specialization selected';
+    }
+
+    if (!formData.paymentSlip) {
+      newErrors.paymentSlip = 'Payment slip is required';
+    } else if (!['image/jpeg', 'image/png', 'application/pdf'].includes(formData.paymentSlip.type)) {
+      newErrors.paymentSlip = 'Payment slip must be a PDF, JPG, or PNG file';
+    } else if (formData.paymentSlip.size > 5 * 1024 * 1024) {
+      newErrors.paymentSlip = 'Payment slip must be less than 5MB';
     }
 
     if (!formData.agreeToPolicy) {
@@ -90,31 +151,28 @@ const Register = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       setErrors({});
-      
       try {
+        const formDataToSend = new FormData();
+        formDataToSend.append('full_name', formData.full_name);
+        formDataToSend.append('email', formData.email);
+        // Combine country code with phone number
+        const fullPhone = formData.phone ? `${formData.countryCode}${formData.phone}` : '';
+        formDataToSend.append('phone', fullPhone);
+        formDataToSend.append('password', formData.password);
+        formDataToSend.append('specialization', formData.specialization);
+        formDataToSend.append('status', 'requested');
+        if (formData.paymentSlip) {
+          formDataToSend.append('paymentSlip', formData.paymentSlip);
+        }
+
         const response = await fetch('http://localhost:5000/api/auth/register', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            full_name: formData.full_name,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password
-          })
+          body: formDataToSend
         });
-
         const data = await response.json();
-
         if (response.ok && data.success) {
-          // Save token
           localStorage.setItem('heallk_token', data.token);
-          
-          // Show success message
-          setSuccessMessage('Account created successfully! Redirecting...');
-          
-          // Redirect to home page after 2 seconds
+          setSuccessMessage('Account created successfully! Your status is pending approval. Redirecting...');
           setTimeout(() => {
             navigate('/');
           }, 2000);
@@ -122,16 +180,12 @@ const Register = () => {
           throw new Error(data.message || 'Registration failed');
         }
       } catch (error) {
-        setErrors({ 
-          general: error.message || 'Registration failed. Please try again.' 
-        });
+        setErrors({ general: error.message || 'Registration failed. Please try again.' });
       } finally {
         setIsSubmitting(false);
       }
     }
   };
-
-  const navigate = useNavigate();
 
   return (
     <>
@@ -146,9 +200,7 @@ const Register = () => {
           playsInline
         >
           <source src={authVideo} type="video/mp4" />
-          {/* Fallback for browsers that don't support video */}
         </video>
-        
         <div className="auth-card">
           {/* Form Switch Buttons */}
           <div className="form-switch-container">
@@ -159,177 +211,263 @@ const Register = () => {
               Sign Up
             </div>
           </div>
-
           <div className="auth-header">
-          <h2>Create Your Account</h2>
-          <p>Join HEALlk to access quality healthcare services</p>
-        </div>
-
-        <div className="auth-form-container">
-          {/* Success Message */}
-          {successMessage && (
-            <div className="success-message">
-              ✅ {successMessage}
-            </div>
-          )}
-
-          {/* Error Message */}
-          {errors.general && (
-            <div className="error-message">
-              ❌ {errors.general}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="full_name" className="form-label">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleInputChange}
-              className={`form-input ${errors.full_name ? 'error' : ''}`}
-              placeholder="Enter your full name"
-            />
-            {errors.full_name && <span className="error-message">{errors.full_name}</span>}
+            <h2>Create Your Account</h2>
+            <p>Join HELA Lanka to access quality healthcare services</p>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="phone" className="form-label">
-              Phone Number (Optional)
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className={`form-input ${errors.phone ? 'error' : ''}`}
-              placeholder="Enter your phone number"
-            />
-            {errors.phone && <span className="error-message">{errors.phone}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              placeholder="Enter your email"
-            />
-            {errors.email && <span className="error-message">{errors.email}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <div className="password-input-wrapper">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={`form-input ${errors.password ? 'error' : ''}`}
-                placeholder="Create a password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
-              </button>
-            </div>
-            {errors.password && <span className="error-message">{errors.password}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword" className="form-label">
-              Confirm Password
-            </label>
-            <div className="password-input-wrapper">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-                placeholder="Confirm your password"
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
-              </button>
-            </div>
-            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-          </div>
-
-          <div className="form-group">
-            <div className="checkbox-wrapper">
-              <input
-                type="checkbox"
-                id="agreeToPolicy"
-                name="agreeToPolicy"
-                checked={formData.agreeToPolicy}
-                onChange={handleInputChange}
-                className={`form-checkbox ${errors.agreeToPolicy ? 'error' : ''}`}
-              />
-              <label htmlFor="agreeToPolicy" className="checkbox-label">
-                I agree to the{' '}
-                <Link to="/terms" className="policy-link">
-                  Terms and Conditions
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="policy-link">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-            {errors.agreeToPolicy && <span className="error-message">{errors.agreeToPolicy}</span>}
-          </div>
-
-          <button 
-            type="submit" 
-            className={`auth-button ${isSubmitting ? 'loading' : ''}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className="loading-spinner"></span>
-                Creating Account...
-              </>
-            ) : (
-              'Create Account'
+          <div className="auth-form-container">
+            {/* Success Message */}
+            {successMessage && (
+              <div className="success-message">
+                ✅ {successMessage}
+              </div>
             )}
-          </button>
+            {/* Error Message */}
+            {errors.general && (
+              <div className="error-message">
+                ❌ {errors.general}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="form-group">
+                <label htmlFor="full_name" className="form-label">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  className={`form-input ${errors.full_name ? 'error' : ''}`}
+                  placeholder="Enter your full name"
+                />
+                {errors.full_name && <span className="error-message">{errors.full_name}</span>}
+              </div>
 
-          <div className="auth-footer">
-            <p>
-              Already have an account?{' '}
-              <Link to="/login" className="auth-link">
-                Sign in here
-              </Link>
-            </p>
+              <div className="form-group">
+                <label htmlFor="specialization" className="form-label">
+                  Specialization
+                </label>
+                <select
+                  id="specialization"
+                  name="specialization"
+                  value={formData.specialization}
+                  onChange={handleInputChange}
+                  className={`form-input ${errors.specialization ? 'error' : ''}`}
+                >
+                  <option value="">Select specialization</option>
+                  {SPECIALIZATIONS.map(spec => (
+                    <option key={spec} value={spec}>{spec}</option>
+                  ))}
+                </select>
+                {errors.specialization && <span className="error-message">{errors.specialization}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="paymentSlip" className="form-label">
+                  Payment Slip *
+                </label>
+                <div className="file-input-wrapper">
+                  <input
+                    type="file"
+                    id="paymentSlip"
+                    name="paymentSlip"
+                    onChange={handleInputChange}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className={`form-input ${errors.paymentSlip ? 'error' : ''}`}
+                  />
+                  <span className="file-input-label">
+                    {formData.paymentSlip ? `✓ ${formData.paymentSlip.name}` : 'Choose payment slip (PDF, JPG, PNG - Max 5MB)'}
+                  </span>
+                </div>
+                {errors.paymentSlip && <span className="error-message">{errors.paymentSlip}</span>}
+                
+                {/* Payment Slip Preview */}
+                {slipPreview && (
+                  <div className="payment-slip-preview">
+                    <h4>Preview</h4>
+                    {slipPreview.type === 'image' ? (
+                      <img src={slipPreview.data} alt="Payment Slip Preview" className="preview-image" />
+                    ) : (
+                      <div className="pdf-preview">
+                        <div className="pdf-icon">📄</div>
+                        <p>{slipPreview.name}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone" className="form-label">
+                  Phone Number (Optional)
+                </label>
+                
+                <div className="phone-input-group">
+                  <select
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleInputChange}
+                    className="form-input country-code-select"
+                    style={{ maxWidth: '140px' }}
+                  >
+                    {COUNTRY_CODES.map(item => (
+                      <option key={item.code} value={item.code}>
+                        {item.code} {item.country}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`form-input ${errors.phone ? 'error' : ''}`}
+                    placeholder={
+                      COUNTRY_CODES.find(c => c.code === formData.countryCode)?.example || 
+                      'Enter phone number'
+                    }
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                
+                {/* Display full phone number preview */}
+                {formData.phone && (
+                  <div style={{ 
+                    marginTop: '8px', 
+                    fontSize: '13px', 
+                    color: '#666',
+                    padding: '8px',
+                    backgroundColor: '#f0f8ff',
+                    borderRadius: '4px'
+                  }}>
+                    📱 Full number: <strong>{formData.countryCode}{formData.phone}</strong>
+                  </div>
+                )}
+                
+                {errors.phone && <span className="error-message">{errors.phone}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`form-input ${errors.email ? 'error' : ''}`}
+                  placeholder="Enter your email"
+                />
+                {errors.email && <span className="error-message">{errors.email}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`form-input ${errors.password ? 'error' : ''}`}
+                    placeholder="Create a password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+                {errors.password && <span className="error-message">{errors.password}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword" className="form-label">
+                  Confirm Password
+                </label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                  </button>
+                </div>
+                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
+
+              <div className="form-group">
+                <div className="checkbox-wrapper">
+                  <input
+                    type="checkbox"
+                    id="agreeToPolicy"
+                    name="agreeToPolicy"
+                    checked={formData.agreeToPolicy}
+                    onChange={handleInputChange}
+                    className={`form-checkbox ${errors.agreeToPolicy ? 'error' : ''}`}
+                  />
+                  <label htmlFor="agreeToPolicy" className="checkbox-label">
+                    I agree to the{' '}
+                    <Link to="/terms" className="policy-link">
+                      Terms and Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" className="policy-link">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
+                {errors.agreeToPolicy && <span className="error-message">{errors.agreeToPolicy}</span>}
+              </div>
+
+              <button 
+                type="submit" 
+                className={`auth-button ${isSubmitting ? 'loading' : ''}`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="loading-spinner"></span>
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+
+              <div className="auth-footer">
+                <p>
+                  Already have an account?{' '}
+                  <Link to="/login" className="auth-link">
+                    Sign in here
+                  </Link>
+                </p>
+              </div>
+            </form>
           </div>
-          </form>
         </div>
       </div>
-    </div>
     </>
   );
 };
