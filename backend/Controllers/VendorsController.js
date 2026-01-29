@@ -14,7 +14,7 @@ const getVendorsByStatus = async (req, res) => {
 
     // Only fetch doctors (vendors are doctors)
     const sql = `
-      SELECT user_id, full_name, email, phone, role, specialization, status, description, payment_slip, created_at 
+      SELECT user_id, full_name, email, phone, role, specialization, status, description, payment_slip, address, district, created_at 
       FROM users 
       WHERE role = 'doctor' AND status = ? 
       ORDER BY created_at DESC
@@ -42,7 +42,7 @@ const getVendorById = async (req, res) => {
     const { id } = req.params;
 
     const sql = `
-      SELECT user_id, full_name, email, phone, role, specialization, status, description, payment_slip, created_at 
+      SELECT user_id, full_name, email, phone, role, specialization, status, description, payment_slip, address, district, created_at 
       FROM users 
       WHERE user_id = ? AND role = 'doctor'
     `;

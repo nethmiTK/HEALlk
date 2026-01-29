@@ -105,15 +105,8 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4 text-white">Contact Info</h3>
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
-                <div className="bg-green-600 p-2 rounded-full flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-green-100 text-sm">123 Healthcare Street</p>
-                  <p className="text-green-100 text-sm">Colombo 03, Sri Lanka</p>
-                </div>
+                 
+                 
               </div>
               
               <div className="flex items-center space-x-3">

@@ -18,7 +18,7 @@ const Profile = () => {
   const [profileForm, setProfileForm] = useState({
     full_name: '',
     email: '',
-    country_code: '+94',
+    country_code: '',
     phone: '',
     profile_pic: '',
     cover_photo: '',
@@ -56,7 +56,7 @@ const Profile = () => {
         setProfileForm({
           full_name: data.user.full_name || '',
           email: data.user.email || '',
-          country_code: data.user.country_code || '+94',
+          country_code: data.user.country_code || '',
           phone: data.user.phone || '',
           profile_pic: data.user.profile_pic || '',
           cover_photo: data.user.cover_photo || '',
@@ -86,10 +86,10 @@ const Profile = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Validate phone number - only allow 10 digits
+    // Validate phone number - only allow digits
     if (name === 'phone') {
+      // Remove any non-numeric characters
       const phoneValue = value.replace(/\D/g, '');
-      if (phoneValue.length > 9) return;
       setProfileForm(prev => ({
         ...prev,
         [name]: phoneValue
@@ -112,37 +112,57 @@ const Profile = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size should be less than 5MB 📁', {
-          position: "top-right",
-          autoClose: 4000,
-        });
-        return;
-      }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB 📁', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please select a valid image file 🖼️', {
-          position: "top-right",
-          autoClose: 4000,
-        });
-        return;
-      }
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file 🖼️', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    const reader = new FileReader();
+    reader.onerror = () => {
+      toast.error('Failed to read the image file ❌', {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.onloadend = () => {
+      try {
         const base64String = reader.result;
         setPreviewImage(base64String);
         setProfileForm(prev => ({
           ...prev,
           profile_pic: base64String
         }));
-      };
-      reader.readAsDataURL(file);
-    }
+        toast.success('Profile picture loaded! 📸', {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } catch (error) {
+        toast.error('Failed to process the image 🖼️', {
+          position: "top-right",
+          autoClose: 4000,
+        });
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleImageRemove = () => {
@@ -194,17 +214,10 @@ const Profile = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate phone number only if provided
-    if (profileForm.phone && profileForm.phone.length !== 10) {
-      toast.error('Phone number must be 10 digits if provided 📱', {
-        position: "top-right",
-        autoClose: 4000,
-      });
-      return;
-    }
-
-    if (!profileForm.country_code) {
-      toast.error('Please select a country code 🌍', {
+    // Validate phone number - must be at least 9 digits if provided
+    const phoneValue = (profileForm.phone || '').trim();
+    if (phoneValue.length > 0 && phoneValue.length < 9) {
+      toast.error(`Phone must have at least 9 digits (you entered ${phoneValue.length}) 📱`, {
         position: "top-right",
         autoClose: 4000,
       });
@@ -215,6 +228,9 @@ const Profile = () => {
       setSaving(true);
       const token = localStorage.getItem('heallk_token');
 
+      // Combine country code with phone number
+      const fullPhone = profileForm.phone ? `${profileForm.country_code}${profileForm.phone}` : null;
+
       const response = await fetch('http://localhost:5000/api/auth/profile', {
         method: 'PUT',
         headers: {
@@ -223,8 +239,7 @@ const Profile = () => {
         },
         body: JSON.stringify({
           full_name: profileForm.full_name,
-          country_code: profileForm.country_code,
-          phone: profileForm.phone,
+          phone: fullPhone,
           profile_pic: profileForm.profile_pic,
           cover_photo: profileForm.cover_photo,
           description: profileForm.description
@@ -330,7 +345,7 @@ const Profile = () => {
     setProfileForm({
       full_name: user?.full_name || '',
       email: user?.email || '',
-      country_code: user?.country_code || '+94',
+      country_code: user?.country_code || '',
       phone: user?.phone || '',
       profile_pic: user?.profile_pic || '',
       cover_photo: user?.cover_photo || '',
@@ -392,9 +407,16 @@ const Profile = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:scale-105 transition-transform" 
-                     onClick={isEditing ? () => fileInputRef.current?.click() : (user?.profile_pic ? handleImageRemove : null)}
-                     style={{ cursor: isEditing ? 'pointer' : (user?.profile_pic ? 'pointer' : 'default') }}
-                     title={isEditing ? 'Click to change profile picture' : (user?.profile_pic ? 'Click to remove profile picture' : `${user?.full_name || 'User'}'s initial`)}>
+                     onClick={(e) => {
+                       e.preventDefault();
+                       if (isEditing) {
+                         fileInputRef.current?.click();
+                       } else if (previewImage || user?.profile_pic) {
+                         handleImageRemove();
+                       }
+                     }}
+                     style={{ cursor: isEditing || previewImage || user?.profile_pic ? 'pointer' : 'default' }}
+                     title={isEditing ? 'Click to upload profile picture' : (previewImage || user?.profile_pic ? 'Click to remove profile picture' : '')}>
                   {user?.profile_pic || previewImage ? (
                     <img 
                       src={previewImage || user.profile_pic} 
@@ -528,6 +550,7 @@ const Profile = () => {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     >
+                      <option value="">-- Select Country Code (Optional) --</option>
                       <option value="+94">🇱🇰 Sri Lanka (+94)</option>
                       <option value="+1">🇺🇸 United States (+1)</option>
                       <option value="+44">🇬🇧 United Kingdom (+44)</option>
@@ -539,6 +562,9 @@ const Profile = () => {
                       <option value="+60">🇲🇾 Malaysia (+60)</option>
                       <option value="+66">🇹🇭 Thailand (+66)</option>
                     </select>
+                    <small className="text-xs text-gray-500 mt-2 block">
+                      💡 Country code is optional - leave blank if not needed
+                    </small>
                   </div>
 
                   <div>
@@ -555,13 +581,12 @@ const Profile = () => {
                         value={profileForm.phone}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        placeholder="Enter 10-digit phone number"
-                        maxLength="10"
+                        placeholder="Enter phone number (9+ digits)"
                         inputMode="numeric"
                       />
                     </div>
                     <small className="text-xs text-gray-500 mt-2 block">
-                      🔢 Phone number must be exactly 10 digits
+                      🔢 Phone number must have at least 9 digits (or leave blank)
                     </small>
                   </div>
 

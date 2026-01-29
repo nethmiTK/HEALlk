@@ -8,10 +8,25 @@ const SPECIALIZATIONS = [
   { id: 3, name: 'Wellness & Lifestyle Consultants', icon: '🧘', color: 'from-purple-600 to-pink-600' },
 ];
 
-const SpecializationFilter = ({ selectedSpecialization, onSpecializationChange, searchTerm, onSearchChange }) => {
+const SRI_LANKA_DISTRICTS = [
+  'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo', 'Galle',
+  'Gampaha', 'Jaffna', 'Kalutara', 'Kandy', 'Kegalle', 'Kilinochchi',
+  'Kurunegala', 'Madurai', 'Mannar', 'Matara', 'Maturai', 'Monaragala',
+  'Mullaitivu', 'Nuwara Eliya', 'Polonnaruwa', 'Puttalam', 'Ratnapura',
+  'Ruwanella', 'Trincomalee', 'Vavuniya'
+];
+
+const SpecializationFilter = ({ 
+  selectedSpecialization, 
+  onSpecializationChange, 
+  selectedDistrict,
+  onDistrictChange,
+  searchTerm, 
+  onSearchChange 
+}) => {
   return (
     <div className="specialization-filter">
-      <h3 className="filter-title">Filter by Specialization</h3>
+      <h3 className="filter-title">Filter Doctors</h3>
       
       {/* Search Input */}
       <div className="search-input-wrapper">
@@ -26,35 +41,76 @@ const SpecializationFilter = ({ selectedSpecialization, onSpecializationChange, 
       
       <div className="filter-options">
         {/* Specialization options */}
-        {SPECIALIZATIONS.map((spec) => (
-          <motion.button
-            key={spec.id}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onSpecializationChange(spec.name)}
-            className={`filter-btn spec-btn ${selectedSpecialization === spec.name ? 'active' : ''}`}
+        <div className="filter-section">
+          <h4 className="filter-section-title">By Specialization</h4>
+          <div className="filter-buttons-group">
+            {SPECIALIZATIONS.map((spec) => (
+              <motion.button
+                key={spec.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onSpecializationChange(spec.name)}
+                className={`filter-btn spec-btn ${selectedSpecialization === spec.name ? 'active' : ''}`}
+              >
+                <span className="filter-icon">{spec.icon}</span>
+                <span className="filter-label">{spec.name}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* District Filter */}
+        <div className="filter-section">
+          <h4 className="filter-section-title">By District</h4>
+          <select
+            value={selectedDistrict || ''}
+            onChange={(e) => onDistrictChange(e.target.value || null)}
+            className="district-filter-select"
           >
-            <span className="filter-icon">{spec.icon}</span>
-            <span className="filter-label">{spec.name}</span>
-          </motion.button>
-        ))}
+            <option value="">All Districts</option>
+            {SRI_LANKA_DISTRICTS.map((district) => (
+              <option key={district} value={district}>
+                📍 {district}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {selectedSpecialization && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="active-filter-tag"
-        >
-          <span>Filtering by: <strong>{selectedSpecialization}</strong></span>
-          <button 
-            onClick={() => onSpecializationChange(null)}
-            className="clear-filter-btn"
+      {/* Active Filters Display */}
+      <div className="active-filters">
+        {selectedSpecialization && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="filter-tag spec-tag"
           >
-            ✕
-          </button>
-        </motion.div>
-      )}
+            <span>📚 {selectedSpecialization}</span>
+            <button 
+              onClick={() => onSpecializationChange(null)}
+              className="clear-filter-btn"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+        
+        {selectedDistrict && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="filter-tag district-tag"
+          >
+            <span>📍 {selectedDistrict}</span>
+            <button 
+              onClick={() => onDistrictChange(null)}
+              className="clear-filter-btn"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };

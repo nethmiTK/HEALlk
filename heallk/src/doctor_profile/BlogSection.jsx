@@ -9,9 +9,20 @@ const BlogSection = ({ doctorId }) => {
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [likedBlogs, setLikedBlogs] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [doctorName, setDoctorName] = useState('');
 
   useEffect(() => {
-    fetchBlogs();
+    if (doctorId) {
+      // Check if doctorId is a number or a name
+      if (isNaN(doctorId)) {
+        // It's a doctor name, fetch doctor by name first
+        fetchDoctorByName(doctorId);
+      } else {
+        // It's a numeric ID
+        fetchBlogs(doctorId);
+        fetchDoctorNameById(doctorId);
+      }
+    }
   }, [doctorId]);
 
   useEffect(() => {
@@ -28,9 +39,28 @@ const BlogSection = ({ doctorId }) => {
     }
   }, [searchQuery, blogs]);
 
-  const fetchBlogs = async () => {
+  const fetchDoctorByName = async (doctorName) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/public/blogs/doctor/${doctorId}`);
+      const response = await fetch(`${API_BASE_URL}/public/doctors/by-name/${encodeURIComponent(doctorName)}`);
+      const data = await response.json();
+      if (data.success && data.doctor) {
+        const actualDoctorId = data.doctor.user_id;
+        setDoctorName(data.doctor.full_name || doctorName);
+        // Fetch blogs with the actual ID
+        fetchBlogs(actualDoctorId);
+      } else {
+        console.error('Doctor not found:', doctorName);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching doctor by name:', error);
+      setLoading(false);
+    }
+  };;
+
+  const fetchBlogs = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/public/blogs/doctor/${id}`);
       const data = await response.json();
       if (data.success) {
         setBlogs(data.blogs);
@@ -41,6 +71,18 @@ const BlogSection = ({ doctorId }) => {
       console.error('Error fetching blogs:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDoctorNameById = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
+      const data = await response.json();
+      if (data.success && data.doctor) {
+        setDoctorName(data.doctor.full_name || '');
+      }
+    } catch (error) {
+      console.error('Error fetching doctor name:', error);
     }
   };
 
@@ -91,17 +133,26 @@ const BlogSection = ({ doctorId }) => {
       onClick={onClick}
       className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
     >
-      {blog.image && (
-        <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
+      {blog.image ? (
+        <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden bg-gray-100">
           <img
             src={blog.image}
             alt={blog.title}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-            onError={(e) => e.target.src = 'https://via.placeholder.com/600x400?text=Medical+Article'}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              if (e.target.parentElement) {
+                e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600"><span class="text-3xl">📷</span></div>';
+              }
+            }}
           />
           <div className="absolute top-4 right-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
             {formatDate(blog.created_at)}
           </div>
+        </div>
+      ) : (
+        <div className="h-40 sm:h-48 md:h-56 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+          <span className="text-5xl">📷</span>
         </div>
       )}
       
@@ -136,74 +187,126 @@ const BlogSection = ({ doctorId }) => {
     </motion.div>
   );
 
-  const BlogModal = ({ blog, onClose }) => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/40 bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-      onClick={onClose}
-    >
+  const BlogModal = ({ blog, onClose }) => {
+    const handleDownload = () => {
+      const element = document.createElement('a');
+      const file = new Blob([`${blog.title}\n\n${blog.content}`], {type: 'text/plain'});
+      element.href = URL.createObjectURL(file);
+      element.download = `${blog.title.replace(/\s+/g, '_')}.txt`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    };
+
+    return (
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-2xl max-w-4xl w-full my-8 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+        onClick={onClose}
       >
-        {blog.image && (
-          <div className="relative h-80 overflow-hidden rounded-t-2xl">
-            <img
-              src={blog.image}
-              alt={blog.title}
-              className="w-full h-full object-cover"
-              onError={(e) => e.target.src = 'https://via.placeholder.com/800x600?text=Medical+Article'}
-            />
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-        
-        <div className="p-8 max-h-[600px] overflow-y-auto">
-          {!blog.image && (
-            <button
-              onClick={onClose}
-              className="float-right bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors"
-            >
-              ✕
-            </button>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-2xl w-full max-w-2xl sm:max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header with image */}
+          {blog.image ? (
+            <div className="relative h-48 sm:h-72 overflow-hidden bg-gray-100">
+              <img
+                src={blog.image}
+                alt={blog.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  if (e.target.parentElement) {
+                    e.target.parentElement.innerHTML = '<div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600"><span class="text-5xl">📷</span></div>';
+                  }
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+              <button
+                onClick={onClose}
+                className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-white hover:bg-gray-100 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg transition-colors text-lg sm:text-xl"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div className="h-16 sm:h-20 bg-gradient-to-r from-green-50 to-emerald-50 flex items-center justify-between px-4 sm:px-8 border-b border-gray-100">
+              <button
+                onClick={onClose}
+                className="bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center transition-colors text-lg sm:text-xl"
+              >
+                ✕
+              </button>
+            </div>
           )}
-          
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            {blog.title}
-          </h2>
-          
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-6 pb-6 border-b border-gray-200">
-            <span>📅 {formatDate(blog.created_at)}</span>
-            <button
-              onClick={(e) => toggleLike(blog.blog_id, e)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-                likedBlogs[blog.blog_id] 
-                  ? 'bg-red-50 text-red-500 hover:bg-red-100' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              <span className="text-xl">{likedBlogs[blog.blog_id] ? '❤️' : '🤍'}</span>
-              <span className="font-semibold">{blog.likes || 0} Likes</span>
-            </button>
+
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+              {blog.title}
+            </h2>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-gray-200">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500">
+                <span className="flex items-center gap-1">📅 {formatDate(blog.created_at)}</span>
+                <span className="flex items-center gap-1">👁️ {blog.views || 0} views</span>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                <button
+                  onClick={(e) => toggleLike(blog.blog_id, e)}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition-all text-sm font-semibold ${
+                    likedBlogs[blog.blog_id] 
+                      ? 'bg-red-50 text-red-500 hover:bg-red-100' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{likedBlogs[blog.blog_id] ? '❤️' : '🤍'}</span>
+                  <span className="hidden sm:inline">{blog.likes || 0}</span>
+                </button>
+
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-full transition-all text-sm font-semibold"
+                  title="Download article as text file"
+                >
+                  <span>⬇️</span>
+                  <span className="hidden sm:inline">Download</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Summary */}
+            {blog.summary && (
+              <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                <p className="text-sm sm:text-base text-green-900 italic font-medium">{blog.summary}</p>
+              </div>
+            )}
+            
+            {/* Main content */}
+            <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-700 leading-relaxed sm:leading-8 whitespace-pre-wrap">
+                {blog.content}
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-200">
+              <p className="text-xs sm:text-sm text-gray-500 italic">
+                Last updated: {formatDate(blog.updated_at || blog.created_at)}
+              </p>
+            </div>
           </div>
-          
-          <div className="prose prose-lg max-w-none">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{blog.content}</p>
-          </div>
-        </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -237,7 +340,9 @@ const BlogSection = ({ doctorId }) => {
         <h2 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
           Blog Articles
         </h2>
-        <p className="text-gray-600">Insights and knowledge from our medical expert</p>
+        <p className="text-gray-600">
+          {doctorName ? `Insights and knowledge from Dr. ${doctorName}` : 'Insights and knowledge from our medical expert'}
+        </p>
       </motion.div>
 
       {/* Search Bar */}

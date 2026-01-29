@@ -108,86 +108,124 @@ const Home = () => {
       <Navbar />
       
     <section className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-800 via-amber-600 to-orange-500">
-         <div className="absolute inset-0 w-full h-full">
-          {heroImages.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  console.log(`Error loading image ${index + 1}:`, e);
-                  e.target.style.display = 'none';
-                }}
-              />
-              {/* Gradient overlay for better text readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"></div>
-            </div>
-          ))}
-        </div>
+      {/* Animated Background Images with smooth transitions */}
+      <div className="absolute inset-0 w-full h-full">
+        {heroImages.map((image, index) => (
+          <motion.div
+            key={index}
+            className="absolute inset-0 w-full h-full"
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: index === currentImageIndex ? 1 : 0,
+            }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          >
+            <img
+              src={image.src}
+              alt={image.alt}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                console.log(`Error loading image ${index + 1}:`, e);
+                e.target.style.display = 'none';
+              }}
+            />
+            {/* Animated gradient overlay */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60"
+              initial={{ opacity: 0.4 }}
+              animate={{ opacity: index === currentImageIndex ? 0.6 : 0.4 }}
+              transition={{ duration: 1 }}
+            />
+          </motion.div>
+        ))}
+      </div>
 
-        <div className="relative z-10 px-4 w-full h-full flex items-center">
-          <div className="w-full flex justify-end">
-            <div className="text-right pr-8 md:pr-16 lg:pr-20">
-              <motion.h1
-                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl"
-                style={{ fontFamily: 'Playfair Display, serif' }}
-                initial={{ opacity: 0, y: 60 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1, type: 'spring', stiffness: 80 }}
-              >
-                Panchkarma
-              </motion.h1>
-              <motion.h2
-                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl"
-                style={{ fontFamily: 'Playfair Display, serif' }}
-                initial={{ opacity: 0, y: 60 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, type: 'spring', stiffness: 80 }}
-              >
-                Treatment
-              </motion.h2>
-              <motion.p
-                className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-lg"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5, type: 'spring', stiffness: 80 }}
-              >
-                Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices
-              </motion.p>
-              <motion.button
-                onClick={() => {
-                  const doctorsSection = document.getElementById('doctors');
-                  if (doctorsSection) doctorsSection.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl hover:bg-white"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{
-                  opacity: 1,
-                  y: [0, -10, 0],
-                  boxShadow: [
-                    '0 2px 8px rgba(16,185,129,0.15)',
-                    '0 12px 32px rgba(16,185,129,0.25)',
-                    '0 2px 8px rgba(16,185,129,0.15)'
-                  ]
-                }}
-                transition={{
+      {/* Slide Indicators */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+        {heroImages.map((_, index) => (
+          <motion.button
+            key={index}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              index === currentImageIndex
+                ? 'bg-white w-8'
+                : 'bg-white/40 w-2 hover:bg-white/60'
+            }`}
+            onClick={() => setCurrentImageIndex(index)}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
+          />
+        ))}
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 px-4 w-full h-full flex items-center">
+        <div className="w-full flex justify-end">
+          <motion.div 
+            className="text-right pr-8 md:pr-16 lg:pr-20 max-w-2xl"
+            key={currentImageIndex}
+          >
+            {/* Animated Title 1 */}
+            <motion.h1
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+              initial={{ opacity: 0, y: 60, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.1, type: 'spring', stiffness: 80 }}
+            >
+              Panchkarma
+            </motion.h1>
+
+            {/* Animated Title 2 */}
+            <motion.h2
+              className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+              initial={{ opacity: 0, y: 60, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3, type: 'spring', stiffness: 80 }}
+            >
+              Treatment
+            </motion.h2>
+
+            {/* Animated Description */}
+            <motion.p
+              className="text-base md:text-lg lg:text-xl text-white/95 mb-8 leading-relaxed drop-shadow-lg"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5, type: 'spring', stiffness: 80 }}
+            >
+              Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices
+            </motion.p>
+
+            {/* Animated CTA Button */}
+            <motion.button
+              onClick={() => {
+                const doctorsSection = document.getElementById('doctors');
+                if (doctorsSection) doctorsSection.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="bg-white/95 text-gray-800 px-8 py-4 rounded-full text-base md:text-lg font-semibold shadow-2xl hover:shadow-3xl hover:bg-white"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{
+                opacity: 1,
+                y: [0, -10, 0],
+              }}
+              transition={{
+                opacity: { duration: 0.8, delay: 0.7 },
+                y: {
                   duration: 2,
                   repeat: Infinity,
                   repeatType: 'loop',
-                  ease: 'easeInOut'
-                }}
-              >
-                Explore Doctors
-              </motion.button>
-            </div>
-          </div>
+                  ease: 'easeInOut',
+                  delay: 0.7
+                }
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Explore Doctors
+            </motion.button>
+          </motion.div>
         </div>
+      </div>
     </section>
 
      <section>
@@ -261,8 +299,14 @@ const Home = () => {
                       <h3 className="text-xl font-bold mb-3 text-gray-800" style={{fontFamily: 'Playfair Display, serif'}}>{doctor.name}</h3>
                       <p className="text-gray-600 text-lg mb-4">📞 {doctor.phone}</p>
                       <button 
-                        onClick={() => navigate(`/doctor-profile/${doctor.id}`)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 w-full"
+                        onClick={() => {
+                          if (doctor.id) {
+                            navigate(`/doctor-profile/${doctor.id}`);
+                          } else {
+                            console.error('Doctor ID not found');
+                          }
+                        }}
+                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 w-full cursor-pointer"
                       >
                         Book Appointment
                       </button>

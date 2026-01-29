@@ -11,6 +11,7 @@ exports.getVerifiedDoctors = async (req, res) => {
         u.phone,
         u.profile_pic,
         u.specialization,
+        u.district,
         u.created_at,
         GROUP_CONCAT(DISTINCT c.clinic_name) as clinic_names,
         GROUP_CONCAT(DISTINCT c.city) as cities,
@@ -31,6 +32,7 @@ exports.getVerifiedDoctors = async (req, res) => {
       phone: doctor.phone,
       profilePic: doctor.profile_pic,
       specialization: doctor.specialization,
+      district: doctor.district,
       clinics: doctor.clinic_names ? doctor.clinic_names.split(',') : [],
       cities: doctor.cities ? doctor.cities.split(',') : [],
       clinicCount: doctor.clinic_count || 0,
@@ -50,7 +52,7 @@ exports.getDoctorProfile = async (req, res) => {
     const doctorId = req.params.id;
     
     // Get doctor basic info
-    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE user_id = ? AND role = 'doctor' AND status = 'accepted'`;
+    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE user_id = ? AND role = 'doctor' AND status = 'active'`;
     const doctorResult = await query(doctorSql, [doctorId]);
     
     if (doctorResult.length === 0) {
@@ -118,13 +120,33 @@ exports.getDoctorProfile = async (req, res) => {
   }
 };
 
+// GET doctor basic info by name (simple version for blog lookup)
+exports.getDoctorBasicByName = async (req, res) => {
+  try {
+    const doctorName = req.params.name;
+    
+    const doctorSql = `SELECT user_id, full_name FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'active'`;
+    const doctorResult = await query(doctorSql, [doctorName]);
+    
+    if (doctorResult.length === 0) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+    
+    const doctor = doctorResult[0];
+    res.json({ success: true, doctor: { user_id: doctor.user_id, full_name: doctor.full_name } });
+  } catch (err) {
+    console.error('Error fetching doctor by name:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch doctor' });
+  }
+};
+
 // GET doctor profile by name
 exports.getDoctorByName = async (req, res) => {
   try {
     const doctorName = req.params.name;
     
     // Get doctor basic info by name
-    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'accepted'`;
+    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'active'`;
     const doctorResult = await query(doctorSql, [doctorName]);
     
     if (doctorResult.length === 0) {

@@ -28,8 +28,14 @@ const Services = ({ doctor, onBookNow }) => {
       const data = await response.json();
       
       if (data.success) {
+        console.log('🔍 Services fetched:', data.services);
+        console.log('📊 Service count:', data.services.length);
+        data.services.forEach((s, i) => {
+          console.log(`  Service ${i}: id=${s.id}, title=${s.title}, image=${s.image || 'NULL'}`);
+        });
         setServices(data.services);
       } else {
+        console.warn('API returned success=false:', data);
         setServices([]);
       }
     } catch (error) {
@@ -38,6 +44,16 @@ const Services = ({ doctor, onBookNow }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to construct full image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/')) {
+      return `http://localhost:5000${imagePath}`;
+    }
+    return `http://localhost:5000/uploads/service/${imagePath}`;
   };
 
   if (loading) {
@@ -73,33 +89,55 @@ const Services = ({ doctor, onBookNow }) => {
       {filteredServices.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-3 sm:gap-6">
           {filteredServices.map((service) => (
-            <div key={service.id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
-                <h3 className="text-base sm:text-lg font-semibold text-green-600">{service.title || 'Service'}</h3>
-                <span className="text-lg sm:text-xl font-bold text-gray-800">Rs. {service.price || '0'}</span>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-2">
-                <p className="text-sm text-gray-500">Duration: {service.duration || 'N/A'}</p>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                  {service.category || 'General'}
-                </span>
-              </div>
-              {service.service_for && (
-                <p className="text-sm text-blue-600 mb-2">
-                  <strong>Service for:</strong> {service.service_for}
-                </p>
-              )}
-              <p className="text-gray-700 mb-3">{service.description || 'No description available'}</p>
-              <div className="flex gap-2">
-                <button 
-                  onClick={onBookNow}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm"
-                >
-                  Book Now
-                </button>
-                <button className="border border-green-500 text-green-500 px-4 py-2 rounded hover:bg-green-50 text-sm">
-                  More Info
-                </button>
+            <div key={service.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
+              {/* Service Image */}
+              {service.image ? (
+                <div className="relative h-40 sm:h-48 w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                  <img 
+                    src={getImageUrl(service.image)} 
+                    alt={service.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      console.warn('Image failed to load:', getImageUrl(service.image));
+                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%23e5e7eb" width="400" height="300"/><text x="200" y="150" font-size="80" text-anchor="middle" dominant-baseline="middle">📷</text></svg>';
+                    }}
+                  />
+                </div>
+              ) : null}
+              
+              {/* Service Content */}
+              <div className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-1 sm:gap-0">
+                  <h3 className="text-base sm:text-lg font-semibold text-green-600">{service.title || 'Service'}</h3>
+                  <span className="text-lg sm:text-xl font-bold text-gray-800">LKR {service.price || '0'}</span>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
+                  <p className="text-sm text-gray-500">⏱️ {service.duration || 'N/A'}</p>
+                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full w-fit">
+                    {service.category || 'General'}
+                  </span>
+                </div>
+                
+                {service.service_for && (
+                  <p className="text-sm text-blue-600 mb-2">
+                    <strong>Service for:</strong> {service.service_for}
+                  </p>
+                )}
+                
+                <p className="text-sm text-gray-700 mb-4 line-clamp-2">{service.description || 'No description available'}</p>
+                
+                <div className="flex gap-2">
+                  <button 
+                    onClick={onBookNow}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium transition-colors flex-1"
+                  >
+                    Book Now
+                  </button>
+                  <button className="border border-green-500 text-green-500 px-4 py-2 rounded-lg hover:bg-green-50 text-sm font-medium transition-colors flex-1">
+                    More Info
+                  </button>
+                </div>
               </div>
             </div>
           ))}

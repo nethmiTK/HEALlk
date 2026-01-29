@@ -11,6 +11,14 @@ const Register = () => {
     'Wellness & Lifestyle Consultants'
   ];
 
+  const SRI_LANKA_DISTRICTS = [
+    'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa', 'Colombo', 'Galle',
+    'Gampaha', 'Jaffna', 'Kalutara', 'Kandy', 'Kegalle', 'Kilinochchi',
+    'Kurunegala', 'Madurai', 'Mannar', 'Matara', 'Maturai', 'Monaragala',
+    'Mullaitivu', 'Nuwara Eliya', 'Polonnaruwa', 'Puttalam', 'Ratnapura',
+    'Ruwanella', 'Trincomalee', 'Vavuniya'
+  ];
+
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -20,6 +28,8 @@ const Register = () => {
     confirmPassword: '',
     agreeToPolicy: false,
     specialization: '',
+    address: '',
+    district: '',
     paymentSlip: null
   });
 
@@ -130,6 +140,14 @@ const Register = () => {
       newErrors.specialization = 'Invalid specialization selected';
     }
 
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+
+    if (!formData.district) {
+      newErrors.district = 'Please select your district';
+    }
+
     if (!formData.paymentSlip) {
       newErrors.paymentSlip = 'Payment slip is required';
     } else if (!['image/jpeg', 'image/png', 'application/pdf'].includes(formData.paymentSlip.type)) {
@@ -160,6 +178,8 @@ const Register = () => {
         formDataToSend.append('phone', fullPhone);
         formDataToSend.append('password', formData.password);
         formDataToSend.append('specialization', formData.specialization);
+        formDataToSend.append('address', formData.address);
+        formDataToSend.append('district', formData.district);
         formDataToSend.append('status', 'requested');
         if (formData.paymentSlip) {
           formDataToSend.append('paymentSlip', formData.paymentSlip);
@@ -241,6 +261,7 @@ const Register = () => {
                   onChange={handleInputChange}
                   className={`form-input ${errors.full_name ? 'error' : ''}`}
                   placeholder="Enter your full name"
+                  autoComplete="name"
                 />
                 {errors.full_name && <span className="error-message">{errors.full_name}</span>}
               </div>
@@ -262,6 +283,42 @@ const Register = () => {
                   ))}
                 </select>
                 {errors.specialization && <span className="error-message">{errors.specialization}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="address" className="form-label">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className={`form-input ${errors.address ? 'error' : ''}`}
+                  placeholder="Enter your full address"
+                  autoComplete="street-address"
+                />
+                {errors.address && <span className="error-message">{errors.address}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="district" className="form-label">
+                  District
+                </label>
+                <select
+                  id="district"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleInputChange}
+                  className={`form-input ${errors.district ? 'error' : ''}`}
+                >
+                  <option value="">Select district</option>
+                  {SRI_LANKA_DISTRICTS.map(dist => (
+                    <option key={dist} value={dist}>{dist}</option>
+                  ))}
+                </select>
+                {errors.district && <span className="error-message">{errors.district}</span>}
               </div>
 
               <div className="form-group">
@@ -363,6 +420,7 @@ const Register = () => {
                   onChange={handleInputChange}
                   className={`form-input ${errors.email ? 'error' : ''}`}
                   placeholder="Enter your email"
+                  autoComplete="email"
                 />
                 {errors.email && <span className="error-message">{errors.email}</span>}
               </div>
@@ -380,6 +438,7 @@ const Register = () => {
                     onChange={handleInputChange}
                     className={`form-input ${errors.password ? 'error' : ''}`}
                     placeholder="Create a password"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -405,6 +464,7 @@ const Register = () => {
                     onChange={handleInputChange}
                     className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
                     placeholder="Confirm your password"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"

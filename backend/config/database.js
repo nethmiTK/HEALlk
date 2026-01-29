@@ -154,6 +154,7 @@ const createTables = async () => {
         price DECIMAL(10,2),
         category VARCHAR(100),
         media_urls JSON,
+        image LONGTEXT,
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -162,6 +163,15 @@ const createTables = async () => {
         INDEX idx_services_created_at (created_at)
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
     `);
+
+    // Add image column to existing services table if it doesn't exist
+    try {
+      await connection.execute(`
+        ALTER TABLE services ADD COLUMN image LONGTEXT
+      `);
+    } catch (e) {
+      // Column already exists, that's fine
+    }
 
     // Blogs table
     await connection.execute(`

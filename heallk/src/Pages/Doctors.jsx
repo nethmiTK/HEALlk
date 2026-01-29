@@ -15,6 +15,7 @@ const Doctors = () => {
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSpecialization, setSelectedSpecialization] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   
@@ -44,13 +45,18 @@ const Doctors = () => {
     loadDoctors();
   }, []);
 
-  // Filter doctors by specialization and search term
+  // Filter doctors by specialization, district and search term
   useEffect(() => {
     let filtered = doctors;
     
     // Filter by specialization
     if (selectedSpecialization) {
       filtered = filtered.filter(doc => doc.specialization === selectedSpecialization);
+    }
+    
+    // Filter by district
+    if (selectedDistrict) {
+      filtered = filtered.filter(doc => doc.district === selectedDistrict);
     }
     
     // Filter by search term
@@ -62,7 +68,7 @@ const Doctors = () => {
     }
     
     setFilteredDoctors(filtered);
-  }, [selectedSpecialization, doctors, searchTerm]);
+  }, [selectedSpecialization, selectedDistrict, doctors, searchTerm]);
 
   // Auto-slide effect - changes image every 8 seconds
   useEffect(() => {
@@ -171,6 +177,8 @@ const Doctors = () => {
             <SpecializationFilter 
               selectedSpecialization={selectedSpecialization}
               onSpecializationChange={setSelectedSpecialization}
+              selectedDistrict={selectedDistrict}
+              onDistrictChange={setSelectedDistrict}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
             />
@@ -251,11 +259,20 @@ const Doctors = () => {
                         </motion.div>
                       )}
                       
+                      {/* District Badge */}
+                      {doctor.district && (
+                        <div className="mb-3">
+                          <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+                            📍 {doctor.district}
+                          </span>
+                        </div>
+                      )}
+                      
                       <p className="text-gray-600 text-lg mb-4">📞 {doctor.phone}</p>
                       <motion.button 
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => navigate(`/doctor/${encodeURIComponent(doctor.full_name)}`)}
+                        onClick={() => navigate(`/doctor/${encodeURIComponent(doctor.name || doctor.full_name)}`)}
                         className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 w-full"
                       >
                         Book Appointment

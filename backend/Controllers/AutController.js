@@ -5,7 +5,7 @@ require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET || 'heallk_secret_key_2025';
 
 const validateRegistrationData = (data) => {
-  const { full_name, email, password, phone, role, specialization } = data;
+  const { full_name, email, password, phone, role, specialization, address, district } = data;
   const errors = [];
 
   if (!full_name?.trim()) errors.push('Full name is required');
@@ -20,8 +20,21 @@ const validateRegistrationData = (data) => {
     errors.push('Password must be at least 8 characters long');
   }
   
-  if (phone && phone.length < 10) {
-    errors.push('Please enter a valid phone number');
+  if (phone) {
+    // Remove all non-digit characters for validation
+    const digitsOnly = phone.replace(/\D/g, '');
+    // Accept phone numbers with at least 9 digits (flexible format)
+    if (digitsOnly.length < 9) {
+      errors.push('Phone number must have at least 9 digits');
+    }
+  }
+
+  if (!address?.trim()) {
+    errors.push('Address is required');
+  }
+
+  if (!district?.trim()) {
+    errors.push('District is required');
   }
 
   // Require specialization for all users
@@ -38,11 +51,23 @@ const validateRegistrationData = (data) => {
 // Register Controller
 const register = async (req, res) => {
   try {
-    const { full_name, email, password, phone, role = 'doctor', specialization, status = 'requested' } = req.body;
+    console.log('📝 Register endpoint hit');
+    console.log('Request body keys:', Object.keys(req.body));
+    console.log('Request file:', req.file ? `${req.file.filename} (${req.file.size} bytes)` : 'No file');
+    
+    const { full_name, email, password, phone, role = 'doctor', specialization, address, district, status = 'requested' } = req.body;
     const paymentSlip = req.file;
     
-    console.log('Registration attempt:', { full_name, email, phone, specialization, status });
-    console.log('File upload info:', paymentSlip ? { filename: paymentSlip.filename, size: paymentSlip.size } : 'No file');
+    console.log('📥 Extracted data:', { 
+      full_name: full_name ? 'provided' : 'missing',
+      email: email ? 'provided' : 'missing',
+      password: password ? 'provided' : 'missing',
+      phone: phone ? 'provided' : 'missing',
+      specialization: specialization ? 'provided' : 'missing',
+      address: address ? 'provided' : 'missing',
+      district: district ? 'provided' : 'missing',
+      paymentSlip: paymentSlip ? 'provided' : 'missing'
+    });
     
     const validationErrors = validateRegistrationData(req.body);
     if (validationErrors.length > 0) {
@@ -82,13 +107,17 @@ const register = async (req, res) => {
     // Generate payment slip path
     const paymentSlipPath = `/uploads/payment-slips/${Date.now()}-${paymentSlip.filename}`;
     
+    // Ensure address and district have default values if not provided
+    const addressValue = address ? address.trim() : '';
+    const districtValue = district || '';
+    
     const insertResult = await query(
-      'INSERT INTO users (full_name, email, password, phone, role, specialization, status, payment_slip, payment_slip_uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-      [full_name.trim(), email.toLowerCase().trim(), hashedPassword, phone || null, role, specialization || null, status, paymentSlipPath]
+      'INSERT INTO users (full_name, email, password, phone, role, specialization, address, district, status, payment_slip, payment_slip_uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+      [full_name.trim(), email.toLowerCase().trim(), hashedPassword, phone || null, role, specialization || null, addressValue, districtValue, status, paymentSlipPath]
     );
 
     const [newUser] = await query(
-      'SELECT user_id, full_name, email, phone, role, specialization, status, payment_slip, created_at FROM users WHERE user_id = ?',
+      'SELECT user_id, full_name, email, phone, role, specialization, address, district, status, payment_slip, created_at FROM users WHERE user_id = ?',
       [insertResult.insertId]
     );
 
@@ -102,10 +131,12 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('❌ Registration error:', error.message);
+    console.error('Error details:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error. Please try again later.'
+      message: 'Internal server error. Please try again later.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -209,11 +240,16 @@ const updateProfile = async (req, res) => {
       userId 
     });
 
-    if (phone && phone.length < 10) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please enter a valid phone number'
-      });
+    if (phone) {
+      // Remove all non-digit characters for validation
+      const digitsOnly = phone.replace(/\D/g, '');
+      // Accept phone numbers with at least 10 digits (flexible format)
+      if (digitsOnly.length < 10) {
+        return res.status(400).json({
+          success: false,
+          message: 'Phone number must have at least 10 digits'
+        });
+      }
     }
 
     const updateResult = await query(

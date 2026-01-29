@@ -8,6 +8,7 @@ const Blogs = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -96,7 +97,33 @@ const Blogs = () => {
       summary: blog.summary || '',
       is_published: blog.is_published === 1
     });
+    setImagePreview(blog.image || '');
     setShowForm(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      setImagePreview(base64String);
+      setFormData({ ...formData, image: base64String });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleDelete = async (blogId) => {
@@ -219,22 +246,24 @@ const Blogs = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
+                Blog Image
               </label>
               <input
-                type="text"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="https://example.com/image.jpg"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer"
               />
-              {formData.image && (
-                <img 
-                  src={formData.image} 
-                  alt="Preview" 
-                  className="mt-2 w-full h-48 object-cover rounded-lg"
-                  onError={(e) => e.target.style.display = 'none'}
-                />
+              <p className="text-xs text-gray-500 mt-1">Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+              {imagePreview && (
+                <div className="mt-3">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Preview:</p>
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-full h-48 object-cover rounded-lg border-2 border-green-200"
+                  />
+                </div>
               )}
             </div>
 
@@ -303,14 +332,35 @@ const Blogs = () => {
           filteredBlogs.map((blog) => (
             <div key={blog.blog_id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="md:flex">
-                {blog.image && (
-                  <div className="md:w-1/3">
-                    <img 
-                      src={blog.image} 
-                      alt={blog.title}
-                      className="w-full h-48 md:h-full object-cover"
-                      onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'}
-                    />
+                {blog.image ? (
+                  <div className="md:w-1/3 bg-gray-100 flex items-center justify-center">
+                    {blog.image.startsWith('data:') ? (
+                      // Base64 image
+                      <img 
+                        src={blog.image} 
+                        alt={blog.title}
+                        className="w-full h-48 md:h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-48 md:h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600 text-sm">📷 Image unavailable</div>';
+                        }}
+                      />
+                    ) : (
+                      // URL image
+                      <img 
+                        src={blog.image} 
+                        alt={blog.title}
+                        className="w-full h-48 md:h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-full h-48 md:h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600 text-sm">📷 Image unavailable</div>';
+                        }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="md:w-1/3 bg-gradient-to-br from-gray-200 to-gray-300 h-48 md:h-full flex items-center justify-center">
+                    <span className="text-gray-500 text-3xl">📷</span>
                   </div>
                 )}
                 <div className={`p-6 ${blog.image ? 'md:w-2/3' : 'w-full'}`}>

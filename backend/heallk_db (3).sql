@@ -352,6 +352,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `cover_photo` text,
   `description` text,
   `specialization` varchar(255) DEFAULT NULL,
+  `address` varchar(500) DEFAULT NULL,
+  `district` varchar(100) DEFAULT NULL,
   `status` enum('active','inactive','suspended','requested','rejected','accepted') DEFAULT 'requested',
   `payment_slip` text,
   `payment_slip_uploaded_at` timestamp NULL DEFAULT NULL,

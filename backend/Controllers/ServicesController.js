@@ -1,11 +1,13 @@
 const { query, execute } = require('../config/database');
+const fs = require('fs');
+const path = require('path');
 
 class ServicesController {
   static async getAllPublicServices(req, res) {
     try {
       const services = await query(
         `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
-                s.media_urls, s.created_at, s.updated_at,
+                s.media_urls, s.image, s.created_at, s.updated_at,
                 u.full_name as doctor_name, u.user_id as doctor_id
          FROM services s
          INNER JOIN users u ON s.doctor_id = u.user_id
@@ -21,6 +23,7 @@ class ServicesController {
         price: service.price,
         category: service.category,
         mediaUrls: service.media_urls ? JSON.parse(service.media_urls) : [],
+        image: service.image,
         doctorName: service.doctor_name,
         doctorId: service.doctor_id,
         createdAt: service.created_at,
@@ -47,7 +50,7 @@ class ServicesController {
       
       const services = await query(
         `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
-                s.media_urls, s.created_at, s.updated_at,
+                s.media_urls, s.image, s.created_at, s.updated_at,
                 u.full_name as doctor_name, u.user_id as doctor_id
          FROM services s
          INNER JOIN users u ON s.doctor_id = u.user_id
@@ -64,6 +67,7 @@ class ServicesController {
         price: service.price,
         category: service.category,
         mediaUrls: service.media_urls ? JSON.parse(service.media_urls) : [],
+        image: service.image,
         doctorName: service.doctor_name,
         doctorId: service.doctor_id,
         createdAt: service.created_at,
@@ -90,7 +94,7 @@ class ServicesController {
 
       const service = await query(
         `SELECT s.id, s.title, s.description, s.duration, s.price, s.category, 
-                s.media_urls, s.created_at, s.updated_at,
+                s.media_urls, s.image, s.created_at, s.updated_at,
                 u.full_name as doctor_name, u.user_id as doctor_id, u.email as doctor_email, u.phone as doctor_phone
          FROM services s
          INNER JOIN users u ON s.doctor_id = u.user_id
@@ -113,6 +117,7 @@ class ServicesController {
         price: service[0].price,
         category: service[0].category,
         mediaUrls: service[0].media_urls ? JSON.parse(service[0].media_urls) : [],
+        image: service[0].image,
         doctorName: service[0].doctor_name,
         doctorId: service[0].doctor_id,
         doctorEmail: service[0].doctor_email,
@@ -147,7 +152,7 @@ class ServicesController {
       
       const services = await query(
         `SELECT id, title, description, duration, price, category, 
-                media_urls, is_active, created_at, updated_at
+                media_urls, image, is_active, created_at, updated_at
          FROM services 
          WHERE doctor_id = ?
          ORDER BY created_at DESC`,
@@ -204,24 +209,52 @@ class ServicesController {
         });
       }
 
-       const mediaUrlsJson = JSON.stringify(mediaUrls || []);
+      // Handle image file upload
+      let imagePath = null;
+      if (req.file && req.file.buffer) {
+        try {
+          const uploadsDir = path.join(__dirname, '../uploads/service');
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+          }
+          
+          const filename = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(req.file.filename);
+          const filepath = path.join(uploadsDir, filename);
+          
+          // Write file to disk
+          fs.writeFileSync(filepath, req.file.buffer);
+          imagePath = `/uploads/service/${filename}`;
+          console.log('✅ Service image saved:', imagePath);
+        } catch (fileError) {
+          console.error('❌ File upload error:', fileError);
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to upload image file: ' + fileError.message
+          });
+        }
+      }
+
+      const mediaUrlsJson = JSON.stringify(mediaUrls || []);
 
       const result = await execute(
-        `INSERT INTO services (doctor_id, title, description, duration, price, category, media_urls, is_active)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [doctorId, title, description, duration, parseFloat(price), category, mediaUrlsJson, isActive !== false]
+        `INSERT INTO services (doctor_id, title, description, duration, price, category, media_urls, image, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [doctorId, title, description, duration, parseFloat(price), category, mediaUrlsJson, imagePath, isActive !== false]
       );
+
+      console.log('✅ Service created with ID:', result.insertId, 'Image:', imagePath);
 
       res.status(201).json({
         success: true,
         message: 'Service added successfully',
-        serviceId: result.insertId
+        serviceId: result.insertId,
+        imagePath: imagePath
       });
     } catch (error) {
-      console.error('Error adding service:', error);
+      console.error('❌ Error adding service:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to add service'
+        message: 'Failed to add service: ' + error.message
       });
     }
   }
@@ -237,7 +270,7 @@ class ServicesController {
       
       const doctorId = req.user.userId;
       const serviceId = req.params.id;
-      const { title, description, duration, price, category, mediaUrls, isActive } = req.body;
+      const { title, description, duration, price, category, mediaUrls, isActive, image } = req.body;
 
       // Validation
       if (!title || !description || !duration || !price || !category) {
@@ -248,7 +281,7 @@ class ServicesController {
       }
 
        const existingService = await query(
-        'SELECT id FROM services WHERE id = ? AND doctor_id = ?',
+        'SELECT id, image FROM services WHERE id = ? AND doctor_id = ?',
         [serviceId, doctorId]
       );
 
@@ -259,26 +292,54 @@ class ServicesController {
         });
       }
 
-       const mediaUrlsJson = JSON.stringify(mediaUrls || []);
+      // Handle image file upload
+      let imagePath = image || existingService[0].image; // Keep existing image if no new file
+      if (req.file && req.file.buffer) {
+        try {
+          const uploadsDir = path.join(__dirname, '../uploads/service');
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+          }
+          
+          const filename = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(req.file.filename);
+          const filepath = path.join(uploadsDir, filename);
+          
+          // Write file to disk
+          fs.writeFileSync(filepath, req.file.buffer);
+          imagePath = `/uploads/service/${filename}`;
+          console.log('✅ Service image updated:', imagePath);
+        } catch (fileError) {
+          console.error('❌ File upload error:', fileError);
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to upload image file: ' + fileError.message
+          });
+        }
+      }
+
+      const mediaUrlsJson = JSON.stringify(mediaUrls || []);
 
       await execute(
         `UPDATE services 
          SET title = ?, description = ?, duration = ?, price = ?, category = ?, 
-             media_urls = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
+             media_urls = ?, image = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
          WHERE id = ? AND doctor_id = ?`,
         [title, description, duration, parseFloat(price), category, mediaUrlsJson, 
-         isActive !== false, serviceId, doctorId]
+         imagePath, isActive !== false, serviceId, doctorId]
       );
+
+      console.log('✅ Service updated with ID:', serviceId, 'Image:', imagePath);
 
       res.json({
         success: true,
-        message: 'Service updated successfully'
+        message: 'Service updated successfully',
+        imagePath: imagePath
       });
     } catch (error) {
-      console.error('Error updating service:', error);
+      console.error('❌ Error updating service:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update service'
+        message: 'Failed to update service: ' + error.message
       });
     }
   }
@@ -412,7 +473,7 @@ class ServicesController {
 
       const service = await query(
         `SELECT id, title, description, duration, price, category, 
-                media_urls, is_active, created_at, updated_at
+                media_urls, image, is_active, created_at, updated_at
          FROM services 
          WHERE id = ? AND doctor_id = ?`,
         [serviceId, doctorId]

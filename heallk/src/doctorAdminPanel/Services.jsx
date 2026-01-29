@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import Pagination from './pagination';
 
@@ -6,6 +6,8 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -14,6 +16,7 @@ const Services = () => {
     category: '',
     mediaUrls: [''],
     uploadedFiles: [],
+    image: '',
     isActive: true
   });
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,6 +31,16 @@ const Services = () => {
     'Emergency Care',
     'Preventive Care'
   ];
+
+  // Helper function to construct full image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/')) {
+      return `http://localhost:5000${imagePath}`;
+    }
+    return `http://localhost:5000/uploads/service/${imagePath}`;
+  };
 
   useEffect(() => {
     const loadServices = async () => {
@@ -69,6 +82,51 @@ const Services = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      fileInputRef.current.value = '';
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      fileInputRef.current.value = '';
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+      setFormData(prev => ({
+        ...prev,
+        imageFile: file // Store file object
+      }));
+      toast.success('Service image loaded! 📸');
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageRemove = () => {
+    setImagePreview(null);
+    setFormData(prev => ({
+      ...prev,
+      image: ''
+    }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -80,13 +138,24 @@ const Services = () => {
       
       const method = editingService ? 'PUT' : 'POST';
 
+      // Use FormData for file upload
+      const submitData = new FormData();
+      submitData.append('title', formData.title);
+      submitData.append('description', formData.description);
+      submitData.append('duration', formData.duration);
+      submitData.append('price', formData.price);
+      submitData.append('category', formData.category);
+      submitData.append('mediaUrls', JSON.stringify(formData.mediaUrls || []));
+      submitData.append('isActive', formData.isActive);
+      if (formData.image && !formData.imageFile) submitData.append('image', formData.image); // existing image path
+      if (formData.imageFile) submitData.append('imageFile', formData.imageFile); // new file
+
       const response = await fetch(endpoint, {
         method: method,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: submitData
       });
 
       const data = await response.json();
@@ -127,8 +196,13 @@ const Services = () => {
       category: '',
       mediaUrls: [''],
       uploadedFiles: [],
+      image: '',
       isActive: true
     });
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     setEditingService(null);
     setIsModalOpen(false);
   };
@@ -136,8 +210,12 @@ const Services = () => {
   const handleEdit = (service) => {
     setEditingService(service);
     setFormData(service);
+    // Show the image preview from database - this won't be a data URL, it's a real path
+    if (service.image) {
+      setImagePreview(service.image); // This will be like "/uploads/service/filename.jpg"
+    }
     setIsModalOpen(true);
-  };
+  };;
 
   const handleDelete = async (serviceId) => {
     if (window.confirm('Are you sure you want to delete this service?')) {
@@ -259,6 +337,7 @@ const Services = () => {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
@@ -274,6 +353,20 @@ const Services = () => {
               service.category.toLowerCase().includes(searchTerm.toLowerCase())
             ).map((service) => (
               <tr key={service.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {service.image ? (
+                    <img 
+                      src={getImageUrl(service.image)} 
+                      alt={service.title}
+                      className="h-12 w-12 rounded-lg object-cover shadow-sm"
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23e5e7eb" width="100" height="100"/><text x="50" y="50" font-size="40" text-anchor="middle" dominant-baseline="middle">📷</text></svg>';
+                      }}
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-lg">📷</div>
+                  )}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <h3 className="text-sm font-medium text-gray-900">{service.title}</h3>
                 </td>
@@ -462,6 +555,52 @@ const Services = () => {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Image Upload Section */}
+                <div className="bg-purple-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    📸 Service Image
+                  </h3>
+                  
+                  {/* File Input */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Choose Image</label>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 cursor-pointer"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">📁 Max file size: 5MB | Formats: JPG, PNG, GIF</p>
+                  </div>
+
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="relative inline-block">
+                      <div className="relative w-full max-w-xs rounded-lg overflow-hidden shadow-md border-2 border-purple-300">
+                        <img 
+                          src={getImageUrl(imagePreview)} 
+                          alt="Service preview" 
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23f3e8ff" width="100" height="100"/><text x="50" y="50" font-size="40" text-anchor="middle" dominant-baseline="middle">📷</text></svg>';
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleImageRemove}
+                        className="mt-2 px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Remove Image
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Status Section */}
