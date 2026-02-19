@@ -37,16 +37,16 @@ const Products = () => {
       // Fetch vendor/doctor phone from the users table using user_id
       let vendorPhone = null;
       let vendorName = null;
-      
+
       // Use user_id from product, or fallback to doctor_user_id
       const userId = product.user_id || product.doctor_user_id;
-      
+
       if (userId) {
         try {
           console.log('Fetching vendor phone for user ID:', userId);
           const vendorResponse = await fetch(`${API_BASE_URL}/public/user/${userId}`);
           console.log('Vendor response status:', vendorResponse.status);
-          
+
           if (vendorResponse.ok) {
             const vendorData = await vendorResponse.json();
             console.log('Vendor data:', vendorData);
@@ -87,7 +87,7 @@ const Products = () => {
       const message = `Hi, I'm interested in ordering: *${product.product_name}* (Rs. ${product.price})`;
       const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
-      
+
       // Close modal after opening WhatsApp
       setShowOrderModal(false);
     } catch (error) {
@@ -123,7 +123,7 @@ const Products = () => {
     },
     {
       image: beautyImg,
-      title: " erapy", 
+      title: " erapy",
       description: "Rejuvenating beauty therapies that enhance skin health, promote relaxation, and restore balance."
     },
     {
@@ -176,10 +176,10 @@ const Products = () => {
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
-      
+
       {/* Order Confirmation Modal */}
       {showOrderModal && selectedProduct && userPhone && (
-        <OrderConfirmationModal 
+        <OrderConfirmationModal
           product={selectedProduct}
           userPhone={userPhone}
           onConfirm={() => handleConfirmOrder(selectedProduct, userPhone)}
@@ -187,13 +187,12 @@ const Products = () => {
         />
       )}
       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-800 via-amber-600 to-orange-500">
-         <div className="absolute inset-0 w-full h-full">
+        <div className="absolute inset-0 w-full h-full">
           {heroImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
             >
               <img
                 src={image.src}
@@ -243,152 +242,236 @@ const Products = () => {
             </div>
           </div>
         </div>
-    </section>
+      </section>
 
       {/* Search and Filter */}
-      <section className="py-8 bg-white">
+      <section className="py-6 bg-white sticky top-0 z-20" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="max-w-7xl mx-auto px-4">
-          <CategoryFilter 
+          <CategoryFilter
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
+            totalCount={filteredProducts.length}
           />
         </div>
       </section>
 
       {/* Products Grid */}
-      <section className="py-12 bg-green-50">
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-500"></div>
+            <div className="flex flex-col justify-center items-center py-24 gap-4">
+              <div className="animate-spin rounded-full h-14 w-14 border-4 border-green-100 border-t-green-500"></div>
+              <p className="text-gray-400 text-sm font-medium">Loading products…</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-20">
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🔍</div>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">No products found</h3>
+              <p className="text-gray-400 mb-6">Try adjusting your search or filter</p>
+              <button
+                onClick={() => { onCategoryChange?.('All'); onSearchChange?.(''); }}
+                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors"
+              >
+                Clear filters
+              </button>
             </div>
           ) : (
-            <>
-              <div className="text-center mb-8">
-                <p className="text-gray-600">
-                  Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-                  {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-                  {searchTerm && ` matching "${searchTerm}"`}
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                  <motion.div 
-                    key={product.id} 
-                    initial={{ opacity: 0, y: 20 }}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {filteredProducts.map((product, idx) => {
+                const imgUrl = product.image
+                  ? (product.image.startsWith('http')
+                    ? product.image
+                    : `http://localhost:5000/${product.image.replace(/^\//, '')}`)
+                  : null;
+
+                const catColors = {
+                  'Herbal Medicine': { bg: '#dcfce7', text: '#15803d' },
+                  'Supplement': { bg: '#dbeafe', text: '#1d4ed8' },
+                  'Oil': { bg: '#fef3c7', text: '#92400e' },
+                  'Powder': { bg: '#ede9fe', text: '#6d28d9' },
+                  'Capsule': { bg: '#fce7f3', text: '#9d174d' },
+                  'Tablet': { bg: '#ccfbf1', text: '#0f766e' },
+                };
+                const catStyle = catColors[product.category] || { bg: '#f3f4f6', text: '#374151' };
+
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-green-100 overflow-hidden flex flex-col h-full"
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: (idx % 8) * 0.05 }}
+                    className="bg-white rounded-2xl overflow-hidden flex flex-col"
+                    style={{
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+                      border: '1px solid #f0f0f0',
+                      transition: 'box-shadow 0.25s, transform 0.25s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.12)';
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
                   >
-                    {/* Product Image */}
-                    <div className="relative h-48 bg-gradient-to-br from-green-100 to-blue-100 overflow-hidden">
-                      {product.image ? (
+                    {/* Image area */}
+                    <div style={{
+                      position: 'relative',
+                      height: '180px',
+                      background: 'linear-gradient(135deg, #f0fdf4, #eff6ff)',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                    }}>
+                      {imgUrl ? (
                         <img
-                          src={`${BACKEND_BASE_URL}/${product.image}`}
+                          src={imgUrl}
                           alt={product.product_name}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                          onError={(e) => {
-                            console.log('Image failed to load:', `${BACKEND_BASE_URL}/${product.image}`);
-                            e.target.style.display = 'none';
-                            const fallback = document.createElement('div');
-                            fallback.className = 'flex items-center justify-center h-full absolute inset-0';
-                            fallback.innerHTML = '<span class="text-4xl">💊</span>';
-                            e.target.parentElement.appendChild(fallback);
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.35s ease' }}
+                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.07)'}
+                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                          onError={e => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextSibling.style.display = 'flex';
                           }}
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-5xl">💊</span>
-                        </div>
-                      )}
+                      ) : null}
+                      {/* Fallback emoji */}
+                      <div style={{
+                        display: imgUrl ? 'none' : 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100%',
+                        fontSize: '52px',
+                      }}>💊</div>
+
+                      {/* Category badge over image */}
+                      <span style={{
+                        position: 'absolute',
+                        top: '10px',
+                        left: '10px',
+                        background: catStyle.bg,
+                        color: catStyle.text,
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        borderRadius: '20px',
+                        padding: '3px 10px',
+                        letterSpacing: '0.2px',
+                      }}>
+                        {product.category}
+                      </span>
                     </div>
-                    
-                    <div className="p-5 flex flex-col flex-grow">
-                      {/* Category Badge */}
-                      <div className="mb-3">
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                          {product.category}
-                        </span>
-                      </div>
-                      
-                      {/* Product Name */}
-                      <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2" style={{fontFamily: 'Playfair Display, serif'}}>
+
+                    {/* Card body */}
+                    <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <h3 style={{
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        color: '#111827',
+                        marginBottom: '6px',
+                        lineHeight: '1.35',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        fontFamily: 'inherit',
+                      }}>
                         {product.product_name}
                       </h3>
-                      
-                      {/* Description */}
+
                       {product.description && (
-                        <p className="text-gray-600 text-xs mb-3 line-clamp-2">
+                        <p style={{
+                          fontSize: '12px',
+                          color: '#6b7280',
+                          marginBottom: '8px',
+                          lineHeight: '1.5',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}>
                           {product.description}
                         </p>
                       )}
-                      
-                      {/* Ingredients */}
-                      {product.ingredient && (
-                        <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                          <span className="font-medium text-gray-700">🌿 Ingredients:</span> {product.ingredient}
+
+                      {product.doctor_name && (
+                        <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '10px' }}>
+                          👤 {product.doctor_name}
                         </p>
                       )}
 
-                      {/* Vendor Name */}
-                      {product.doctor_name && (
-                        <p className="text-gray-700 text-xs mb-3 pb-3 border-b border-gray-200">
-                          <span className="font-medium">👨‍⚕️ Vendor:</span> {product.doctor_name}
-                        </p>
-                      )}
-                      
-                      {/* Price and Buttons */}
-                      <div className="mt-auto space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-2xl font-bold text-green-600">
-                            Rs. {parseFloat(product.price).toFixed(2)}
-                          </div>
+                      {/* Price + buttons */}
+                      <div style={{ marginTop: 'auto' }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: '10px',
+                        }}>
+                          <span style={{ fontSize: '18px', fontWeight: '800', color: '#059669' }}>
+                            Rs. {parseFloat(product.price).toFixed(0)}
+                          </span>
+                          {product.ingredient && (
+                            <span style={{ fontSize: '10px', color: '#10b981', background: '#f0fdf4', borderRadius: '4px', padding: '2px 6px', fontWeight: '600' }}>🌿 Herbal</span>
+                          )}
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          <motion.button 
-                            whileHover={{ scale: 1.05 }}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleOrderNow(product)}
-                            className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                            style={{
+                              flex: 1,
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '10px',
+                              padding: '9px 12px',
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              transition: 'opacity 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+                            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
                           >
-                            <span>🛒</span> Order
+                            🛒 Order Now
                           </motion.button>
 
-                          <motion.button 
-                            whileHover={{ scale: 1.05 }}
+                          {/* WhatsApp button */}
+                          <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleOrderNow(product)}
-                            className="bg-green-100 hover:bg-green-200 text-green-600 p-2 rounded-lg transition-colors flex items-center justify-center"
                             title="Order via WhatsApp"
+                            style={{
+                              background: '#dcfce7',
+                              color: '#15803d',
+                              border: 'none',
+                              borderRadius: '10px',
+                              padding: '9px 11px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'background 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.background = '#bbf7d0'}
+                            onMouseLeave={e => e.currentTarget.style.background = '#dcfce7'}
                           >
-                            <svg 
-                              className="w-5 h-5" 
-                              fill="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.272-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.255.949 9.758 9.758 0 00-3.142 2.433A9.828 9.828 0 002.9 16.25c0 5.428 4.314 9.767 9.844 9.767 1.535 0 3.034-.235 4.477-.689l4.537 1.494.959-2.823.334-3.432c1.218-2.067 1.879-4.459 1.879-6.95 0-5.428-4.314-9.767-9.844-9.767z"/>
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.272-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-4.255.949 9.758 9.758 0 00-3.142 2.433A9.828 9.828 0 002.9 16.25c0 5.428 4.314 9.767 9.844 9.767 1.535 0 3.034-.235 4.477-.689l4.537 1.494.959-2.823.334-3.432c1.218-2.067 1.879-4.459 1.879-6.95 0-5.428-4.314-9.767-9.844-9.767z" />
                             </svg>
                           </motion.button>
                         </div>
                       </div>
                     </div>
                   </motion.div>
-                ))}
-              </div>
-              
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                  <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-                </div>
-              )}
-            </>
+                );
+              })}
+            </div>
           )}
         </div>
       </section>

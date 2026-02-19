@@ -10,6 +10,7 @@ exports.getVerifiedDoctors = async (req, res) => {
         u.email,
         u.phone,
         u.profile_pic,
+        u.cover_photo,
         u.specialization,
         u.district,
         u.created_at,
@@ -22,15 +23,16 @@ exports.getVerifiedDoctors = async (req, res) => {
       GROUP BY u.user_id
       ORDER BY u.created_at DESC
     `;
-    
+
     const doctors = await query(sql);
-    
+
     const formattedDoctors = doctors.map(doctor => ({
       id: doctor.user_id,
       name: doctor.full_name,
       email: doctor.email,
       phone: doctor.phone,
       profilePic: doctor.profile_pic,
+      coverPhoto: doctor.cover_photo,
       specialization: doctor.specialization,
       district: doctor.district,
       clinics: doctor.clinic_names ? doctor.clinic_names.split(',') : [],
@@ -38,7 +40,7 @@ exports.getVerifiedDoctors = async (req, res) => {
       clinicCount: doctor.clinic_count || 0,
       joinedDate: doctor.created_at
     }));
-    
+
     res.json({ success: true, doctors: formattedDoctors });
   } catch (err) {
     console.error('Error fetching verified doctors:', err);
@@ -50,35 +52,36 @@ exports.getVerifiedDoctors = async (req, res) => {
 exports.getDoctorProfile = async (req, res) => {
   try {
     const doctorId = req.params.id;
-    
+
     // Get doctor basic info
-    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE user_id = ? AND role = 'doctor' AND status = 'active'`;
+    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, cover_photo, role, description, specialization, status, created_at FROM users WHERE user_id = ? AND role = 'doctor' AND status = 'active'`;
     const doctorResult = await query(doctorSql, [doctorId]);
-    
+
     if (doctorResult.length === 0) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
-    
+
     const doctor = doctorResult[0];
-    
+
     // Get doctor's clinics
     const clinicsSql = `SELECT * FROM clinic_info WHERE user_id = ?`;
     const clinics = await query(clinicsSql, [doctorId]);
-    
+
     // Get doctor's qualifications
     const qualificationsSql = `SELECT * FROM qualifications WHERE user_id = ? ORDER BY year_completed DESC`;
     const qualifications = await query(qualificationsSql, [doctorId]);
-    
+
     // Get doctor's reviews
     const reviewsSql = `SELECT * FROM doctor_reviews WHERE doctor_id = ? ORDER BY created_at DESC`;
     const reviews = await query(reviewsSql, [doctorId]);
-    
+
     const profile = {
       id: doctor.user_id,
       name: doctor.full_name,
       email: doctor.email,
       phone: doctor.phone,
       profilePic: doctor.profile_pic,
+      coverPhoto: doctor.cover_photo,
       specialization: doctor.specialization,
       role: doctor.role,
       description: doctor.description,
@@ -112,7 +115,7 @@ exports.getDoctorProfile = async (req, res) => {
         createdAt: review.created_at
       }))
     };
-    
+
     res.json({ success: true, doctor: profile });
   } catch (err) {
     console.error('Error fetching doctor profile:', err);
@@ -124,14 +127,14 @@ exports.getDoctorProfile = async (req, res) => {
 exports.getDoctorBasicByName = async (req, res) => {
   try {
     const doctorName = req.params.name;
-    
+
     const doctorSql = `SELECT user_id, full_name FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'active'`;
     const doctorResult = await query(doctorSql, [doctorName]);
-    
+
     if (doctorResult.length === 0) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
-    
+
     const doctor = doctorResult[0];
     res.json({ success: true, doctor: { user_id: doctor.user_id, full_name: doctor.full_name } });
   } catch (err) {
@@ -144,36 +147,37 @@ exports.getDoctorBasicByName = async (req, res) => {
 exports.getDoctorByName = async (req, res) => {
   try {
     const doctorName = req.params.name;
-    
+
     // Get doctor basic info by name
-    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, role, description, specialization, status, created_at FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'active'`;
+    const doctorSql = `SELECT user_id, full_name, email, phone, profile_pic, cover_photo, role, description, specialization, status, created_at FROM users WHERE full_name = ? AND role = 'doctor' AND status = 'active'`;
     const doctorResult = await query(doctorSql, [doctorName]);
-    
+
     if (doctorResult.length === 0) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
-    
+
     const doctor = doctorResult[0];
     const doctorId = doctor.user_id;
-    
+
     // Get doctor's clinics
     const clinicsSql = `SELECT * FROM clinic_info WHERE user_id = ?`;
     const clinics = await query(clinicsSql, [doctorId]);
-    
+
     // Get doctor's qualifications
     const qualificationsSql = `SELECT * FROM qualifications WHERE user_id = ? ORDER BY year_completed DESC`;
     const qualifications = await query(qualificationsSql, [doctorId]);
-    
+
     // Get doctor's reviews
     const reviewsSql = `SELECT * FROM doctor_reviews WHERE doctor_id = ? ORDER BY created_at DESC`;
     const reviews = await query(reviewsSql, [doctorId]);
-    
+
     const profile = {
       id: doctor.user_id,
       name: doctor.full_name,
       email: doctor.email,
       phone: doctor.phone,
       profilePic: doctor.profile_pic,
+      coverPhoto: doctor.cover_photo,
       specialization: doctor.specialization,
       role: doctor.role,
       description: doctor.description,
@@ -207,7 +211,7 @@ exports.getDoctorByName = async (req, res) => {
         createdAt: review.created_at
       }))
     };
-    
+
     res.json({ success: true, doctor: profile });
   } catch (err) {
     console.error('Error fetching doctor profile by name:', err);
@@ -219,17 +223,17 @@ exports.getDoctorByName = async (req, res) => {
 exports.getUserPhone = async (req, res) => {
   try {
     const userId = req.params.id;
-    
+
     const sql = `SELECT user_id, full_name, phone FROM users WHERE user_id = ?`;
     const result = await query(sql, [userId]);
-    
+
     if (result.length === 0) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    
+
     const user = result[0];
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       phone: user.phone,
       full_name: user.full_name,
       user_id: user.user_id

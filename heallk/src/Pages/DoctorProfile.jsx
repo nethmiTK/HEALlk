@@ -20,7 +20,6 @@ const DoctorProfile = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('about');
   const [currentQualificationIndex, setCurrentQualificationIndex] = useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Update browser tab title when doctor loads
   useEffect(() => {
@@ -52,7 +51,6 @@ const DoctorProfile = () => {
     if (doctor?.name) {
       navigate(`/doctor/${encodeURIComponent(doctor.name)}#${tabId}`, { replace: true });
     }
-    setIsMobileMenuOpen(false); // Close mobile menu after selection
   };
 
   useEffect(() => {
@@ -60,7 +58,7 @@ const DoctorProfile = () => {
       try {
         // Check if id is numeric (user_id) or a name
         const isNumeric = /^\d+$/.test(id);
-        
+
         if (isNumeric) {
           // Fetch by ID
           const response = await fetch(`${API_BASE_URL}/public/doctors/${id}`);
@@ -85,7 +83,7 @@ const DoctorProfile = () => {
                 doctorName.toLowerCase().includes(decodedName.toLowerCase())
               );
             });
-            
+
             if (foundDoctor) {
               setDoctor(foundDoctor);
             } else {
@@ -129,252 +127,271 @@ const DoctorProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-green-50">
-      {/* Portfolio Hero Section */}
-      <section className="relative h-64 sm:h-80 md:h-96 overflow-hidden pt-14 sm:pt-16">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img src={aboutImg} alt="Medical Background" className="w-full h-full object-cover" />
-        </div>
-        
-        {/* Doctor Profile Navbar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-blue-50 to-white shadow-xl backdrop-blur-sm border-b border-gray-100">
-          <div className="w-full px-2 sm:px-4 lg:px-6">
-            <div className="flex justify-between items-center h-16 sm:h-20">
-              {/* Logo */}
-              <div onClick={() => navigate('/')} className="flex items-center cursor-pointer group hover:opacity-80 transition-all duration-300">
-                <img 
-                  src={logoImage} 
-                  alt="Ayurveda Logo" 
-                  className="h-12 sm:h-14 w-auto object-contain drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300"
-                />
-              </div>
-              
-              {/* Desktop Tabs - Hidden on mobile */}
-              <div className="hidden lg:flex items-center space-x-1 bg-gradient-to-r from-white/80 to-blue-50/80 backdrop-blur-md rounded-full p-1.5 shadow-xl border border-white/50">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`px-5 xl:px-7 py-2.5 xl:py-3 rounded-full font-semibold transition-all duration-300 text-sm xl:text-base whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg transform scale-105'
-                        : 'text-gray-700 hover:text-green-600 hover:bg-white/50'
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 50%, #faf5ff 100%)' }}>
+
+      {/* ── Top sticky nav: logo + tabs ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-100" style={{ backdropFilter: 'blur(14px)' }}>
+        <div className="w-full px-4 sm:px-5">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+
+            {/* Logo */}
+            <div onClick={() => navigate('/')} className="flex items-center cursor-pointer flex-shrink-0">
+              <img src={logoImage} alt="HealLanka" className="h-9 sm:h-11 w-auto object-contain" />
+            </div>
+
+            {/* Desktop tabs — underline style */}
+            <div className="hidden lg:flex items-center h-14 sm:h-16">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`relative flex-shrink-0 px-4 xl:px-5 h-14 sm:h-16 text-sm font-medium transition-colors duration-200 whitespace-nowrap flex items-center ${activeTab === tab.id ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-800'
                     }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Mobile Menu Button */}
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="profile-tab-line"
+                      className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-emerald-500 rounded-t-sm"
+                      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </nav>
+
+      {/* ── Mobile tab strip — always visible, fixed below the nav, no icons ── */}
+      <div className="lg:hidden fixed top-14 sm:top-16 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="overflow-x-auto no-scrollbar">
+          <div className="flex items-center px-1">
+            {tabs.map(tab => (
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2.5 text-gray-700 hover:text-green-600 hover:bg-green-50/80 rounded-lg transition-all duration-300 backdrop-blur-sm"
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`relative flex-shrink-0 px-3 py-3 text-xs font-semibold whitespace-nowrap transition-colors duration-200 ${activeTab === tab.id ? 'text-emerald-600' : 'text-gray-500'
+                  }`}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
-            </div>
-            
-            {/* Mobile Menu Dropdown */}
-            {isMobileMenuOpen && (
-              <div className="lg:hidden absolute top-16 sm:top-20 left-0 right-0 bg-gradient-to-b from-white via-blue-50/80 to-green-50/80 shadow-2xl border-t border-green-100 py-3 backdrop-blur-md">
-                <div className="flex flex-col space-y-1 px-2">
-                  {tabs.map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => handleTabClick(tab.id)}
-                      className={`w-full text-left px-4 py-3.5 rounded-lg font-semibold transition-all duration-300 text-base ${
-                        activeTab === tab.id
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105'
-                          : 'text-gray-700 hover:text-green-600 hover:bg-white/60'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </nav>
-        
-        {/* Medical Icons Floating */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-4 sm:left-16 text-white opacity-20 text-3xl sm:text-4xl md:text-5xl animate-pulse">🏥</div>
-          <div className="absolute top-32 right-6 sm:right-24 text-white opacity-20 text-2xl sm:text-3xl md:text-4xl animate-bounce">⚕️</div>
-          <div className="absolute bottom-32 left-6 sm:left-24 text-white opacity-20 text-2xl sm:text-3xl md:text-4xl animate-pulse hidden sm:block">🌿</div>
-          <div className="absolute bottom-20 right-4 sm:right-16 text-white opacity-20 text-3xl sm:text-4xl md:text-5xl animate-bounce hidden sm:block">💊</div>
-          <div className="absolute top-1/2 left-1/3 text-white opacity-10 text-4xl sm:text-5xl md:text-6xl hidden md:block">🩺</div>
-          <div className="absolute top-1/3 right-1/4 text-white opacity-10 text-3xl sm:text-4xl md:text-5xl hidden md:block">🧘</div>
-        </div>
-        
-        {/* Main Content */}
-        <div className="relative z-10 flex items-center h-full py-4 sm:py-8">
-          <div className="w-full px-2 sm:px-4">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
-              {/* Profile Picture */}
-              <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-2xl border-2 sm:border-4 border-white">
-                  {doctor.profilePic ? (
-                    <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 flex items-center justify-center">
-                      <span className="text-4xl text-green-600 font-bold">Dr</span>
-                    </div>
-                  )}
-                </div>
-                {/* Verified Badge */}
-                <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-green-500 rounded-full flex items-center justify-center shadow-xl border-2 border-white">
-                  <span className="text-white text-xs sm:text-sm md:text-lg">✓</span>
-                </div>
-              </div>
-              
-              {/* Doctor Info */}
-              <div className="text-black flex-1 text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold mb-1 sm:mb-2 drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
-                  Dr. {doctor?.name?.toUpperCase() || 'DOCTOR'}
-                </h1>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-700 mb-2 sm:mb-4 font-light" style={{fontFamily: 'Playfair Display, serif'}}>
-                  {doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
-                </p>
-                
-                {/* Specialization Badge */}
-                {doctor?.specialization && (
-                  <div className="mb-3 sm:mb-4">
-                    <span className="inline-block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                      🎓 {doctor.specialization}
-                    </span>
-                  </div>
+                {tab.label}
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-1 right-1 h-[2.5px] bg-emerald-500 rounded-t-sm" />
                 )}
-                
-                {/* Status Badges */}
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3 mb-3 sm:mb-6">
-                  <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
-                    <span className="text-black font-medium text-xs sm:text-sm">✓ Verified Professional</span>
-                  </div>
-                  <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
-                    <span className="text-black font-medium text-xs sm:text-sm">📅 Since {new Date(doctor.joinedDate).getFullYear()}</span>
-                  </div>
-                  {doctor.clinics.length > 0 && (
-                    <div className="bg-green-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
-                      <span className="text-black font-medium text-xs sm:text-sm">🏥 {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
-                  <a 
-                    href={`tel:${doctor.phone}`}
-                    className="bg-white text-green-600 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm border-2 border-green-200"
-                  >
-                    <span className="text-base sm:text-lg">📞</span> Call Now
-                  </a>
-                  <a 
-                    href={`mailto:${doctor.email}`}
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                  >
-                    <span className="text-base sm:text-lg">📧</span> Email
-                  </a>
-                  <a 
-                    href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                  >
-                    <span className="text-base sm:text-lg">📱</span> WhatsApp
-                  </a>
-                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-                {/* Shareable URL Section */}
-                <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-300">
-                  <p className="text-xs sm:text-sm text-gray-600 mb-2 font-semibold">📍 Share Profile:</p>
-                  <div className="flex items-center gap-2 bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 rounded-lg">
-                    <code className="text-xs sm:text-sm font-mono text-gray-700 flex-1 break-all">
-                      {window.location.href}
-                    </code>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(window.location.href);
-                        alert('URL copied to clipboard!');
-                      }}
-                      className="flex-shrink-0 bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all"
-                      title="Copy URL"
-                    >
-                      📋 Copy
-                    </button>
+      {/* ══ Profile Hero ══ */}
+      {/* Mobile: pt = nav(56px) + tab strip(~40px) = ~96px. Desktop: nav only = 64px */}
+      <div className="pt-24 lg:pt-16">
+
+        {/* ① Full-width cover photo */}
+        <div className="relative w-full h-36 sm:h-48 md:h-56 lg:h-64 overflow-hidden bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500">
+          {(doctor?.coverPhoto || aboutImg) && (
+            <img
+              src={doctor?.coverPhoto || aboutImg}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10 pointer-events-none" />
+        </div>
+
+        {/* ② White content area below cover */}
+        <div className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {/* Avatar + action buttons row */}
+            <div className="flex items-start justify-between">
+
+              {/* ③ Profile picture — overlaps UP into cover */}
+              <div className="relative flex-shrink-0 -mt-12 sm:-mt-16 md:-mt-20">
+                <div className="relative rounded-full p-1 bg-white shadow-xl" style={{ width: 'fit-content' }}>
+                  <div
+                    className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, #6ee7b7, #34d399)' }}
+                  >
+                    {doctor?.profilePic ? (
+                      <img src={doctor.profilePic} alt={doctor.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-400 to-green-600">
+                        <span
+                          className="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold"
+                          style={{ fontFamily: 'Playfair Display, serif' }}
+                        >
+                          {doctor?.name?.charAt(0)?.toUpperCase() || 'D'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Verified tick badge */}
+                  <div className="absolute bottom-1 right-1 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-emerald-500 rounded-full flex items-center justify-center border-[3px] border-white shadow-lg">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
                   </div>
                 </div>
               </div>
+
+              {/* ④ Action buttons — desktop */}
+              <div className="hidden sm:flex items-center gap-2 pt-4">
+                <a
+                  href={`tel:${doctor.phone}`}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Call Now
+                </a>
+                <a
+                  href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-5 py-2 border-2 border-emerald-500 text-emerald-600 text-sm font-semibold rounded-full hover:bg-emerald-50 transition-all duration-200"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                  WhatsApp
+                </a>
+                <a
+                  href={`mailto:${doctor.email}`}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 border-2 border-gray-300 text-gray-600 text-sm font-semibold rounded-full hover:bg-gray-50 transition-all duration-200"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Email
+                </a>
+              </div>
             </div>
+
+            {/* ⑤ Doctor info */}
+            <div className="pb-5 pt-3">
+              <h1
+                className="text-2xl sm:text-3xl lg:text-[2rem] font-bold text-gray-900 leading-tight"
+                style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '-0.01em' }}
+              >
+                Dr. {doctor?.name || 'Doctor'}
+              </h1>
+              <p className="mt-1 text-base sm:text-lg text-gray-600 font-normal leading-snug" style={{ fontFamily: 'Inter, sans-serif' }}>
+                {doctor?.specialization ? `${doctor.specialization} · ` : ''}{doctor.role === 'admin' ? 'Senior Ayurveda Consultant' : 'Certified Ayurveda Specialist'}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500">
+                {doctor.clinics?.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    {doctor.clinics.length} Clinic{doctor.clinics.length > 1 ? 's' : ''}
+                  </span>
+                )}
+                <span className="text-gray-300">·</span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Since {new Date(doctor.joinedDate).getFullYear()}
+                </span>
+                <span className="text-gray-300">·</span>
+                <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Verified Professional
+                </span>
+              </div>
+
+              {/* Mobile action buttons */}
+              <div className="sm:hidden flex flex-wrap gap-2 mt-4">
+                <a href={`tel:${doctor.phone}`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-semibold rounded-full shadow">
+                  📞 Call Now
+                </a>
+                <a href={`https://wa.me/${doctor.phone?.replace(/[^0-9]/g, '') || ''}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 border border-emerald-500 text-emerald-600 text-xs font-semibold rounded-full">
+                  📱 WhatsApp
+                </a>
+                <a href={`mailto:${doctor.email}`} className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 text-gray-600 text-xs font-semibold rounded-full">
+                  📧 Email
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
-        
-        {/* Wave Shape */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-20">
-            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="#ffffff"></path>
-            <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="#ffffff"></path>
-            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#ffffff"></path>
-          </svg>
-        </div>
-      </section>
+      </div>
 
-
-
-      {/* Tab Content */}
-      <section className="py-12 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* ── Tab Content ── */}
+      <section className="bg-gray-50 min-h-screen">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
           {activeTab === 'about' && (
             <div className="w-full">
-              {/* Hero Section - About Dr. */}
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
+              {/* ── About Dr. Section — clean & simple ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl p-8 mb-8 shadow-xl border border-purple-100"
+                transition={{ duration: 0.5 }}
+                className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6"
               >
-                <div className="text-center lg:text-left">
-                  <motion.h2 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-6" 
-                    style={{fontFamily: 'Poppins, sans-serif'}}
-                  >
-                    About Dr. {doctor.name}
-                  </motion.h2>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
-                  >
-                    <p className="text-lg text-gray-700 leading-relaxed mb-4" style={{fontFamily: 'Inter, sans-serif', lineHeight: '1.8'}}>
-                      {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
-                    </p>
-                  </motion.div>
+                {/* Name + divider */}
+                <motion.h2
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.15, duration: 0.5 }}
+                  className="text-xl sm:text-2xl font-semibold text-gray-900 mb-1"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  About Dr. {doctor.name}
+                </motion.h2>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: 40 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  className="h-0.5 bg-emerald-500 rounded-full mb-5"
+                />
 
-                  {/* Decorative underline */}
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "150px" }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                    className="h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-full mx-auto lg:mx-0"
-                  />
+                {/* Description */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="text-gray-600 text-sm sm:text-base leading-relaxed"
+                  style={{ fontFamily: 'Inter, sans-serif', lineHeight: '1.85' }}
+                >
+                  {doctor.description || 'Experienced Ayurvedic doctor specializing in traditional healing methods and holistic wellness. Committed to providing personalized treatment plans for optimal health outcomes.'}
+                </motion.p>
+
+                {/* ── 4 Trust Badges ── */}
+                <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { emoji: '✅', label: 'Licensed Professional' },
+                    { emoji: '🔒', label: 'Confidential Consultations' },
+                    { emoji: '⚡', label: 'Quick Response' },
+                    { emoji: '💯', label: 'Satisfaction Guaranteed' },
+                  ].map((badge, i) => (
+                    <motion.div
+                      key={badge.label}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35 + i * 0.1, duration: 0.4 }}
+                      whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+                      className="flex flex-col items-center gap-1.5 p-3.5 rounded-xl border border-gray-100 bg-gray-50 cursor-default select-none"
+                    >
+                      <span className="text-2xl">{badge.emoji}</span>
+                      <span className="text-xs text-gray-600 font-medium text-center leading-tight" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {badge.label}
+                      </span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-              
+
               {/* Education & Certifications - Advanced Animated UI */}
               {doctor.qualifications && doctor.qualifications.length > 0 && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
@@ -387,7 +404,7 @@ const DoctorProfile = () => {
                       transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                       className="inline-block"
                     >
-                      <h3 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3 flex items-center justify-center gap-3" style={{fontFamily: 'Poppins, sans-serif'}}>
+                      <h3 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3 flex items-center justify-center gap-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
                         <span className="text-5xl">🎓</span>
                         Education & Certifications
                       </h3>
@@ -398,11 +415,11 @@ const DoctorProfile = () => {
                       transition={{ delay: 0.4, duration: 0.6 }}
                       className="h-1.5 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 rounded-full mx-auto"
                     />
-                    <p className="text-gray-600 mt-4" style={{fontFamily: 'Inter, sans-serif'}}>
+                    <p className="text-gray-600 mt-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                       {/* {currentQualificationIndex + 1} of {doctor.qualifications.length} */}
                     </p>
                   </div>
-                  
+
                   {/* Carousel Container */}
                   <div className="relative max-w-2xl mx-auto">
                     {/* Navigation Arrows */}
@@ -412,16 +429,16 @@ const DoctorProfile = () => {
                         <motion.button
                           whileHover={{ scale: 1.1, x: -3 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => setCurrentQualificationIndex(prev => 
+                          onClick={() => setCurrentQualificationIndex(prev =>
                             prev === 0 ? doctor.qualifications.length - 1 : prev - 1
                           )}
                           className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-green-50 p-3 rounded-full shadow-xl border border-green-200 transition-all duration-300 group backdrop-blur-sm"
                           aria-label="Previous qualification"
                         >
-                          <svg 
-                            className="w-5 h-5 text-green-600 group-hover:text-green-700" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className="w-5 h-5 text-green-600 group-hover:text-green-700"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -432,16 +449,16 @@ const DoctorProfile = () => {
                         <motion.button
                           whileHover={{ scale: 1.1, x: 3 }}
                           whileTap={{ scale: 0.9 }}
-                          onClick={() => setCurrentQualificationIndex(prev => 
+                          onClick={() => setCurrentQualificationIndex(prev =>
                             prev === doctor.qualifications.length - 1 ? 0 : prev + 1
                           )}
                           className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-green-50 p-3 rounded-full shadow-xl border border-green-200 transition-all duration-300 group backdrop-blur-sm"
                           aria-label="Next qualification"
                         >
-                          <svg 
-                            className="w-5 h-5 text-green-600 group-hover:text-green-700" 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className="w-5 h-5 text-green-600 group-hover:text-green-700"
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
@@ -458,12 +475,12 @@ const DoctorProfile = () => {
                           initial={{ opacity: 0, x: 100, scale: 0.9 }}
                           animate={{ opacity: 1, x: 0, scale: 1 }}
                           exit={{ opacity: 0, x: -100, scale: 0.9 }}
-                          transition={{ 
+                          transition={{
                             duration: 0.5,
                             type: "spring",
                             stiffness: 100
                           }}
-                          whileHover={{ 
+                          whileHover={{
                             scale: 1.02,
                             boxShadow: "0 25px 50px rgba(0,0,0,0.2)",
                             transition: { duration: 0.3 }
@@ -475,10 +492,10 @@ const DoctorProfile = () => {
                             className="absolute inset-0 bg-gradient-to-br from-green-400/10 via-blue-400/10 to-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                             initial={false}
                           />
-                          
+
                           {/* Decorative Corner */}
                           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-400/15 to-transparent rounded-bl-full" />
-                          
+
                           <div className="relative z-10">
                             {/* Header with Year Badge */}
                             <div className="flex items-start justify-between mb-4">
@@ -490,19 +507,19 @@ const DoctorProfile = () => {
                               >
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-2.5 h-2.5 bg-gradient-to-br from-green-400 to-green-600 rounded-full animate-pulse" />
-                                  <span className="text-xs font-bold text-green-700 uppercase tracking-widest" style={{fontFamily: 'Inter, sans-serif'}}>
+                                  <span className="text-xs font-bold text-green-700 uppercase tracking-widest" style={{ fontFamily: 'Inter, sans-serif' }}>
                                     Qualification
                                   </span>
                                 </div>
-                                <h4 className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent leading-tight" style={{fontFamily: 'Poppins, sans-serif'}}>
+                                <h4 className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent leading-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                   {qualification.degreeName}
                                 </h4>
                               </motion.div>
-                              
+
                               <motion.div
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ 
+                                transition={{
                                   delay: 0.4,
                                   type: "spring",
                                   stiffness: 200
@@ -513,7 +530,7 @@ const DoctorProfile = () => {
                                 </span>
                               </motion.div>
                             </div>
-                            
+
                             {/* Institution */}
                             <motion.div
                               initial={{ x: -20, opacity: 0 }}
@@ -524,12 +541,12 @@ const DoctorProfile = () => {
                               <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-green-100/50">
                                 <span className="text-2xl">🏛️</span>
                                 <div className="flex-1">
-                                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{fontFamily: 'Inter, sans-serif'}}>Institution</p>
-                                  <p className="text-green-700 font-bold text-lg" style={{fontFamily: 'Poppins, sans-serif'}}>{qualification.institution}</p>
+                                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{ fontFamily: 'Inter, sans-serif' }}>Institution</p>
+                                  <p className="text-green-700 font-bold text-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>{qualification.institution}</p>
                                 </div>
                               </div>
                             </motion.div>
-                            
+
                             {/* Specialization */}
                             {qualification.specialization && (
                               <motion.div
@@ -541,13 +558,13 @@ const DoctorProfile = () => {
                                 <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-green-100/50">
                                   <span className="text-2xl">⭐</span>
                                   <div className="flex-1">
-                                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{fontFamily: 'Inter, sans-serif'}}>Specialization</p>
-                                    <p className="text-green-700 font-semibold text-base" style={{fontFamily: 'Poppins, sans-serif'}}>{qualification.specialization}</p>
+                                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide" style={{ fontFamily: 'Inter, sans-serif' }}>Specialization</p>
+                                    <p className="text-green-700 font-semibold text-base" style={{ fontFamily: 'Poppins, sans-serif' }}>{qualification.specialization}</p>
                                   </div>
                                 </div>
                               </motion.div>
                             )}
-                            
+
                             {/* Description */}
                             {qualification.description && (
                               <motion.div
@@ -556,18 +573,18 @@ const DoctorProfile = () => {
                                 transition={{ delay: 0.7 }}
                                 className="mb-3"
                               >
-                                <p className="text-gray-700 text-sm leading-relaxed bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-gray-100" style={{fontFamily: 'Inter, sans-serif', lineHeight: '1.7'}}>
+                                <p className="text-gray-700 text-sm leading-relaxed bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-gray-100" style={{ fontFamily: 'Inter, sans-serif', lineHeight: '1.7' }}>
                                   {qualification.description}
                                 </p>
                               </motion.div>
                             )}
-                            
+
                             {/* Verified Badge */}
                             {qualification.isVerified && (
                               <motion.div
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ 
+                                transition={{
                                   delay: 0.8,
                                   type: "spring",
                                   stiffness: 300
@@ -577,11 +594,11 @@ const DoctorProfile = () => {
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-sm font-bold" style={{fontFamily: 'Poppins, sans-serif'}}>Verified Credential</span>
+                                <span className="text-sm font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>Verified Credential</span>
                               </motion.div>
                             )}
                           </div>
-                          
+
                           {/* Hover Glow Effect */}
                           <motion.div
                             className="absolute -inset-1 bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"
@@ -600,11 +617,10 @@ const DoctorProfile = () => {
                             whileHover={{ scale: 1.3 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setCurrentQualificationIndex(index)}
-                            className={`transition-all duration-300 rounded-full ${
-                              index === currentQualificationIndex 
-                                ? 'w-12 h-3 bg-gradient-to-r from-green-500 to-emerald-600' 
-                                : 'w-3 h-3 bg-gray-300 hover:bg-green-300'
-                            }`}
+                            className={`transition-all duration-300 rounded-full ${index === currentQualificationIndex
+                              ? 'w-12 h-3 bg-gradient-to-r from-green-500 to-emerald-600'
+                              : 'w-3 h-3 bg-gray-300 hover:bg-green-300'
+                              }`}
                             aria-label={`Go to qualification ${index + 1}`}
                           />
                         ))}
@@ -613,19 +629,19 @@ const DoctorProfile = () => {
                   </div>
                 </motion.div>
               )}
-              
+
               {/* Contact CTA */}
               <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-8 text-white text-center">
                 <h3 className="text-2xl font-bold mb-4">Ready to Start Your Healing Journey?</h3>
                 <p className="text-lg mb-6 opacity-90">Book a consultation with Dr. {doctor.name} today</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
+                  <button
                     onClick={() => handleTabClick('contact')}
                     className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
                   >
                     📅 Book Appointment
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleTabClick('services')}
                     className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-colors"
                   >
@@ -638,8 +654,8 @@ const DoctorProfile = () => {
           {activeTab === 'services' && (
             <div className="w-full">
               <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Our Services</h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>Our Services</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Professional healthcare services offered by Dr. {doctor.name}
                 </p>
               </div>
@@ -656,11 +672,11 @@ const DoctorProfile = () => {
                   Visit our state-of-the-art facilities for comprehensive Ayurvedic healthcare
                 </p>
               </div>
-              
+
               {/* Enhanced Clinic Info */}
               <div className="space-y-8">
                 <ClinicInfo doctor={doctor} />
-                
+
                 {/* Additional Features */}
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
@@ -668,20 +684,20 @@ const DoctorProfile = () => {
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Free Parking</h3>
                     <p className="text-gray-600">Convenient parking available for all patients</p>
                   </div>
-                  
+
                   <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
                     <div className="text-4xl mb-4">♿</div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Wheelchair Access</h3>
                     <p className="text-gray-600">Fully accessible facilities for all patients</p>
                   </div>
-                  
+
                   <div className="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
                     <div className="text-4xl mb-4">📱</div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Online Booking</h3>
                     <p className="text-gray-600">Easy appointment scheduling through our platform</p>
                   </div>
                 </div>
-                
+
                 {/* Emergency Contact */}
                 <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
                   <div className="flex items-center gap-4">
@@ -693,19 +709,19 @@ const DoctorProfile = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Appointment CTA */}
                 <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-8 text-white text-center">
                   <h3 className="text-2xl font-bold mb-4">Ready to Visit Our Clinic?</h3>
                   <p className="text-lg mb-6 opacity-90">Schedule your appointment today for personalized care</p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button 
+                    <button
                       onClick={() => handleTabClick('contact')}
                       className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
                     >
                       📅 Book Appointment
                     </button>
-                    <a 
+                    <a
                       href={`tel:${doctor?.phone}`}
                       className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-green-600 transition-colors"
                     >
@@ -719,8 +735,8 @@ const DoctorProfile = () => {
           {activeTab === 'contact' && (
             <div className="w-full">
               <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Contact Doctor</h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>Contact Doctor</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Get in touch with Dr. {doctor.name} for appointments and consultations
                 </p>
               </div>
@@ -730,8 +746,8 @@ const DoctorProfile = () => {
           {activeTab === 'products' && (
             <div className="w-full">
               <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Ayurvedic Products</h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>Ayurvedic Products</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Natural remedies and herbal products by Dr. {doctor.name}
                 </p>
               </div>
@@ -741,8 +757,8 @@ const DoctorProfile = () => {
           {activeTab === 'reviews' && (
             <div className="w-full">
               <div className="text-center mb-8">
-                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Patient Reviews</h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{fontFamily: 'Playfair Display, serif'}}>
+                <h2 className="text-4xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>Patient Reviews</h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Read what our patients say about Dr. {doctor.name}
                 </p>
               </div>
@@ -766,7 +782,7 @@ const DoctorProfile = () => {
           <div className="absolute bottom-20 left-1/4 w-12 h-12 border-2 border-white rounded-full animate-ping"></div>
           <div className="absolute bottom-32 right-1/3 w-24 h-24 border-2 border-white rounded-full animate-pulse"></div>
         </div>
-        
+
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <div className="mb-8">
             {/* <div className="text-6xl mb-4"></div> */}
@@ -777,13 +793,13 @@ const DoctorProfile = () => {
               Join thousands of satisfied patients who have experienced the healing power of Ayurveda with Dr. {doctor.name}
             </p>
           </div>
-          
+
           {/* Stats Row removed as requested */}
-          
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-             
-            <a 
+
+            <a
               href={`tel:${doctor.phone}`}
               className="border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-3"
             >
@@ -791,7 +807,7 @@ const DoctorProfile = () => {
               Call Now: {doctor.phone}
             </a>
           </div>
-          
+
           {/* Trust Indicators */}
           <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm opacity-80">
             <div className="flex items-center gap-2">
@@ -813,7 +829,7 @@ const DoctorProfile = () => {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 };
 

@@ -19,6 +19,9 @@ import DoctorClinicPage from './doctor_profile/DoctorClinicPage'
 import DoctorContactPage from './doctor_profile/DoctorContactPage'
 import DoctorReviewsPage from './doctor_profile/DoctorReviewsPage'
 import Products from './Pages/Products'
+import PrivacyPolicy from './Pages/PrivacyPolicy'
+import TermsOfService from './Pages/TermsOfService'
+import CookiePolicy from './Pages/CookiePolicy'
 function App() {
   const location = useLocation();
   const authPages = ['/register', '/login'];
@@ -43,6 +46,9 @@ function App() {
         <Route path="/doctor/:id/reviews" element={<DoctorReviewsPage />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
         <Route path="/doctor-admin/*" element={
           <ProtectedRoute>
             <DoctorAdminDashboard />

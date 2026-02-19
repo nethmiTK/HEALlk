@@ -4,12 +4,13 @@
 .auth-container {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 100px 20px 40px 20px; /* Top padding for navbar, bottom for scrolling */
+  padding: 80px 16px 40px 16px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: relative;
   background: transparent;
+  overflow-y: auto;
 }
 
 /* Video Background */
@@ -49,7 +50,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
@@ -58,8 +59,15 @@
 }
 
 @keyframes backgroundFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(1deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+  }
 }
 
 .auth-container::before {
@@ -69,7 +77,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
@@ -80,11 +88,11 @@
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px) saturate(120%);
   border-radius: 24px;
-  box-shadow: 
+  box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  padding: 48px 40px;
+  padding: 40px 36px;
   width: 100%;
   max-width: 500px;
   height: fit-content;
@@ -95,11 +103,12 @@
   transform: translateZ(0);
   transition: transform 0.2s ease-out;
   will-change: transform;
+  margin: auto 0;
 }
 
 .auth-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 40px 80px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -232,7 +241,7 @@
   outline: none;
   border-color: #10b981;
   background: rgba(255, 255, 255, 0.35);
-  box-shadow: 
+  box-shadow:
     0 0 0 4px rgba(16, 185, 129, 0.2),
     0 8px 25px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
@@ -245,9 +254,19 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 .form-input::placeholder {
@@ -572,69 +591,89 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .auth-container {
-    padding: 15px;
-    height: 100vh;
-    overflow: hidden;
+    padding: 72px 12px 32px 12px;
+    align-items: flex-start;
+    overflow-y: auto;
+    min-height: 100vh;
   }
-  
+
   .auth-card {
-    padding: 32px 24px;
-    border-radius: 20px;
-    max-height: 98vh;
-    margin: 0;
+    padding: 28px 20px;
+    border-radius: 18px;
+    max-height: none;
+    /* allow natural height */
+    overflow: visible;
+    /* never clip content */
+    width: 100%;
     max-width: 100%;
+    margin: 0;
   }
-  
+
   .auth-header h2 {
-    font-size: 26px;
+    font-size: 22px;
   }
-  
-  .form-input {
-    padding: 14px 18px;
-    font-size: 16px;
-  }
-  
-  .auth-button {
-    padding: 16px 28px;
+
+  .auth-header p {
     font-size: 14px;
   }
-  
+
+  .form-input {
+    padding: 13px 15px;
+    font-size: 16px;
+    /* prevents iOS zoom on focus */
+  }
+
+  .auth-button {
+    padding: 15px 24px;
+    font-size: 14px;
+    min-height: 50px;
+  }
+
   .form-options {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .form-switch-container {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
-  
+
   .form-switch-btn {
-    padding: 10px 16px;
+    padding: 10px 14px;
     font-size: 13px;
+  }
+
+  .phone-input-group {
+    flex-direction: column;
+  }
+
+  .country-code-select {
+    max-width: 100% !important;
   }
 }
 
 @media (max-width: 480px) {
   .auth-container {
-    padding: 10px;
+    padding: 68px 8px 24px 8px;
   }
-  
+
   .auth-card {
-    padding: 24px 20px;
-    border-radius: 16px;
+    padding: 22px 16px;
+    border-radius: 14px;
   }
-  
+
   .auth-header h2 {
-    font-size: 24px;
+    font-size: 20px;
   }
-  
+
   .form-input {
-    padding: 12px 16px;
+    padding: 12px 14px;
+    font-size: 16px;
   }
-  
+
   .auth-button {
-    padding: 14px 24px;
+    padding: 13px 20px;
   }
 }
 
@@ -644,6 +683,7 @@
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -655,6 +695,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -662,9 +703,12 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
   }
+
   50% {
     box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
   }
@@ -679,12 +723,29 @@
   animation-fill-mode: both;
 }
 
-.form-group:nth-child(1) { animation-delay: 0.1s; }
-.form-group:nth-child(2) { animation-delay: 0.2s; }
-.form-group:nth-child(3) { animation-delay: 0.3s; }
-.form-group:nth-child(4) { animation-delay: 0.4s; }
-.form-group:nth-child(5) { animation-delay: 0.5s; }
-.form-group:nth-child(6) { animation-delay: 0.6s; }
+.form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.form-group:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.form-group:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.form-group:nth-child(6) {
+  animation-delay: 0.6s;
+}
 
 .auth-button:focus-visible {
   animation: pulseGlow 2s infinite;
@@ -782,7 +843,7 @@
   color: #10b981;
 }
 
-.file-input-wrapper input[type="file"]:focus + .file-input-label {
+.file-input-wrapper input[type="file"]:focus+.file-input-label {
   outline: 2px solid #10b981;
   outline-offset: 2px;
 }

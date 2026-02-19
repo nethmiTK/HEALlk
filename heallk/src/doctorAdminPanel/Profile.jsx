@@ -41,16 +41,16 @@ const Profile = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('heallk_token');
-      
+
       const response = await fetch('http://localhost:5000/api/auth/profile', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok && data.success && data.user) {
         setUser(data.user);
         setProfileForm({
@@ -85,7 +85,7 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Validate phone number - only allow digits
     if (name === 'phone') {
       // Remove any non-numeric characters
@@ -96,7 +96,7 @@ const Profile = () => {
       }));
       return;
     }
-    
+
     setProfileForm(prev => ({
       ...prev,
       [name]: value
@@ -114,7 +114,7 @@ const Profile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB 📁', {
@@ -213,7 +213,7 @@ const Profile = () => {
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate phone number - must be at least 9 digits if provided
     const phoneValue = (profileForm.phone || '').trim();
     if (phoneValue.length > 0 && phoneValue.length < 9) {
@@ -223,7 +223,7 @@ const Profile = () => {
       });
       return;
     }
-    
+
     try {
       setSaving(true);
       const token = localStorage.getItem('heallk_token');
@@ -279,7 +279,7 @@ const Profile = () => {
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error('New passwords do not match 🔄', {
         position: "top-right",
@@ -402,85 +402,56 @@ const Profile = () => {
 
       <div className="space-y-6">
         {/* Profile Information Card */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:scale-105 transition-transform" 
-                     onClick={(e) => {
-                       e.preventDefault();
-                       if (isEditing) {
-                         fileInputRef.current?.click();
-                       } else if (previewImage || user?.profile_pic) {
-                         handleImageRemove();
-                       }
-                     }}
-                     style={{ cursor: isEditing || previewImage || user?.profile_pic ? 'pointer' : 'default' }}
-                     title={isEditing ? 'Click to upload profile picture' : (previewImage || user?.profile_pic ? 'Click to remove profile picture' : '')}>
-                  {user?.profile_pic || previewImage ? (
-                    <img 
-                      src={previewImage || user.profile_pic} 
-                      alt="Profile" 
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <span>
-                      {user?.full_name?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="file-input"
-                  style={{ display: 'none' }}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+
+          {/* LinkedIn-style cover + avatar header */}
+          <div className="relative">
+            {/* Cover banner */}
+            <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400">
+              {(previewCover || user?.cover_photo) ? (
+                <img
+                  src={previewCover || user.cover_photo}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
                 />
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-1">{user?.full_name || 'Unknown User'}</h2>
-                  <p className="text-gray-600 mb-2">{user?.email}</p>
-                  <p>
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                      {user?.role === 'admin' ? 'Administrator' : 'Doctor'}
-                    </span>
-                  </p>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center gap-3 opacity-40 select-none">
+                  <span className="text-5xl">🏥</span>
+                  <span className="text-5xl">⚕️</span>
+                  <span className="text-5xl">🌿</span>
                 </div>
-              </div>
-              <div className="flex gap-2">
+              )}
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </div>
+
+            {/* Edit/Save/Cancel buttons — top right on cover */}
+            <div className="absolute top-3 right-4 flex gap-2 z-10">
               {!isEditing ? (
-                <button 
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                <button
+                  className="px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-1.5 text-sm border border-gray-200"
                   onClick={() => setIsEditing(true)}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  ✏️ Edit Profile
+                  ✏️ Edit
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button 
-                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                  <button
+                    className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-1.5 text-sm"
                     onClick={handleProfileSubmit}
                     disabled={saving}
                   >
                     {saving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Saving...
-                      </>
+                      <><div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" />Saving...</>
                     ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        💾 Save Changes
-                      </>
+                      <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>💾 Save</>
                     )}
                   </button>
-                  <button 
-                    className="px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-semibold disabled:opacity-50 transition-all duration-200"
+                  <button
+                    className="px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white rounded-xl font-semibold disabled:opacity-50 transition-all duration-200 text-sm border border-gray-200 shadow"
                     onClick={cancelEdit}
                     disabled={saving}
                   >
@@ -489,8 +460,61 @@ const Profile = () => {
                 </div>
               )}
             </div>
+
+            {/* Avatar overlapping cover */}
+            <div className="px-6 sm:px-8">
+              <div className="flex items-end gap-4 -mt-10 sm:-mt-12">
+                {/* Clickable avatar */}
+                <div
+                  className="relative flex-shrink-0"
+                  onClick={() => { if (isEditing) fileInputRef.current?.click(); }}
+                  title={isEditing ? 'Click to change profile picture' : ''}
+                  style={{ cursor: isEditing ? 'pointer' : 'default' }}
+                >
+                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-white text-2xl font-bold transition-all duration-200 ${isEditing ? 'hover:brightness-90 ring-4 ring-purple-300' : ''}`}>
+                    {(previewImage || user?.profile_pic) ? (
+                      <img src={previewImage || user.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{user?.full_name?.charAt(0)?.toUpperCase() || 'U'}</span>
+                    )}
+                  </div>
+                  {/* Verified badge */}
+                  <div className="absolute bottom-0.5 right-0.5 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  {isEditing && (
+                    <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/20 transition-all duration-200">
+                      <span className="text-white text-xs font-bold opacity-0 hover:opacity-100 pointer-events-none">📷</span>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                {/* Name / email below avatar */}
+                <div className="pb-1 pt-10 sm:pt-12">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{user?.full_name || 'Unknown User'}</h2>
+                  <p className="text-gray-500 text-sm">{user?.email}</p>
+                  <span className="inline-flex items-center mt-1 px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-full">
+                    {user?.role === 'admin' ? '👑 Administrator' : '⚕️ Doctor'}
+                  </span>
+                </div>
+              </div>
+              {isEditing && (
+                <p className="text-xs text-purple-500 font-medium mt-2 mb-0 flex items-center gap-1">
+                  <span>💡</span> Click on your avatar above to change profile picture
+                </p>
+              )}
+            </div>
+            <div className="mt-4 border-t border-gray-100" />
           </div>
-        </div>
 
           {/* Profile Form */}
           <div className="p-8">
@@ -601,37 +625,18 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Cover Photo Section
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
-                <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                  🖼️ Cover Photo
-                </h3>
-                <div className="space-y-4">
-                  {previewCover || user?.cover_photo ? (
-                    <div className="relative">
-                      <img 
-                        src={previewCover || user.cover_photo} 
-                        alt="Cover" 
-                        className="w-full h-48 object-cover rounded-xl shadow-lg border-2 border-white"
-                      />
-                      {isEditing && (
-                        <button 
-                          type="button" 
-                          onClick={handleCoverRemove}
-                          className="absolute top-3 right-3 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium shadow-lg"
-                        >
-                          🗑️ Remove
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div className="text-4xl mb-2">📷</div>
-                      <span className="text-gray-500 font-medium">No cover photo uploaded</span>
-                    </div>
-                  )}
+              {/* Cover Photo Section — LinkedIn-style preview */}
+              <div className="rounded-2xl border border-purple-200 overflow-hidden shadow-sm">
+                {/* Section header */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-purple-100 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                      🖼️ Cover Photo
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">This banner appears on your public doctor profile</p>
+                  </div>
                   {isEditing && (
-                    <>
+                    <div className="flex gap-2">
                       <input
                         type="file"
                         ref={coverInputRef}
@@ -639,17 +644,75 @@ const Profile = () => {
                         accept="image/*"
                         className="hidden"
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => coverInputRef.current?.click()}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl text-sm font-semibold shadow hover:shadow-md hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                       >
-                        📸 {previewCover || user?.cover_photo ? 'Change Cover Photo' : 'Upload Cover Photo'}
+                        📸 {previewCover || user?.cover_photo ? 'Change Cover' : 'Upload Cover'}
                       </button>
-                    </>
+                      {(previewCover || user?.cover_photo) && (
+                        <button
+                          type="button"
+                          onClick={handleCoverRemove}
+                          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5"
+                        >
+                          🗑️ Remove
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div> */}
+
+                {/* Live LinkedIn-style preview */}
+                <div className="bg-white p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Live Preview</p>
+                  <div className="relative rounded-xl overflow-hidden border border-gray-200 shadow-md">
+                    {/* Cover banner */}
+                    <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400">
+                      {(previewCover || user?.cover_photo) ? (
+                        <img
+                          src={previewCover || user.cover_photo}
+                          alt="Cover preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2 opacity-60">
+                          <span className="text-5xl">🏥</span>
+                          <span className="text-white text-sm font-medium">Upload a cover photo</span>
+                        </div>
+                      )}
+                      {/* subtle dark overlay at bottom */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    </div>
+
+                    {/* Profile avatar overlapping cover */}
+                    <div className="bg-white px-4 pb-3">
+                      <div className="flex items-end gap-4 -mt-8">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center">
+                            {(previewImage || user?.profile_pic) ? (
+                              <img src={previewImage || user.profile_pic} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-white text-xl font-bold">{user?.full_name?.charAt(0)?.toUpperCase() || 'D'}</span>
+                            )}
+                          </div>
+                          <div className="absolute bottom-0 right-0 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="pb-1">
+                          <p className="font-bold text-gray-900 text-sm leading-tight">Dr. {user?.full_name || 'Your Name'}</p>
+                          <p className="text-gray-500 text-xs">Certified Ayurveda Specialist</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2 text-center">↑ This is how your profile header looks to visitors</p>
+                </div>
+              </div>
 
               {/* Professional Description Section */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
@@ -689,7 +752,7 @@ const Profile = () => {
                 </h3>
                 <p className="text-gray-600">Manage your password and account security</p>
               </div>
-              <button 
+              <button
                 className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
               >
@@ -765,7 +828,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
-                  <button 
+                  <button
                     type="button"
                     className="px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl font-semibold transition-all duration-200"
                     onClick={() => {
@@ -780,7 +843,7 @@ const Profile = () => {
                   >
                     ❌ Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     disabled={saving}

@@ -18,7 +18,7 @@ const Doctors = () => {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-  
+
   const heroImages = [
     { src: heroImage3, alt: 'Hero Image 1' },
     { src: heroImage4, alt: 'Hero Image 2' },
@@ -48,32 +48,32 @@ const Doctors = () => {
   // Filter doctors by specialization, district and search term
   useEffect(() => {
     let filtered = doctors;
-    
+
     // Filter by specialization
     if (selectedSpecialization) {
       filtered = filtered.filter(doc => doc.specialization === selectedSpecialization);
     }
-    
+
     // Filter by district
     if (selectedDistrict) {
       filtered = filtered.filter(doc => doc.district === selectedDistrict);
     }
-    
+
     // Filter by search term
     if (searchTerm.trim()) {
-      filtered = filtered.filter(doc => 
+      filtered = filtered.filter(doc =>
         doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (doc.full_name && doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
-    
+
     setFilteredDoctors(filtered);
   }, [selectedSpecialization, selectedDistrict, doctors, searchTerm]);
 
   // Auto-slide effect - changes image every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
+      setCurrentImageIndex((prevIndex) =>
         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
       );
     }, 8000); // 8 seconds
@@ -84,16 +84,15 @@ const Doctors = () => {
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
-      
+
       {/* Hero Section with Image Slider */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-amber-800 via-amber-600 to-orange-500">
         <div className="absolute inset-0 w-full h-full">
           {heroImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
             >
               <img
                 src={image.src}
@@ -110,19 +109,19 @@ const Doctors = () => {
           ))}
         </div>
 
-       <div className="relative z-10 px-4 w-full h-full flex items-center">
+        <div className="relative z-10 px-4 w-full h-full flex items-center">
           <div className="w-full flex justify-end">
             <div className="text-right pr-8 md:pr-16 lg:pr-20">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
-              Explore Doctors
+              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-2 text-white leading-tight drop-shadow-2xl" style={{ fontFamily: 'Playfair Display, serif' }}>
+                Explore Doctors
               </h1>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl" style={{fontFamily: 'Playfair Display, serif'}}>
-                 පංචකර්ම ආයුර්වේද
+              <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 text-white leading-tight drop-shadow-2xl" style={{ fontFamily: 'Playfair Display, serif' }}>
+                පංචකර්ම ආයුර්වේද
               </h2>
               <p className="text-base md:text-lg lg:text-xl text-white/95 mb-8 max-w-lg leading-relaxed drop-shadow-lg">
                 Detoxify, cleanse, and purify your mind and body through ancient Ayurvedic healing practices
               </p>
-              <button 
+              <button
                 onClick={() => {
                   const doctorsSection = document.getElementById('doctors');
                   if (doctorsSection) doctorsSection.scrollIntoView({ behavior: 'smooth' });
@@ -157,12 +156,12 @@ const Doctors = () => {
       <section id="doctors" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: -20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl md:text-5xl font-bold text-gray-800 mb-4" 
-              style={{fontFamily: 'Playfair Display, serif'}}
+              className="text-4xl md:text-5xl font-bold text-gray-800 mb-4"
+              style={{ fontFamily: 'Playfair Display, serif' }}
             >
               Our Verified Ayurveda Doctors
             </motion.h2>
@@ -174,28 +173,29 @@ const Doctors = () => {
 
           {/* Specialization Filter */}
           <div className="mb-12">
-            <SpecializationFilter 
+            <SpecializationFilter
               selectedSpecialization={selectedSpecialization}
               onSpecializationChange={setSelectedSpecialization}
               selectedDistrict={selectedDistrict}
               onDistrictChange={setSelectedDistrict}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
+              totalResults={filteredDoctors.length}
             />
           </div>
-          
+
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-200 border-t-green-500"></div>
             </div>
           ) : filteredDoctors.length === 0 ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-16"
             >
               <p className="text-xl text-gray-600 mb-4">No doctors found in this specialization</p>
-              <button 
+              <button
                 onClick={() => setSelectedSpecialization(null)}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full font-medium transition-all"
               >
@@ -207,7 +207,7 @@ const Doctors = () => {
               {filteredDoctors.map((doctor, index) => {
                 const colors = [
                   'from-green-400 to-green-600',
-                  'from-blue-400 to-blue-600', 
+                  'from-blue-400 to-blue-600',
                   'from-purple-400 to-purple-600',
                   'from-orange-400 to-orange-600',
                   'from-teal-400 to-teal-600',
@@ -216,15 +216,15 @@ const Doctors = () => {
                 const badgeColors = [
                   'bg-green-100 text-green-700',
                   'bg-blue-100 text-blue-700',
-                  'bg-purple-100 text-purple-700', 
+                  'bg-purple-100 text-purple-700',
                   'bg-orange-100 text-orange-700',
                   'bg-teal-100 text-teal-700',
                   'bg-pink-100 text-pink-700'
                 ];
-                
+
                 return (
-                  <motion.div 
-                    key={doctor.id} 
+                  <motion.div
+                    key={doctor.id}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -245,11 +245,11 @@ const Doctors = () => {
                       </div>
                     </div>
                     <div className="text-center">
-                      <h3 className="text-xl font-bold mb-3 text-gray-800" style={{fontFamily: 'Playfair Display, serif'}}>{doctor.name}</h3>
-                      
+                      <h3 className="text-xl font-bold mb-3 text-gray-800" style={{ fontFamily: 'Playfair Display, serif' }}>{doctor.name}</h3>
+
                       {/* Specialization Badge */}
                       {doctor.specialization && (
-                        <motion.div 
+                        <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="mb-3 inline-block"
                         >
@@ -258,7 +258,7 @@ const Doctors = () => {
                           </span>
                         </motion.div>
                       )}
-                      
+
                       {/* District Badge */}
                       {doctor.district && (
                         <div className="mb-3">
@@ -267,9 +267,9 @@ const Doctors = () => {
                           </span>
                         </div>
                       )}
-                      
+
                       <p className="text-gray-600 text-lg mb-4">📞 {doctor.phone}</p>
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => navigate(`/doctor/${encodeURIComponent(doctor.name || doctor.full_name)}`)}
@@ -289,7 +289,7 @@ const Doctors = () => {
       {/* Contact CTA */}
       <section className="py-16 bg-gradient-to-r from-green-600 to-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4" style={{fontFamily: 'Playfair Display, serif'}}>Ready to Begin Your Healing Journey?</h2>
+          <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>Ready to Begin Your Healing Journey?</h2>
           <p className="text-lg mb-8">Choose your preferred doctor and book your consultation today</p>
           <button className="bg-white text-green-600 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-lg">
             Book Now
